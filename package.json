@@ -1,0 +1,18 @@
+{
+    "name": "com.am1goo.firebase.webgl",
+    "version": "12.9.0",
+    "displayName": "Firebase for WebGL",
+    "description": "Naive wrapper over JavaScript Firebase library",
+    "unity": "2022.3",
+    "keywords": [
+        "realtime",
+        "firebase",
+        "analytics"
+    ],
+    "author": {
+        "name": "Pavel 'am1goo' Shestakov",
+        "email": "0xShestakov@gmail.com",
+        "url": "https://github.com/am1goo"
+    },
+    "type": "library"
+}
