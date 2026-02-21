@@ -175,6 +175,9 @@ namespace FirebaseWebGL
 
         public void OnConfigUpdate(Action<string[]> onConfigUpdate)
         {
+            if (!isInitialized)
+                throw new FirebaseModuleNotInitializedException(this);
+
             this.onConfigUpdate = onConfigUpdate;
 
             _onConfigUpdateCallbacks[_instanceId] = (callback) =>
