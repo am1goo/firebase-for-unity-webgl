@@ -1,0 +1,90 @@
+using AOT;
+using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
+using UnityEngine;
+
+namespace FirebaseWebGL
+{
+    internal sealed class FirebaseMessagingServiceWorker : IFirebaseMessagingServiceWorker
+    {
+        [DllImport("__Internal")]
+        private static extern void FirebaseWebGL_FirebaseMessaging_ServiceWorker_initialize(int requestId, FirebaseCallbackDelegate callback);
+        [DllImport("__Internal")]
+        private static extern void FirebaseWebGL_FirebaseMessaging_ServiceWorker_experimentalSetDeliveryMetricsExportedToBigQueryEnabled(bool enabled);
+
+        private readonly FirebaseRequests _requests = new FirebaseRequests();
+        private static readonly Dictionary<int, Action<FirebaseCallback<bool>>> _onInitializedCallbacks = new Dictionary<int, Action<FirebaseCallback<bool>>>();
+
+        private bool _isInitializing = false;
+
+        private bool _isInitialized;
+        public bool isInitialized => _isInitialized;
+
+        public Action<bool> onInitialized { get; set; }
+        public Action<string> onBackgroundMessageReceived { get; set; }
+
+        private readonly int _instanceId;
+
+        public FirebaseMessagingServiceWorker()
+        {
+            _instanceId = _requests.NextId();
+        }
+
+        public void Initialize(Action<FirebaseCallback<bool>> firebaseCallback)
+        {
+            if (_isInitializing)
+                return;
+
+            if (isInitialized)
+                return;
+
+            if (Application.isEditor)
+            {
+                firebaseCallback?.Invoke(new FirebaseCallback<bool>(false));
+                return;
+            }
+
+            var requestId = _requests.NextId();
+            _onInitializedCallbacks.Add(requestId, (callback) =>
+            {
+                _isInitializing = false;
+                if (callback.success)
+                {
+                    _isInitialized = callback.result;
+                    onInitialized?.Invoke(_isInitialized);
+                }
+
+                firebaseCallback?.Invoke(callback);
+            });
+            FirebaseWebGL_FirebaseMessaging_ServiceWorker_initialize(requestId, OnInitializationCallback);
+        }
+
+        [MonoPInvokeCallback(typeof(FirebaseCallbackDelegate))]
+        private static void OnInitializationCallback(string json)
+        {
+            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<bool>>(json);
+            if (_onInitializedCallbacks.TryGetValue(firebaseCallback.requestId, out var callback))
+            {
+                _onInitializedCallbacks.Remove(firebaseCallback.requestId);
+                try
+                {
+                    callback?.Invoke(firebaseCallback);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogException(ex);
+                }
+            }
+        }
+
+        public void ExperimentalSetDeliveryMetricsExportedToBigQueryEnabled(bool enabled)
+        {
+            if (!isInitialized)
+                throw new FirebaseModuleNotInitializedException(this);
+
+            FirebaseWebGL_FirebaseMessaging_ServiceWorker_experimentalSetDeliveryMetricsExportedToBigQueryEnabled(enabled);
+        }
+    }
+}

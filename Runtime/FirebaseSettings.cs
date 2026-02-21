@@ -27,20 +27,23 @@ namespace FirebaseWebGL
         [SerializeField]
         private string _measurementId;
         public string measurementId => _measurementId;
-        [Header("Modules")]
-        [SerializeField]
+        //hidden fields
+        [SerializeField, HideInInspector]
         private bool _includeAuth;
         public bool includeAuth => _includeAuth;
-        [SerializeField]
+        [SerializeField, HideInInspector]
         private bool _includeAnalytics;
         public bool includeAnalytics => _includeAnalytics;
-        [SerializeField]
+        [SerializeField, HideInInspector]
         private bool _includeFirestore;
         public bool includeFirestore => _includeFirestore;
-        [SerializeField]
+        [SerializeField, HideInInspector]
         private bool _includeMessaging;
         public bool includeMessaging => _includeMessaging;
-        [SerializeField]
+        [SerializeField, HideInInspector]
+        private bool _includeMessagingServiceWorker;
+        public bool includeMessagingServiceWorker => _includeMessagingServiceWorker;
+        [SerializeField, HideInInspector]
         private bool _includeRemoteConfig;
         public bool includeRemoteConfig => _includeRemoteConfig;
 

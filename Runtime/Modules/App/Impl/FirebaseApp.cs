@@ -85,7 +85,7 @@ namespace FirebaseWebGL
             }
             if (settings.includeMessaging)
             {
-                _messaging = new FirebaseMessaging();
+                _messaging = new FirebaseMessaging(settings.includeMessagingServiceWorker);
             }
             if (settings.includeRemoteConfig)
             {

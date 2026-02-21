@@ -3,7 +3,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using System.Threading;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -29,11 +28,10 @@ namespace FirebaseWebGL
         private static extern void FirebaseWebGL_FirebaseAnalytics_logEvent(string eventName, string eventValuesAsJson);
 
         private readonly FirebaseRequests _requests = new FirebaseRequests();
-        private readonly Dictionary<long, Action<FirebaseCallback<bool>>> _onInitializedCallbacks = new Dictionary<long, Action<FirebaseCallback<bool>>>();
-        private readonly Dictionary<long, Action<FirebaseCallback<string>>> _onGetGoogleAnalyticsClientIdCallbacks = new Dictionary<long, Action<FirebaseCallback<string>>>();
-        
-        private static FirebaseAnalytics _instance;
 
+        private static readonly Dictionary<long, Action<FirebaseCallback<bool>>> _onInitializedCallbacks = new Dictionary<long, Action<FirebaseCallback<bool>>>();
+        private static readonly Dictionary<long, Action<FirebaseCallback<string>>> _onGetGoogleAnalyticsClientIdCallbacks = new Dictionary<long, Action<FirebaseCallback<string>>>();
+        
         private bool _isInitializing = false;
 
         private bool _isInitialized = false;
@@ -42,11 +40,6 @@ namespace FirebaseWebGL
         public Action<bool> onInitialized { get; set; }
 
         private string _clientId = null;
-
-        public FirebaseAnalytics()
-        {
-            _instance = this;
-        }
 
         public void Initialize(Action<FirebaseCallback<bool>> firebaseCallback)
         {
@@ -63,7 +56,17 @@ namespace FirebaseWebGL
             }
 
             var requestId = _requests.NextId();
-            _onInitializedCallbacks.Add(requestId, firebaseCallback);
+            _onInitializedCallbacks.Add(requestId, (callback) =>
+            {
+                _isInitializing = false;
+                if (callback.success)
+                {
+                    _isInitialized = callback.result;
+                    onInitialized?.Invoke(_isInitialized);
+                }
+
+                firebaseCallback?.Invoke(callback);
+            });
 
             FirebaseWebGL_FirebaseAnalytics_initialize(requestId, OnInitializationCallback);
         }
@@ -72,12 +75,6 @@ namespace FirebaseWebGL
         private static void OnInitializationCallback(string json)
         {
             var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<bool>>(json);
-            _instance?.OnInitialized(firebaseCallback);
-        }
-
-        private void OnInitialized(FirebaseCallback<bool> firebaseCallback)
-        {
-            _isInitializing = false;
 
             if (_onInitializedCallbacks.TryGetValue(firebaseCallback.requestId, out var callback))
             {
@@ -91,15 +88,6 @@ namespace FirebaseWebGL
                     Debug.LogException(ex);
                 }
             }
-
-            if (firebaseCallback.success == false)
-            {
-                //do nothing
-                return;
-            }
-
-            _isInitialized = firebaseCallback.result;
-            onInitialized?.Invoke(_isInitialized);
         }
 
         public void GetGoogleAnalyticsClientId(Action<FirebaseCallback<string>> firebaseCallback)
@@ -114,7 +102,15 @@ namespace FirebaseWebGL
             }
 
             var requestId = _requests.NextId();
-            _onGetGoogleAnalyticsClientIdCallbacks.Add(requestId, firebaseCallback);
+            _onGetGoogleAnalyticsClientIdCallbacks.Add(requestId, (callback) =>
+            {
+                if (callback.success)
+                {
+                    _clientId = callback.result;
+                }
+
+                firebaseCallback?.Invoke(callback);
+            });
 
             FirebaseWebGL_FirebaseAnalytics_getGoogleAnalyticsClientId(requestId, OnGetGoogleAnalyticsClientIdCallback);
         }
@@ -123,11 +119,7 @@ namespace FirebaseWebGL
         private static void OnGetGoogleAnalyticsClientIdCallback(string json)
         {
             var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<string>>(json);
-            _instance?.OnGetGoogleAnalyticsClientId(firebaseCallback);
-        }
 
-        private void OnGetGoogleAnalyticsClientId(FirebaseCallback<string> firebaseCallback)
-        {
             if (_onGetGoogleAnalyticsClientIdCallbacks.TryGetValue(firebaseCallback.requestId, out var callback))
             {
                 _onGetGoogleAnalyticsClientIdCallbacks.Remove(firebaseCallback.requestId);
@@ -140,14 +132,6 @@ namespace FirebaseWebGL
                     Debug.LogException(ex);
                 }
             }
-
-            if (firebaseCallback.success == false)
-            {
-                //do nothing
-                return;
-            }
-
-            _clientId = firebaseCallback.result;
         }
 
         public void SetAnalyticsCollectionEnabled(bool enabled)

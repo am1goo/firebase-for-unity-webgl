@@ -16,16 +16,13 @@ namespace FirebaseWebGL
         [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseMessaging_deleteToken(int requestId, FirebaseCallbackDelegate callback);
         [DllImport("__Internal")]
-        private static extern void FirebaseWebGL_FirebaseMessaging_onMessage(FirebaseCallbackDelegate callback);
-        [DllImport("__Internal")]
-        private static extern void FirebaseWebGL_FirebaseMessaging_experimentalSetDeliveryMetricsExportedToBigQueryEnabled(bool enabled);
+        private static extern void FirebaseWebGL_FirebaseMessaging_onMessage(int instanceId, FirebaseCallbackDelegate callback);
 
-        private readonly FirebaseRequests _requests = new FirebaseRequests();
-        private readonly Dictionary<long, Action<FirebaseCallback<bool>>> _onInitializedCallbacks = new Dictionary<long, Action<FirebaseCallback<bool>>>();
-        private readonly Dictionary<long, Action<FirebaseCallback<string>>> _onGetTokenCallbacks = new Dictionary<long, Action<FirebaseCallback<string>>>();
-        private readonly Dictionary<long, Action<FirebaseCallback<bool>>> _onDeleteTokenCallbacks = new Dictionary<long, Action<FirebaseCallback<bool>>>();
-
-        private static FirebaseMessaging _instance;
+        private static readonly FirebaseRequests _requests = new FirebaseRequests();
+        private static readonly Dictionary<int, Action<FirebaseCallback<bool>>> _onInitializedCallbacks = new Dictionary<int, Action<FirebaseCallback<bool>>>();
+        private static readonly Dictionary<int, Action<FirebaseCallback<string>>> _onGetTokenCallbacks = new Dictionary<int, Action<FirebaseCallback<string>>>();
+        private static readonly Dictionary<int, Action<FirebaseCallback<bool>>> _onDeleteTokenCallbacks = new Dictionary<int, Action<FirebaseCallback<bool>>>();
+        private static readonly Dictionary<int, Action<FirebaseCallback<string>>> _onMessageReceivedCallbacks = new Dictionary<int, Action<FirebaseCallback<string>>>();
 
         private bool _isInitializing = false;
 
@@ -35,11 +32,20 @@ namespace FirebaseWebGL
         public Action<bool> onInitialized { get; set; }
         public Action<string> onMessageReceived { get; set; }
 
+        private FirebaseMessagingServiceWorker _serviceWorker;
+        public IFirebaseMessagingServiceWorker ServiceWorker => _serviceWorker;
+
+        private readonly int _instanceId;
         private string _token;
 
-        public FirebaseMessaging()
+        public FirebaseMessaging(bool includeServiceWorker)
         {
-            _instance = this;
+            _instanceId = _requests.NextId();
+
+            if (includeServiceWorker)
+            {
+                _serviceWorker = new FirebaseMessagingServiceWorker();
+            }
         }
 
         public void Initialize(Action<FirebaseCallback<bool>> firebaseCallback)
@@ -57,8 +63,17 @@ namespace FirebaseWebGL
             }
 
             var requestId = _requests.NextId();
-            _onInitializedCallbacks.Add(requestId, firebaseCallback);
+            _onInitializedCallbacks.Add(requestId, (callback) =>
+            {
+                _isInitializing = false;
+                if (callback.success)
+                {
+                    _isInitialized = callback.result;
+                    onInitialized?.Invoke(_isInitialized);
+                }
 
+                firebaseCallback?.Invoke(callback);
+            });
             FirebaseWebGL_FirebaseMessaging_initialize(requestId, OnInitializationCallback);
         }
 
@@ -66,13 +81,6 @@ namespace FirebaseWebGL
         private static void OnInitializationCallback(string json)
         {
             var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<bool>>(json);
-            _instance?.OnInitialized(firebaseCallback);
-        }
-
-        private void OnInitialized(FirebaseCallback<bool> firebaseCallback)
-        {
-            _isInitializing = false;
-
             if (_onInitializedCallbacks.TryGetValue(firebaseCallback.requestId, out var callback))
             {
                 _onInitializedCallbacks.Remove(firebaseCallback.requestId);
@@ -85,15 +93,6 @@ namespace FirebaseWebGL
                     Debug.LogException(ex);
                 }
             }
-
-            if (firebaseCallback.success == false)
-            {
-                //do nothing
-                return;
-            }
-
-            _isInitialized = firebaseCallback.result;
-            onInitialized?.Invoke(_isInitialized);
         }
 
         public void GetToken(Action<FirebaseCallback<string>> firebaseCallback)
@@ -108,7 +107,15 @@ namespace FirebaseWebGL
             }
 
             var requestId = _requests.NextId();
-            _onGetTokenCallbacks.Add(requestId, firebaseCallback);
+            _onGetTokenCallbacks.Add(requestId, (callback) =>
+            {
+                if (callback.success)
+                {
+                    _token = callback.result;
+                }
+
+                firebaseCallback?.Invoke(callback);
+            });
 
             FirebaseWebGL_FirebaseMessaging_getToken(requestId, OnGetTokenCallback);
         }
@@ -117,11 +124,7 @@ namespace FirebaseWebGL
         private static void OnGetTokenCallback(string json)
         {
             var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<string>>(json);
-            _instance?.OnGetToken(firebaseCallback);
-        }
 
-        private void OnGetToken(FirebaseCallback<string> firebaseCallback)
-        {
             if (_onGetTokenCallbacks.TryGetValue(firebaseCallback.requestId, out var callback))
             {
                 _onGetTokenCallbacks.Remove(firebaseCallback.requestId);
@@ -134,14 +137,6 @@ namespace FirebaseWebGL
                     Debug.LogException(ex);
                 }
             }
-
-            if (firebaseCallback.success == false)
-            {
-                //do nothing
-                return;
-            }
-
-            _token = firebaseCallback.result;
         }
 
         public void DeleteToken(Action<FirebaseCallback<bool>> firebaseCallback)
@@ -156,7 +151,18 @@ namespace FirebaseWebGL
             }
 
             var requestId = _requests.NextId();
-            _onDeleteTokenCallbacks.Add(requestId, firebaseCallback);
+            _onDeleteTokenCallbacks.Add(requestId, (callback) =>
+            {
+                if (callback.success)
+                {
+                    if (callback.result)
+                    {
+                        _token = null;
+                    }
+                }
+
+                firebaseCallback?.Invoke(callback);
+            });
 
             FirebaseWebGL_FirebaseMessaging_deleteToken(requestId, OnDeleteTokenCallback);
         }
@@ -165,11 +171,7 @@ namespace FirebaseWebGL
         private static void OnDeleteTokenCallback(string json)
         {
             var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<bool>>(json);
-            _instance?.OnDeleteToken(firebaseCallback);
-        }
 
-        private void OnDeleteToken(FirebaseCallback<bool> firebaseCallback)
-        {
             if (_onDeleteTokenCallbacks.TryGetValue(firebaseCallback.requestId, out var callback))
             {
                 _onDeleteTokenCallbacks.Remove(firebaseCallback.requestId);
@@ -182,20 +184,6 @@ namespace FirebaseWebGL
                     Debug.LogException(ex);
                 }
             }
-
-            if (firebaseCallback.success == false)
-            {
-                //do nothing
-                return;
-            }
-
-            if (firebaseCallback.result == false)
-            {
-                //do nothing
-                return;
-            }
-
-            _token = null;
         }
 
         public void OnMessage(Action<string> onMessageReceived)
@@ -204,40 +192,36 @@ namespace FirebaseWebGL
                 throw new FirebaseModuleNotInitializedException(this);
 
             this.onMessageReceived = onMessageReceived;
-            FirebaseWebGL_FirebaseMessaging_onMessage(OnMessageCallback);
+
+            _onMessageReceivedCallbacks[_instanceId] = (callback) =>
+            {
+                if (callback.success)
+                {
+                    this.onMessageReceived?.Invoke(callback.result);
+                }
+            };
+
+            FirebaseWebGL_FirebaseMessaging_onMessage(_instanceId, OnMessageCallback);
         }
 
         [MonoPInvokeCallback(typeof(FirebaseCallbackDelegate))]
         private static void OnMessageCallback(string json)
         {
             var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<string>>(json);
-            _instance?.OnMessage(firebaseCallback);
-        }
 
-        private void OnMessage(FirebaseCallback<string> firebaseCallback)
-        {
-            if (firebaseCallback.success == false)
+            var instanceId = firebaseCallback.requestId;
+            if (_onMessageReceivedCallbacks.TryGetValue(instanceId, out var callback))
             {
-                //do nothing
-                return;
-            }
+                try
+                {
+                    callback?.Invoke(firebaseCallback);
+                }
 
-            try
-            {
-                onMessageReceived?.Invoke(firebaseCallback.result);
+                catch (Exception ex)
+                {
+                    Debug.LogException(ex);
+                }
             }
-            catch (Exception ex)
-            {
-                Debug.LogException(ex);
-            }
-        }
-
-        public void ExperimentalSetDeliveryMetricsExportedToBigQueryEnabled(bool enabled)
-        {
-            if (!isInitialized)
-                throw new FirebaseModuleNotInitializedException(this);
-
-            FirebaseWebGL_FirebaseMessaging_experimentalSetDeliveryMetricsExportedToBigQueryEnabled(enabled);
         }
     }
 }
