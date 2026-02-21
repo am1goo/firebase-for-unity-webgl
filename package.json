@@ -1,6 +1,6 @@
 {
     "name": "com.am1goo.firebase.webgl",
-    "version": "0.2.1",
+    "version": "0.3.0",
     "displayName": "Firebase for WebGL",
     "description": "Naive wrapper over JavaScript Firebase library",
     "unity": "2022.3",

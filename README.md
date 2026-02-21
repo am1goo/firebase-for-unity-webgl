@@ -10,7 +10,7 @@ Naive implementation of the most popular Firebase modules for Web apps and games
 - [x] Analytics
 - [ ] Firestore
 - [x] Messaging (limitations: no support for Service Worker 'onBackgroundMessage')
-- [ ] Remote Config
+- [x] Remote Config
 
 I hope that I'll add other modules as soon as possible.
 
@@ -23,7 +23,7 @@ I hope that I'll add other modules as soon as possible.
 ##### via Unity Package Manager
 The latest version can be installed via [package manager](https://docs.unity3d.com/Manual/upm-ui-giturl.html) using following git URL:
 ```
-https://github.com/am1goo/firebase-for-unity-webgl.git#0.2.1
+https://github.com/am1goo/firebase-for-unity-webgl.git#0.3.0
 ```
 
 ## Tested in
