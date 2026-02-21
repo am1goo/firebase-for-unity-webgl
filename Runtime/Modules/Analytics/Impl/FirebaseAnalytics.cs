@@ -28,11 +28,10 @@ namespace FirebaseWebGL
         [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseAnalytics_logEvent(string eventName, string eventValuesAsJson);
 
+        private readonly FirebaseRequests _requests = new FirebaseRequests();
         private readonly Dictionary<long, Action<FirebaseCallback<bool>>> _onInitializedCallbacks = new Dictionary<long, Action<FirebaseCallback<bool>>>();
         private readonly Dictionary<long, Action<FirebaseCallback<string>>> _onGetGoogleAnalyticsClientIdCallbacks = new Dictionary<long, Action<FirebaseCallback<string>>>();
-
-        public Action<bool> onInitialized { get; set; }
-
+        
         private static FirebaseAnalytics _instance;
 
         private bool _isInitializing = false;
@@ -40,7 +39,8 @@ namespace FirebaseWebGL
         private bool _isInitialized = false;
         public bool isInitialized => _isInitialized;
 
-        private int _requestIds = 0;
+        public Action<bool> onInitialized { get; set; }
+
         private string _clientId = null;
 
         public FirebaseAnalytics()
@@ -48,12 +48,7 @@ namespace FirebaseWebGL
             _instance = this;
         }
 
-        private int NextRequestId()
-        {
-            return Interlocked.Increment(ref _requestIds);
-        }
-
-        public void Initialize(Action<FirebaseCallback<bool>> callback)
+        public void Initialize(Action<FirebaseCallback<bool>> firebaseCallback)
         {
             if (_isInitializing)
                 return;
@@ -63,12 +58,12 @@ namespace FirebaseWebGL
 
             if (Application.isEditor)
             {
-                callback?.Invoke(new FirebaseCallback<bool>(false));
+                firebaseCallback?.Invoke(new FirebaseCallback<bool>(false));
                 return;
             }
 
-            var requestId = NextRequestId();
-            _onInitializedCallbacks.Add(requestId, callback);
+            var requestId = _requests.NextId();
+            _onInitializedCallbacks.Add(requestId, firebaseCallback);
 
             FirebaseWebGL_FirebaseAnalytics_initialize(requestId, OnInitializationCallback);
         }
@@ -76,8 +71,8 @@ namespace FirebaseWebGL
         [MonoPInvokeCallback(typeof(FirebaseCallbackDelegate))]
         private static void OnInitializationCallback(string json)
         {
-            var callback = JsonConvert.DeserializeObject<FirebaseCallback<bool>>(json);
-            _instance?.OnInitialized(callback);
+            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<bool>>(json);
+            _instance?.OnInitialized(firebaseCallback);
         }
 
         private void OnInitialized(FirebaseCallback<bool> firebaseCallback)
@@ -107,19 +102,19 @@ namespace FirebaseWebGL
             onInitialized?.Invoke(_isInitialized);
         }
 
-        public void GetGoogleAnalyticsClientId(Action<FirebaseCallback<string>> callback)
+        public void GetGoogleAnalyticsClientId(Action<FirebaseCallback<string>> firebaseCallback)
         {
             if (!isInitialized)
-                throw new FirebaseModuleNotInitializedException(GetType());
+                throw new FirebaseModuleNotInitializedException(this);
 
             if (_clientId != null)
             {
-                callback?.Invoke(new FirebaseCallback<string>(_clientId));
+                firebaseCallback?.Invoke(new FirebaseCallback<string>(_clientId));
                 return;
             }
 
-            var requestId = NextRequestId();
-            _onGetGoogleAnalyticsClientIdCallbacks.Add(requestId, callback);
+            var requestId = _requests.NextId();
+            _onGetGoogleAnalyticsClientIdCallbacks.Add(requestId, firebaseCallback);
 
             FirebaseWebGL_FirebaseAnalytics_getGoogleAnalyticsClientId(requestId, OnGetGoogleAnalyticsClientIdCallback);
         }
@@ -127,8 +122,8 @@ namespace FirebaseWebGL
         [MonoPInvokeCallback(typeof(FirebaseCallbackDelegate))]
         private static void OnGetGoogleAnalyticsClientIdCallback(string json)
         {
-            var callback = JsonConvert.DeserializeObject<FirebaseCallback<string>>(json);
-            _instance?.OnGetGoogleAnalyticsClientId(callback);
+            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<string>>(json);
+            _instance?.OnGetGoogleAnalyticsClientId(firebaseCallback);
         }
 
         private void OnGetGoogleAnalyticsClientId(FirebaseCallback<string> firebaseCallback)
@@ -158,7 +153,7 @@ namespace FirebaseWebGL
         public void SetAnalyticsCollectionEnabled(bool enabled)
         {
             if (!isInitialized)
-                throw new FirebaseModuleNotInitializedException(GetType());
+                throw new FirebaseModuleNotInitializedException(this);
 
             FirebaseWebGL_FirebaseAnalytics_setAnalyticsCollectionEnabled(enabled);
         }
@@ -166,7 +161,7 @@ namespace FirebaseWebGL
         public void SetUserId(string userId)
         {
             if (!isInitialized)
-                throw new FirebaseModuleNotInitializedException(GetType());
+                throw new FirebaseModuleNotInitializedException(this);
 
             FirebaseWebGL_FirebaseAnalytics_setUserId(userId);
         }
@@ -174,7 +169,7 @@ namespace FirebaseWebGL
         public void SetUserProperties(Dictionary<string, string> properties)
         {
             if (!isInitialized)
-                throw new FirebaseModuleNotInitializedException(GetType());
+                throw new FirebaseModuleNotInitializedException(this);
 
             var propertiesAsJson = JsonConvert.SerializeObject(properties);
             FirebaseWebGL_FirebaseAnalytics_setUserProperties(propertiesAsJson);
@@ -183,7 +178,7 @@ namespace FirebaseWebGL
         public void SetDefaultEventParameters(Dictionary<string, string> parameters)
         {
             if (!isInitialized)
-                throw new FirebaseModuleNotInitializedException(GetType());
+                throw new FirebaseModuleNotInitializedException(this);
 
             var parametersAsJson = JsonConvert.SerializeObject(parameters);
             FirebaseWebGL_FirebaseAnalytics_setDefaultEventParameters(parametersAsJson);
@@ -192,7 +187,7 @@ namespace FirebaseWebGL
         public void SetConsent(Dictionary<FirebaseAnalyticsConsentType, FirebaseAnalyticsConsentValue> consent)
         {
             if (!isInitialized)
-                throw new FirebaseModuleNotInitializedException(GetType());
+                throw new FirebaseModuleNotInitializedException(this);
 
             using (DictionaryPool<string, string>.Get(out var cache))
             {
@@ -234,7 +229,7 @@ namespace FirebaseWebGL
         public void LogEvent(string eventName, Dictionary<string, object> eventParams)
         { 
             if (!isInitialized)
-                throw new FirebaseModuleNotInitializedException(GetType());
+                throw new FirebaseModuleNotInitializedException(this);
 
             string eventParamsAsJson = eventParams != null ? JsonConvert.SerializeObject(eventParams) : null;
             FirebaseWebGL_FirebaseAnalytics_logEvent(eventName, eventParamsAsJson);

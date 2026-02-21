@@ -44,6 +44,9 @@ namespace FirebaseWebGL
 
         private void OnDispose(bool disposing)
         {
+            if (Application.isEditor)
+                return;
+
             try
             {
                 FirebaseWebGL_FirebaseApp_deleteApp();
@@ -86,6 +89,13 @@ namespace FirebaseWebGL
                 //TODO: add FirebaseRemoteConfig initialization here
             }
 
+            if (Application.isEditor)
+            {
+                _isInitialized = false;
+                onInitialized?.Invoke(_isInitialized);
+                return;
+            }
+
             try
             {
                 FirebaseWebGL_FirebaseApp_initalize();
@@ -96,6 +106,7 @@ namespace FirebaseWebGL
             {
                 Debug.LogError(ex);
                 _isInitialized = false;
+                onInitialized?.Invoke(_isInitialized);
             }
         }
     }

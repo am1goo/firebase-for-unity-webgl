@@ -5,68 +5,83 @@ const analyticsLibrary = {
 		firebaseToUnity: undefined,
 		
 		initialize: function(requestId, callbackPtr) {
-			this.firebaseToUnity = window.firebaseToUnity;
+			const plugin = this;
+			plugin.firebaseToUnity = window.firebaseToUnity;
 			
 			if (typeof sdk !== 'undefined') {
-				this.firebaseToUnity(requestId, callbackPtr, false, null, "already initialized");
+				plugin.firebaseToUnity(requestId, callbackPtr, false, null, "already initialized");
 				return;
 			}
-			this.sdk = document.firebaseSdk.analytics;
-			this.api = document.firebaseSdk.analyticsApi;
+			plugin.sdk = document.firebaseSdk.analytics;
+			plugin.api = document.firebaseSdk.analyticsApi;
 			
 			console.log(`initialize: requested`);
-			this.api.isSupported(this.sdk).then(function(success) {
-				console.log(`initialize: ${(success ? "initialized" : "not initialized")}`);
-				this.firebaseToUnity(requestId, callbackPtr, true, success, null);
+			plugin.api.isSupported(plugin.sdk).then(function(success) {
+				if (success) {
+					console.log(`initialize: initialized`);
+					plugin.firebaseToUnity(requestId, callbackPtr, true, success, null);
+				}
+				else {
+					const error = 'Firebase Analytics is not supported';
+					console.error(`initialize: ${error}`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+				}
 			}).catch(function(error) {
 				console.error(`initialize: ${error}`);
-				this.firebaseToUnity(requestId, callbackPtr, false, null, error);
+				plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
 			});
 		},
 		
 		getGoogleAnalyticsClientId: function(requestId, callbackPtr) {
+			const plugin = this;
 			console.log(`getGoogleAnalyticsClientId: requested`);
-			this.api.getGoogleAnalyticsClientId(this.sdk).then(function(clientId) {
+			plugin.api.getGoogleAnalyticsClientId(plugin.sdk).then(function(clientId) {
 				console.log(`getGoogleAnalyticsClientId: ${clientId}`);
-				this.firebaseToUnity(requestId, callbackPtr, true, clientId, null);
+				plugin.firebaseToUnity(requestId, callbackPtr, true, clientId, null);
 			}).catch(function(error) {
 				console.error(`getGoogleAnalyticsClientId: ${error}`);
-				this.firebaseToUnity(requestId, callbackPtr, false, null, error);
+				plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
 			});
 		},
 		
 		setAnalyticsCollectionEnabled: function(enabled) {
-			this.api.setAnalyticsCollectionEnabled(this.sdk, enabled);
+			const plugin = this;
+			plugin.api.setAnalyticsCollectionEnabled(plugin.sdk, enabled);
 			console.log(`setAnalyticsCollectionEnabled: ${enabled}`);
 		},
 		
 		setUserId: function(userId) {
-			this.api.setUserId(this.sdk, userId);
+			const plugin = this;
+			plugin.api.setUserId(plugin.sdk, userId);
 			console.log(`setUserId: ${userId}`);
 		},
 		
 		setUserProperties: function(properties) {
-			this.api.setUserProperties(this.sdk, properties);
+			const plugin = this;
+			plugin.api.setUserProperties(plugin.sdk, properties);
 			console.log(`setUserProperties: ${JSON.stringify(properties)}`);
 		},
 		
 		setDefaultEventParameters: function(parameters) {
-			this.api.setDefaultEventParameters(this.sdk, parameters);
+			const plugin = this;
+			plugin.api.setDefaultEventParameters(plugin.sdk, parameters);
 			console.log(`setDefaultEventParameters: ${JSON.stringify(parameters)}`);
 		},
 		
 		setConsent: function(consent) {
-			this.api.setConsent(this.sdk, consent);
+			const plugin = this;
+			plugin.api.setConsent(plugin.sdk, consent);
 			console.log(`setConsent: ${JSON.stringify(consent)}`);
 		},
 		
 		logEvent: function(eventName, eventParams) {
+			const plugin = this;
 			if (eventParams != null) {
-				this.api.logEvent(this.sdk, eventName, eventParams);
+				plugin.api.logEvent(plugin.sdk, eventName, eventParams);
 				console.log(`logEvent: name=${eventName}, params=[${JSON.stringify(eventParams)}]`);
 			}
 			else {
-				this.api.logEvent(this.sdk, eventName);
+				plugin.api.logEvent(plugin.sdk, eventName);
 				console.log(`logEvent: name=${eventName}`);
 			}
 		},

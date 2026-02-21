@@ -104,7 +104,7 @@ namespace FirebaseWebGL
             }
             if (settings.includeAnalytics)
             {
-                sb.Append(indent).AppendLine("import { getAnalytics, isSupported, getGoogleAnalyticsClientId, logEvent, setAnalyticsCollectionEnabled, setConsent, setDefaultEventParameters, setUserId, setUserProperties } from \"https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js\";");
+                sb.Append(indent).AppendLine("import { getAnalytics, isSupported as isSupportedAnalytics, getGoogleAnalyticsClientId, logEvent, setAnalyticsCollectionEnabled, setConsent, setDefaultEventParameters, setUserId, setUserProperties } from \"https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js\";");
             }
             if (settings.includeFirestore)
             {
@@ -140,7 +140,7 @@ namespace FirebaseWebGL
             if (settings.includeAnalytics)
             {
                 sb.Append(indent).AppendLine("firebaseSdk.analytics = getAnalytics(app);");
-                sb.Append(indent).AppendLine("firebaseSdk.analyticsApi = { isSupported, getGoogleAnalyticsClientId, logEvent, setAnalyticsCollectionEnabled, setConsent, setDefaultEventParameters, setUserId, setUserProperties };");
+                sb.Append(indent).AppendLine("firebaseSdk.analyticsApi = { isSupported: isSupportedAnalytics, getGoogleAnalyticsClientId, logEvent, setAnalyticsCollectionEnabled, setConsent, setDefaultEventParameters, setUserId, setUserProperties };");
             }
             if (settings.includeFirestore)
             {
