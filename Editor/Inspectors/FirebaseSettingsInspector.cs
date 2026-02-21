@@ -10,6 +10,7 @@ public sealed class FirebaseSettingsInspector : Editor
     private SerializedProperty _includeMessaging;
     private SerializedProperty _includeMessagingServiceWorker;
     private SerializedProperty _includeRemoteConfig;
+    private SerializedProperty _includeInstallations;
 
     private void OnEnable()
     {
@@ -19,6 +20,7 @@ public sealed class FirebaseSettingsInspector : Editor
         _includeMessaging = serializedObject.FindProperty(nameof(_includeMessaging));
         _includeMessagingServiceWorker = serializedObject.FindProperty(nameof(_includeMessagingServiceWorker));
         _includeRemoteConfig = serializedObject.FindProperty(nameof(_includeRemoteConfig));
+        _includeInstallations = serializedObject.FindProperty(nameof(_includeInstallations));
     }
 
     public override void OnInspectorGUI()
@@ -34,6 +36,7 @@ public sealed class FirebaseSettingsInspector : Editor
             EditorGUILayout.PropertyField(_includeMessagingServiceWorker);
         }
         EditorGUILayout.PropertyField(_includeRemoteConfig);
+        EditorGUILayout.PropertyField(_includeInstallations);
 
         serializedObject.ApplyModifiedProperties();
     }

@@ -46,6 +46,9 @@ namespace FirebaseWebGL
         [SerializeField, HideInInspector]
         private bool _includeRemoteConfig;
         public bool includeRemoteConfig => _includeRemoteConfig;
+        [SerializeField, HideInInspector]
+        private bool _includeInstallations;
+        public bool includeInstallations => _includeInstallations;
 
         private static FirebaseSettings _instance;
         public static FirebaseSettings instance

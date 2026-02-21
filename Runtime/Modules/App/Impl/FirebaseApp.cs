@@ -30,6 +30,9 @@ namespace FirebaseWebGL
         private IFirebaseRemoteConfig _remoteConfig;
         public IFirebaseRemoteConfig RemoteConfig => _remoteConfig;
 
+        private IFirebaseInstallations _installations;
+        public IFirebaseInstallations Installations => _installations;
+
         ~FirebaseApp()
         {
             Dispose(false);
@@ -95,6 +98,10 @@ namespace FirebaseWebGL
             if (settings.includeRemoteConfig)
             {
                 _remoteConfig = new FirebaseRemoteConfig();
+            }
+            if (settings.includeInstallations)
+            {
+                _installations = new FirebaseInstallations();
             }
 
             if (Application.isEditor)

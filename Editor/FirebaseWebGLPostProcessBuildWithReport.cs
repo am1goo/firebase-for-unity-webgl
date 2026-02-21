@@ -133,6 +133,10 @@ namespace FirebaseWebGL
             {
                 sb.Append(indent).AppendLine("import { getRemoteConfig, isSupported as isSupportedRemoteConfig, activate, ensureInitialized, fetchAndActivate, fetchConfig, getAll, getBoolean, getNumber, getString, getValue, onConfigUpdate, setCustomSignals, setLogLevel as setLogLevelRemoteConfig } from \"https://www.gstatic.com/firebasejs/12.9.0/firebase-remote-config.js\";");
             }
+            if (settings.includeInstallations)
+            {
+                sb.Append(indent).AppendLine("import { getInstallations, deleteInstallations, getId as getIdInstallations, getToken as getTokenInstallations, onIdChange } from \"https://www.gstatic.com/firebasejs/12.9.0/firebase-installations.js\";");
+            }
             sb.AppendLine();
             sb.Append(indent).AppendLine("const firebaseConfig = {");
             sb.Append(indent).Append(indent).AppendLine($"apiKey: \"{settings.apiKey}\",");
@@ -173,6 +177,11 @@ namespace FirebaseWebGL
             {
                 sb.Append(indent).AppendLine("firebaseSdk.remoteConfig = getRemoteConfig(app);");
                 sb.Append(indent).AppendLine("firebaseSdk.remoteConfigApi = { isSupported: isSupportedRemoteConfig, activate, ensureInitialized, fetchAndActivate, fetchConfig, getAll, getBoolean, getNumber, getString, getValue, onConfigUpdate, setCustomSignals, setLogLevel: setLogLevelRemoteConfig }");
+            }
+            if (settings.includeInstallations)
+            {
+                sb.Append(indent).AppendLine("firebaseSdk.installations = getInstallations(app);");
+                sb.Append(indent).AppendLine("firebaseSdk.installationsApi = { deleteInstallations, getId: getIdInstallations, getToken: getTokenInstallations, onIdChange }");
             }
             sb.AppendLine(indent).AppendLine("document.firebaseSdk = firebaseSdk;");
             return sb.ToString();
