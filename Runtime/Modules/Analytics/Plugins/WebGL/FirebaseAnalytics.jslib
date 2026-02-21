@@ -2,38 +2,25 @@ const analyticsLibrary = {
 	$analytics: {
 		sdk: undefined,
 		api: undefined,
-		
-		callbackToUnity: function(requestId, callbackPtr, success, result, e) {
-			var error = (e instanceof Error ? e.message : e);
-			var args = { requestId, success, result, error };
-			var json = JSON.stringify(args);
-			var buffer = stringToNewUTF8(json);
-			try {
-				{{{ makeDynCall('vi', 'callbackPtr') }}} (buffer);
-			}
-			finally {
-				_free(buffer);
-			}
-		},
+		firebaseToUnity: undefined,
 		
 		initialize: function(requestId, callbackPtr) {
-			window.callbackToUnity = this.callbackToUnity;
+			this.firebaseToUnity = window.firebaseToUnity;
 			
 			if (typeof sdk !== 'undefined') {
-				this.callbackToUnity(requestId, callbackPtr, false, null, "already initialized");
+				this.firebaseToUnity(requestId, callbackPtr, false, null, "already initialized");
 				return;
 			}
-			
 			this.sdk = document.firebaseSdk.analytics;
 			this.api = document.firebaseSdk.analyticsApi;
 			
 			console.log(`initialize: requested`);
 			this.api.isSupported(this.sdk).then(function(success) {
 				console.log(`initialize: ${(success ? "initialized" : "not initialized")}`);
-				this.callbackToUnity(requestId, callbackPtr, true, success, null);
+				this.firebaseToUnity(requestId, callbackPtr, true, success, null);
 			}).catch(function(error) {
 				console.error(`initialize: ${error}`);
-				this.callbackToUnity(requestId, callbackPtr, false, null, error);
+				this.firebaseToUnity(requestId, callbackPtr, false, null, error);
 			});
 		},
 		
@@ -41,10 +28,10 @@ const analyticsLibrary = {
 			console.log(`getGoogleAnalyticsClientId: requested`);
 			this.api.getGoogleAnalyticsClientId(this.sdk).then(function(clientId) {
 				console.log(`getGoogleAnalyticsClientId: ${clientId}`);
-				this.callbackToUnity(requestId, callbackPtr, true, clientId, null);
+				this.firebaseToUnity(requestId, callbackPtr, true, clientId, null);
 			}).catch(function(error) {
 				console.error(`getGoogleAnalyticsClientId: ${error}`);
-				this.callbackToUnity(requestId, callbackPtr, false, null, error);
+				this.firebaseToUnity(requestId, callbackPtr, false, null, error);
 			});
 		},
 		
