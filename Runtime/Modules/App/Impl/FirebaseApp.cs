@@ -25,6 +25,9 @@ namespace FirebaseWebGL
         private IFirebaseMessaging _messaging;
         public IFirebaseMessaging Messaging => _messaging;
 
+        private IFirebaseRemoteConfig _remoteConfig;
+        public IFirebaseRemoteConfig RemoteConfig => _remoteConfig;
+
         ~FirebaseApp()
         {
             Dispose(false);
@@ -89,7 +92,7 @@ namespace FirebaseWebGL
             }
             if (settings.includeRemoteConfig)
             {
-                //TODO: add FirebaseRemoteConfig initialization here
+                _remoteConfig = new FirebaseRemoteConfig();
             }
 
             if (Application.isEditor)

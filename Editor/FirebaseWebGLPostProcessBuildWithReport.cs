@@ -131,7 +131,7 @@ namespace FirebaseWebGL
             }
             if (settings.includeRemoteConfig)
             {
-                sb.Append(indent).AppendLine("import { getRemoteConfig } from \"https://www.gstatic.com/firebasejs/12.9.0/firebase-remote-config.js\";");
+                sb.Append(indent).AppendLine("import { getRemoteConfig, isSupported as isSupportedRemoteConfig, activate, ensureInitialized, fetchAndActivate, fetchConfig, getAll, getBoolean, getNumber, getString, getValue, onConfigUpdate, setCustomSignals, setLogLevel } from \"https://www.gstatic.com/firebasejs/12.9.0/firebase-remote-config.js\";");
             }
             sb.AppendLine();
             sb.Append(indent).AppendLine("const firebaseConfig = {");
@@ -171,6 +171,7 @@ namespace FirebaseWebGL
             if (settings.includeRemoteConfig)
             {
                 sb.Append(indent).AppendLine("firebaseSdk.remoteConfig = getRemoteConfig(app);");
+                sb.Append(indent).AppendLine("firebaseSdk.remoteConfigApi = { isSupported: isSupportedRemoteConfig, activate, ensureInitialized, fetchAndActivate, fetchConfig, getAll, getBoolean, getNumber, getString, getValue, onConfigUpdate, setCustomSignals, setLogLevel }");
             }
             sb.AppendLine(indent).AppendLine("document.firebaseSdk = firebaseSdk;");
             return sb.ToString();
