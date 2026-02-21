@@ -76,6 +76,12 @@ const remoteConfigLibrary = {
 			});
 		},
 		
+		getKeys: function() {
+			const plugin = this;
+			const keysAndValues = plugin.api.getAll(plugin.sdk);
+			return Object.keys(keysAndValues);
+		},
+		
 		getBoolean: function(key) {
 			const plugin = this;
 			return plugin.api.getBoolean(plugin.sdk, key);
@@ -150,6 +156,17 @@ const remoteConfigLibrary = {
 	
 	FirebaseWebGL_FirebaseRemoteConfig_fetchConfig: function(requestId, callbackPtr) {
 		remoteConfig.fetchConfig(requestId, callbackPtr);
+	},
+	
+	FirebaseWebGL_FirebaseRemoteConfig_getKeys: function() {
+		const keys = remoteConfig.getKeys();
+		const keysAsJson = JSON.stringify(keys);
+		
+		var buffer = stringToNewUTF8(keysAsJson);
+		setTimeout(() => {
+			_free(buffer);
+		}, 100);
+		return buffer;
 	},
 	
 	FirebaseWebGL_FirebaseRemoteConfig_getBoolean: function(keyPtr) {

@@ -9,6 +9,7 @@ public interface IFirebaseRemoteConfig : IFirebaseModule
     void EnsureInitialized(Action<FirebaseCallback<bool>> firebaseCallback);
     void FetchAndActivate(Action<FirebaseCallback<bool>> firebaseCallback);
     void FetchConfig(Action<FirebaseCallback<bool>> firebaseCallback);
+    string[] GetKeys();
     bool GetBoolean(string key);
     int GetInteger(string key);
     string GetString(string key);

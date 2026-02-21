@@ -20,6 +20,8 @@ namespace FirebaseWebGL
         [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseRemoteConfig_fetchConfig(int requestId, FirebaseCallbackDelegate callback);
         [DllImport("__Internal")]
+        private static extern string FirebaseWebGL_FirebaseRemoteConfig_getKeys();
+        [DllImport("__Internal")]
         private static extern bool FirebaseWebGL_FirebaseRemoteConfig_getBoolean(string key);
         [DllImport("__Internal")]
         private static extern int FirebaseWebGL_FirebaseRemoteConfig_getInteger(string key);
@@ -130,6 +132,15 @@ namespace FirebaseWebGL
                 firebaseCallback?.Invoke(callback);
             });
             FirebaseWebGL_FirebaseRemoteConfig_fetchConfig(requestId, OnBoolCallback);
+        }
+
+        public string[] GetKeys()
+        {
+            if (!isInitialized)
+                throw new FirebaseModuleNotInitializedException(this);
+
+            var keysAsJson = FirebaseWebGL_FirebaseRemoteConfig_getKeys();
+            return JsonConvert.DeserializeObject<string[]>(keysAsJson);
         }
 
         public bool GetBoolean(string key)
