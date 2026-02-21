@@ -4,6 +4,9 @@
     "displayName": "Firebase for WebGL",
     "description": "Naive wrapper over JavaScript Firebase library",
     "unity": "2022.3",
+    "dependencies": {
+        "com.unity.nuget.newtonsoft-json": "3.2.1"
+    },
     "keywords": [
         "realtime",
         "firebase",
