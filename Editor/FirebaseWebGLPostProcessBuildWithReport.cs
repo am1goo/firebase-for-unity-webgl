@@ -137,6 +137,10 @@ namespace FirebaseWebGL
             {
                 sb.Append(indent).AppendLine("import { getInstallations, deleteInstallations, getId as getIdInstallations, getToken as getTokenInstallations, onIdChange } from \"https://www.gstatic.com/firebasejs/12.9.0/firebase-installations.js\";");
             }
+            if (settings.includePerformance)
+            {
+                sb.Append(indent).AppendLine("import { getPerformance, trace } from \"https://www.gstatic.com/firebasejs/12.9.0/firebase-performance.js\";");
+            }
             sb.AppendLine();
             sb.Append(indent).AppendLine("const firebaseConfig = {");
             sb.Append(indent).Append(indent).AppendLine($"apiKey: \"{settings.apiKey}\",");
@@ -176,12 +180,17 @@ namespace FirebaseWebGL
             if (settings.includeRemoteConfig)
             {
                 sb.Append(indent).AppendLine("firebaseSdk.remoteConfig = getRemoteConfig(app);");
-                sb.Append(indent).AppendLine("firebaseSdk.remoteConfigApi = { isSupported: isSupportedRemoteConfig, activate, ensureInitialized, fetchAndActivate, fetchConfig, getAll, getBoolean, getNumber, getString, getValue, onConfigUpdate, setCustomSignals, setLogLevel: setLogLevelRemoteConfig }");
+                sb.Append(indent).AppendLine("firebaseSdk.remoteConfigApi = { isSupported: isSupportedRemoteConfig, activate, ensureInitialized, fetchAndActivate, fetchConfig, getAll, getBoolean, getNumber, getString, getValue, onConfigUpdate, setCustomSignals, setLogLevel: setLogLevelRemoteConfig };");
             }
             if (settings.includeInstallations)
             {
                 sb.Append(indent).AppendLine("firebaseSdk.installations = getInstallations(app);");
-                sb.Append(indent).AppendLine("firebaseSdk.installationsApi = { deleteInstallations, getId: getIdInstallations, getToken: getTokenInstallations, onIdChange }");
+                sb.Append(indent).AppendLine("firebaseSdk.installationsApi = { deleteInstallations, getId: getIdInstallations, getToken: getTokenInstallations, onIdChange };");
+            }
+            if (settings.includePerformance)
+            {
+                sb.Append(indent).AppendLine("firebaseSdk.performance = getPerformance(app);");
+                sb.Append(indent).AppendLine("firebaseSdk.performanceApi = { trace };");
             }
             sb.AppendLine(indent).AppendLine("document.firebaseSdk = firebaseSdk;");
             return sb.ToString();

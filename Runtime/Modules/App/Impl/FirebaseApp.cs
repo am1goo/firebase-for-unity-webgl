@@ -33,6 +33,9 @@ namespace FirebaseWebGL
         private IFirebaseInstallations _installations;
         public IFirebaseInstallations Installations => _installations;
 
+        private IFirebasePerformance _performance;
+        public IFirebasePerformance Performance => _performance;
+
         ~FirebaseApp()
         {
             Dispose(false);
@@ -102,6 +105,10 @@ namespace FirebaseWebGL
             if (settings.includeInstallations)
             {
                 _installations = new FirebaseInstallations();
+            }
+            if (settings.includePerformance)
+            {
+                _performance = new FirebasePerformance();
             }
 
             if (Application.isEditor)

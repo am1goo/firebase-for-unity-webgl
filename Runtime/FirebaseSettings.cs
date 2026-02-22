@@ -49,6 +49,9 @@ namespace FirebaseWebGL
         [SerializeField, HideInInspector]
         private bool _includeInstallations;
         public bool includeInstallations => _includeInstallations;
+        [SerializeField, HideInInspector]
+        private bool _includePerformance;
+        public bool includePerformance => _includePerformance;
 
         private static FirebaseSettings _instance;
         public static FirebaseSettings instance
