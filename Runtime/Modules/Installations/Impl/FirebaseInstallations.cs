@@ -46,6 +46,12 @@ namespace FirebaseWebGL
                 return;
             }
 
+            if (Application.isEditor)
+            {
+                firebaseCallback?.Invoke(FirebaseCallback<bool>.Success(false));
+                return;
+            }
+
             FirebaseWebGL_FirebaseInstallations_initialize();
             _isInitialized = true;
             firebaseCallback?.Invoke(FirebaseCallback<bool>.Success(_isInitialized));

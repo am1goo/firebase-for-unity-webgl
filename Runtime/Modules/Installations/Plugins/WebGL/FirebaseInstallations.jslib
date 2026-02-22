@@ -1,5 +1,5 @@
-const installationsLibrary = {
-	$installations: {
+const firebaseInstallationsLibrary = {
+	$firebaseInstallations: {
 		sdk: undefined,
 		api: undefined,
 		callbacks: {},
@@ -9,7 +9,7 @@ const installationsLibrary = {
 			plugin.firebaseToUnity = window.firebaseToUnity;
 			
 			if (typeof sdk !== 'undefined') {
-				plugin.firebaseToUnity(requestId, callbackPtr, false, null, "already initialized");
+				console.error("already initialized");
 				return;
 			}
 			plugin.sdk = document.firebaseSdk.installations;
@@ -61,25 +61,25 @@ const installationsLibrary = {
 	},
 	
 	FirebaseWebGL_FirebaseInstallations_initialize: function() {
-		installations.initialize();
+		firebaseInstallations.initialize();
 	},
 	
 	FirebaseWebGL_FirebaseInstallations_deleteInstallations: function(requestId, callbackPtr) {
-		installations.deleteInstallations(requestId, callbackPtr);
+		firebaseInstallations.deleteInstallations(requestId, callbackPtr);
 	},
 	
 	FirebaseWebGL_FirebaseInstallations_getId: function(requestId, callbackPtr) {
-		installations.getId(requestId, callbackPtr);
+		firebaseInstallations.getId(requestId, callbackPtr);
 	},
 	
 	FirebaseWebGL_FirebaseInstallations_getToken: function(forceRefresh, requestId, callbackPtr) {
-		installations.getToken(forceRefresh, requestId, callbackPtr);
+		firebaseInstallations.getToken(forceRefresh, requestId, callbackPtr);
 	},
 	
 	FirebaseWebGL_FirebaseInstallations_onIdChange: function(instanceId, callbackPtr) {
-		installations.onIdChange(instanceId, callbackPtr);
+		firebaseInstallations.onIdChange(instanceId, callbackPtr);
 	},
 };
 
-autoAddDeps(installationsLibrary, '$installations');
-mergeInto(LibraryManager.library, installationsLibrary);
+autoAddDeps(firebaseInstallationsLibrary, '$firebaseInstallations');
+mergeInto(LibraryManager.library, firebaseInstallationsLibrary);

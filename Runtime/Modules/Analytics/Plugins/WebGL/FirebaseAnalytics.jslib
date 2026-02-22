@@ -1,5 +1,5 @@
-const analyticsLibrary = {
-	$analytics: {
+const firebaseAnalyticsLibrary = {
+	$firebaseAnalytics: {
 		sdk: undefined,
 		api: undefined,
 		firebaseToUnity: undefined,
@@ -88,47 +88,47 @@ const analyticsLibrary = {
 	},	
 	
 	FirebaseWebGL_FirebaseAnalytics_initialize: function(requestId, callbackPtr) {
-		analytics.initialize(requestId, callbackPtr);
+		firebaseAnalytics.initialize(requestId, callbackPtr);
 	},
 	
 	FirebaseWebGL_FirebaseAnalytics_getGoogleAnalyticsClientId: function(requestId, callbackPtr) {
-		analytics.getGoogleAnalyticsClientId(requestId, callbackPtr);
+		firebaseAnalytics.getGoogleAnalyticsClientId(requestId, callbackPtr);
 	},
 	
 	FirebaseWebGL_FirebaseAnalytics_setAnalyticsCollectionEnabled: function(enabled) {
-		analytics.setAnalyticsCollectionEnabled(enabled);
+		firebaseAnalytics.setAnalyticsCollectionEnabled(enabled);
 	},
 	
 	FirebaseWebGL_FirebaseAnalytics_setUserId: function (userIdPtr) {
 		const userId = UTF8ToString(userIdPtr);
-		analytics.setUserId(userId);
+		firebaseAnalytics.setUserId(userId);
 	},
 	
 	FirebaseWebGL_FirebaseAnalytics_setUserProperties: function (propertiesAsJsonPtr) {
 		const propertiesAsJson = UTF8ToString(propertiesAsJsonPtr);
 		const properties = JSON.parse(propertiesAsJson);
-		analytics.setUserProperties(properties);
+		firebaseAnalytics.setUserProperties(properties);
 	},
 	
 	FirebaseWebGL_FirebaseAnalytics_setDefaultEventParameters: function (parametersAsJsonPtr) {
 		const parametersAsJson = UTF8ToString(parametersAsJsonPtr);
 		const parameters = JSON.parse(parametersAsJson);
-		analytics.setDefaultEventParameters(parameters);
+		firebaseAnalytics.setDefaultEventParameters(parameters);
 	},
 	
 	FirebaseWebGL_FirebaseAnalytics_setConsent: function (consentAsJsonPtr) {
 		const consentAsJson = UTF8ToString(consentAsJsonPtr);
 		const consent = JSON.parse(consentAsJson);
-		analytics.setConsent(consent);
+		firebaseAnalytics.setConsent(consent);
 	},
 	
 	FirebaseWebGL_FirebaseAnalytics_logEvent: function (eventNamePtr, eventParamsPtr) {
 		const eventName = UTF8ToString(eventNamePtr);
 		const eventParams = eventParamsPtr != 0 ? UTF8ToString(eventParamsPtr) : null;
-		analytics.logEvent(eventName, eventParams);
+		firebaseAnalytics.logEvent(eventName, eventParams);
 	},
 };
 
-autoAddDeps(analyticsLibrary, '$analytics');
-mergeInto(LibraryManager.library, analyticsLibrary);
+autoAddDeps(firebaseAnalyticsLibrary, '$firebaseAnalytics');
+mergeInto(LibraryManager.library, firebaseAnalyticsLibrary);
 

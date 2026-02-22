@@ -1,5 +1,5 @@
-const appLibrary = {
-	$app: {
+const firebaseAppLibrary = {
+	$firebaseApp: {
 		sdk: undefined,
 		api: undefined,
 		
@@ -42,11 +42,11 @@ const appLibrary = {
 	},
 	
 	FirebaseWebGL_FirebaseApp_initalize: function () {
-		app.initialize();
+		firebaseApp.initialize();
 	},
 	
 	FirebaseWebGL_FirebaseApp_deleteApp: function () {
-		app.deleteApp();
+		firebaseApp.deleteApp();
 	},
 	
 	FirebaseWebGL_FirebaseApp_setLogLevel: function(logLevelInt) {
@@ -68,9 +68,9 @@ const appLibrary = {
 			}
 		}
 		const logLevel = conversion(logLevelInt);
-		app.setLogLevel(logLevel);
+		firebaseApp.setLogLevel(logLevel);
 	},
 };
 
-autoAddDeps(appLibrary, '$app');
-mergeInto(LibraryManager.library, appLibrary);
+autoAddDeps(firebaseAppLibrary, '$firebaseApp');
+mergeInto(LibraryManager.library, firebaseAppLibrary);

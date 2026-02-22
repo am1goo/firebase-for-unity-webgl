@@ -1,5 +1,5 @@
-const remoteConfigLibrary = {
-	$remoteConfig: {
+const firebaseRemoteConfigLibrary = {
+	$firebaseRemoteConfig: {
 		sdk: undefined,
 		api: undefined,
 		callbacks: {},
@@ -139,31 +139,31 @@ const remoteConfigLibrary = {
 	},
 	
 	FirebaseWebGL_FirebaseRemoteConfig_initialize: function(requestId, callbackPtr) {
-		remoteConfig.initialize(requestId, callbackPtr);
+		firebaseRemoteConfig.initialize(requestId, callbackPtr);
 	},
 	
 	FirebaseWebGL_FirebaseRemoteConfig_activate: function(requestId, callbackPtr) {
-		remoteConfig.activate(requestId, callbackPtr);
+		firebaseRemoteConfig.activate(requestId, callbackPtr);
 	},
 	
 	FirebaseWebGL_FirebaseRemoteConfig_ensureInitialized: function(requestId, callbackPtr) {
-		remoteConfig.ensureInitialized(requestId, callbackPtr);
+		firebaseRemoteConfig.ensureInitialized(requestId, callbackPtr);
 	},
 	
 	FirebaseWebGL_FirebaseRemoteConfig_fetchAndActivate: function(requestId, callbackPtr) {
-		remoteConfig.fetchAndActivate(requestId, callbackPtr);
+		firebaseRemoteConfig.fetchAndActivate(requestId, callbackPtr);
 	},
 	
 	FirebaseWebGL_FirebaseRemoteConfig_fetchConfig: function(requestId, callbackPtr) {
-		remoteConfig.fetchConfig(requestId, callbackPtr);
+		firebaseRemoteConfig.fetchConfig(requestId, callbackPtr);
 	},
 	
 	FirebaseWebGL_FirebaseRemoteConfig_getKeys: function() {
-		const keys = remoteConfig.getKeys();
+		const keys = firebaseRemoteConfig.getKeys();
 		const keysAsJson = JSON.stringify(keys);
 		
 		var buffer = stringToNewUTF8(keysAsJson);
-		setTimeout(() => {
+		setTimeout(function() {
 			_free(buffer);
 		}, 100);
 		return buffer;
@@ -171,33 +171,33 @@ const remoteConfigLibrary = {
 	
 	FirebaseWebGL_FirebaseRemoteConfig_getBoolean: function(keyPtr) {
 		const key = UTF8ToString(keyPtr);
-		return remoteConfig.getBoolean(key);
+		return firebaseRemoteConfig.getBoolean(key);
 	},
 	
 	FirebaseWebGL_FirebaseRemoteConfig_getInteger: function(keyPtr) {
 		const key = UTF8ToString(keyPtr);
-		return remoteConfig.getInteger(key);
+		return firebaseRemoteConfig.getInteger(key);
 	},
 	
 	FirebaseWebGL_FirebaseRemoteConfig_getString: function(keyPtr) {
 		const key = UTF8ToString(keyPtr);
-		const value = remoteConfig.getString(key);
+		const value = firebaseRemoteConfig.getString(key);
 		
 		var buffer = stringToNewUTF8(value);
-		setTimeout(() => {
+		setTimeout(function() {
 			_free(buffer);
 		}, 100);
 		return buffer;
 	},
 	
 	FirebaseWebGL_FirebaseRemoteConfig_onConfigUpdate: function(instanceId, callbackPtr) {
-		remoteConfig.onConfigUpdate(instanceId, callbackPtr);
+		firebaseRemoteConfig.onConfigUpdate(instanceId, callbackPtr);
 	},
 	
 	FirebaseWebGL_FirebaseRemoteConfig_setCustomSignals: function(customSignalsAsJsonPtr) {
 		const customSignalsAsJson = UTF8ToString(customSignalsAsJsonPtr);
 		const customSignals = JSON.parse(customSignalsAsJson);
-		remoteConfig.setCustomSignals(customSignals);
+		firebaseRemoteConfig.setCustomSignals(customSignals);
 	},
 	
 	FirebaseWebGL_FirebaseRemoteConfig_setLogLevel: function(logLevelInt) {
@@ -213,9 +213,9 @@ const remoteConfigLibrary = {
 			}
 		};
 		const logLevel = conversion(logLevelInt);
-		remoteConfig.setLogLevel(logLevel);
+		firebaseRemoteConfig.setLogLevel(logLevel);
 	},
 };
 
-autoAddDeps(remoteConfigLibrary, '$remoteConfig');
-mergeInto(LibraryManager.library, remoteConfigLibrary);
+autoAddDeps(firebaseRemoteConfigLibrary, '$firebaseRemoteConfig');
+mergeInto(LibraryManager.library, firebaseRemoteConfigLibrary);

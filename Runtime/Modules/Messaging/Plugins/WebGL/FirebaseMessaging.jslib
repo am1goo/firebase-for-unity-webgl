@@ -1,5 +1,5 @@
-const messagingLibrary = {
-	$messaging: {
+const firebaseMessagingLibrary = {
+	$firebaseMessaging: {
 		sdk: undefined,
 		api: undefined,
 		callbacks: {},
@@ -19,10 +19,10 @@ const messagingLibrary = {
 			plugin.api.isSupported(plugin.sdk).then(function(success) {
 				if (success) {
 					if ('serviceWorker' in navigator) {
-						navigator.serviceWorker.register('./firebase-messaging-sw.js').then((registration) => {
+						navigator.serviceWorker.register('./firebase-messaging-sw.js').then(function(registration) {
 							console.log(`[Firebase Messaging] initialize: scope=${registration.scope}`);
 							plugin.firebaseToUnity(requestId, callbackPtr, true, success, null);
-						}).catch((error) => {
+						}).catch(function(error) {
 							console.error(`[Firebase Messaging] initialize: ${error}`);
 							plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
 						});
@@ -86,24 +86,24 @@ const messagingLibrary = {
 	},
 	
 	FirebaseWebGL_FirebaseMessaging_initialize: function(requestId, callbackPtr) {
-		messaging.initialize(requestId, callbackPtr);
+		firebaseMessaging.initialize(requestId, callbackPtr);
 	},
 	
 	FirebaseWebGL_FirebaseMessaging_getToken: function(requestId, callbackPtr) {
-		messaging.getToken(requestId, callbackPtr);
+		firebaseMessaging.getToken(requestId, callbackPtr);
 	},
 	
 	FirebaseWebGL_FirebaseMessaging_deleteToken: function(requestId, callbackPtr) {
-		messaging.deleteToken(requestId, callbackPtr);
+		firebaseMessaging.deleteToken(requestId, callbackPtr);
 	},
 	
 	FirebaseWebGL_FirebaseMessaging_onMessage: function(instanceId, callbackPtr) {
-		messaging.onMessage(instanceId, callbackPtr);
+		firebaseMessaging.onMessage(instanceId, callbackPtr);
 	},
 };
 
-const messagingSWLibrary = {
-	$messagingSW: {
+const firebaseMessagingSWLibrary = {
+	$firebaseMessagingSW: {
 		sdk: undefined,
 		api: undefined,
 		callbacks: {},
@@ -144,17 +144,17 @@ const messagingSWLibrary = {
 	},
 	
 	FirebaseWebGL_FirebaseMessaging_ServiceWorker_initialize: function(requestId, callbackPtr) {
-		messagingSW.initialize(requestId, callbackPtr);
+		firebaseMessagingSW.initialize(requestId, callbackPtr);
 	},
 	
 	FirebaseWebGL_FirebaseMessaging_ServiceWorker_experimentalSetDeliveryMetricsExportedToBigQueryEnabled: function(enabled) {
-		messagingSW.experimentalSetDeliveryMetricsExportedToBigQueryEnabled(enabled);
+		firebaseMessagingSW.experimentalSetDeliveryMetricsExportedToBigQueryEnabled(enabled);
 	},
 };
 
-autoAddDeps(messagingLibrary, '$messaging');
-mergeInto(LibraryManager.library, messagingLibrary);
+autoAddDeps(firebaseMessagingLibrary, '$firebaseMessaging');
+mergeInto(LibraryManager.library, firebaseMessagingLibrary);
 
-autoAddDeps(messagingSWLibrary, '$messagingSW');
-mergeInto(LibraryManager.library, messagingSWLibrary);
+autoAddDeps(firebaseMessagingSWLibrary, '$firebaseMessagingSW');
+mergeInto(LibraryManager.library, firebaseMessagingSWLibrary);
 
