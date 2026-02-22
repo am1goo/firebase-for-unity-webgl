@@ -1,5 +1,8 @@
-public enum FirebaseAnalyticsConsentValue : byte
+namespace FirebaseWebGL
 {
-    Granted = 0,
-    Denied = 1,
+    public enum FirebaseAnalyticsConsentValue : byte
+    {
+        Granted = 0,
+        Denied = 1,
+    }
 }

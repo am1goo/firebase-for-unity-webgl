@@ -1,6 +1,9 @@
-public enum FirebaseRemoteConfigLogLevel : int
+namespace FirebaseWebGL
 {
-    Debug = 0,
-    Error = 1,
-    Silent = 2,
+    public enum FirebaseRemoteConfigLogLevel : int
+    {
+        Debug = 0,
+        Error = 1,
+        Silent = 2,
+    }
 }

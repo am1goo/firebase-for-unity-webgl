@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 
-[Serializable]
-public sealed class FirebasePerformanceTraceRecordOptions
+namespace FirebaseWebGL
 {
-    public Dictionary<string, int> metrics { get; set; }
-    public Dictionary<string, string> attributes { get; set; }
+    [Serializable]
+    public sealed class FirebasePerformanceTraceRecordOptions
+    {
+        public Dictionary<string, int> metrics { get; set; }
+        public Dictionary<string, string> attributes { get; set; }
+    }
 }

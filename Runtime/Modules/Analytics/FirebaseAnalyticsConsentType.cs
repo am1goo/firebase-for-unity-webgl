@@ -1,10 +1,13 @@
-public enum FirebaseAnalyticsConsentType : byte
+namespace FirebaseWebGL
 {
-    AdPersonalization,
-    AdStorage,
-    AdUserData,
-    AnalyticsStorage,
-    FunctionalityStorage,
-    PersonalizationStorage,
-    SecurityStorage,
+    public enum FirebaseAnalyticsConsentType : byte
+    {
+        AdPersonalization,
+        AdStorage,
+        AdUserData,
+        AnalyticsStorage,
+        FunctionalityStorage,
+        PersonalizationStorage,
+        SecurityStorage,
+    }
 }

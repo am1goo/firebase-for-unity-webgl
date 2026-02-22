@@ -1,9 +1,12 @@
-public enum FirebaseAppLogLevel : int
+namespace FirebaseWebGL
 {
-    Debug = 0,
-    Verbose = 1,
-    Info = 2,
-    Warn = 3,
-    Error = 4,
-    Silent = 5,
+    public enum FirebaseAppLogLevel : int
+    {
+        Debug = 0,
+        Verbose = 1,
+        Info = 2,
+        Warn = 3,
+        Error = 4,
+        Silent = 5,
+    }
 }
