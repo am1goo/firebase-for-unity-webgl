@@ -51,9 +51,9 @@ namespace FirebaseWebGL
                 return;
             }
 
-
             FirebaseWebGL_FirebaseAppCheck_initialize();
             _isInitialized = true;
+            onInitialized?.Invoke(_isInitialized);
             firebaseCallback?.Invoke(FirebaseCallback<bool>.Success(_isInitialized));
         }
 

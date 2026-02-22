@@ -54,6 +54,7 @@ namespace FirebaseWebGL
 
             FirebaseWebGL_FirebaseInstallations_initialize();
             _isInitialized = true;
+            onInitialized?.Invoke(_isInitialized);
             firebaseCallback?.Invoke(FirebaseCallback<bool>.Success(_isInitialized));
         }
 
