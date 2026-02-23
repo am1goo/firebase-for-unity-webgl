@@ -27,7 +27,7 @@ namespace FirebaseWebGL
         [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseAnalytics_logEvent(string eventName, string eventValuesAsJson);
 
-        private readonly FirebaseRequests _requests = new FirebaseRequests();
+        private static readonly FirebaseRequests _requests = new FirebaseRequests();
 
         private static readonly Dictionary<long, Action<FirebaseCallback<bool>>> _onBoolCallbacks = new Dictionary<long, Action<FirebaseCallback<bool>>>();
         private static readonly Dictionary<long, Action<FirebaseCallback<string>>> onStringCallbacks = new Dictionary<long, Action<FirebaseCallback<string>>>();

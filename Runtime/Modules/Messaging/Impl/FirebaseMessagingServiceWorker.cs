@@ -14,7 +14,7 @@ namespace FirebaseWebGL
         [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseMessaging_ServiceWorker_experimentalSetDeliveryMetricsExportedToBigQueryEnabled(bool enabled);
 
-        private readonly FirebaseRequests _requests = new FirebaseRequests();
+        private static readonly FirebaseRequests _requests = new FirebaseRequests();
         private static readonly Dictionary<int, Action<FirebaseCallback<bool>>> _onBoolCallbacks = new Dictionary<int, Action<FirebaseCallback<bool>>>();
 
         private bool _isInitializing = false;

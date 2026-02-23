@@ -20,7 +20,7 @@ namespace FirebaseWebGL
         [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseAppCheck_setTokenAutoRefreshEnabled(bool isTokenAutoRefreshEnabled);
 
-        private readonly FirebaseRequests _requests = new FirebaseRequests();
+        private static readonly FirebaseRequests _requests = new FirebaseRequests();
         private static readonly Dictionary<int, Action<FirebaseCallback<string>>> _onStringCallbacks = new Dictionary<int, Action<FirebaseCallback<string>>>();
         private static readonly Dictionary<int, Action<FirebaseCallback<string>>> _onTokenChangedCallbacks = new Dictionary<int, Action<FirebaseCallback<string>>>();
 
