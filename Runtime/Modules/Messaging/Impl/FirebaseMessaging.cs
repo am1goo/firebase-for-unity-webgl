@@ -37,11 +37,11 @@ namespace FirebaseWebGL
         private readonly int _instanceId;
         private string _token;
 
-        public FirebaseMessaging(bool includeServiceWorker)
+        public FirebaseMessaging(bool enableServiceWorker)
         {
             _instanceId = _requests.NextId();
 
-            if (includeServiceWorker)
+            if (enableServiceWorker)
             {
                 _serviceWorker = new FirebaseMessagingServiceWorker();
             }

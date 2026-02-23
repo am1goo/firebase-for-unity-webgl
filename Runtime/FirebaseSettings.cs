@@ -48,8 +48,8 @@ namespace FirebaseWebGL
         private bool _includeMessaging;
         public bool includeMessaging => _includeMessaging;
         [SerializeField, HideInInspector]
-        private bool _includeMessagingServiceWorker;
-        public bool includeMessagingServiceWorker => _includeMessagingServiceWorker;
+        private MessagingSettings _includeMessagingSettings;
+        public MessagingSettings includeMessagingSettings => _includeMessagingSettings;
         [SerializeField, HideInInspector]
         private bool _includeRemoteConfig;
         public bool includeRemoteConfig => _includeRemoteConfig;
@@ -100,6 +100,14 @@ namespace FirebaseWebGL
                 ReCaptchaV3 = 0,
                 ReCaptchaEnterprise = 1,
             }
+        }
+
+        [Serializable]
+        public sealed class MessagingSettings
+        {
+            [SerializeField]
+            private bool _enableServiceWorker;
+            public bool enableServiceWorker => _enableServiceWorker;
         }
 
         [Serializable]
