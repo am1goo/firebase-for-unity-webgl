@@ -8,7 +8,7 @@ namespace FirebaseWebGL
     internal sealed class FirebasePerformance : IFirebasePerformance
     {
         [DllImport("__Internal")]
-        private static extern void FirebaseWebGL_FirebasePerformance_initialize();
+        private static extern bool FirebaseWebGL_FirebasePerformance_initialize();
         [DllImport("__Internal")]
         private static extern int FirebaseWebGL_FirebasePerformance_trace(string name);
 
@@ -33,9 +33,7 @@ namespace FirebaseWebGL
                 return;
             }
 
-
-            FirebaseWebGL_FirebasePerformance_initialize();
-            _isInitialized = true;
+            _isInitialized = FirebaseWebGL_FirebasePerformance_initialize();
             onInitialized?.Invoke(_isInitialized);
             firebaseCallback?.Invoke(FirebaseCallback<bool>.Success(_isInitialized));
         }

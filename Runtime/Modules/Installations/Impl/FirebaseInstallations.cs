@@ -10,7 +10,7 @@ namespace FirebaseWebGL
     internal sealed class FirebaseInstallations : IFirebaseInstallations
     {
         [DllImport("__Internal")]
-        private static extern void FirebaseWebGL_FirebaseInstallations_initialize();
+        private static extern bool FirebaseWebGL_FirebaseInstallations_initialize();
         [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseInstallations_deleteInstallations(int requestId, FirebaseCallbackDelegate callback);
         [DllImport("__Internal")]
@@ -52,8 +52,7 @@ namespace FirebaseWebGL
                 return;
             }
 
-            FirebaseWebGL_FirebaseInstallations_initialize();
-            _isInitialized = true;
+            _isInitialized = FirebaseWebGL_FirebaseInstallations_initialize();
             onInitialized?.Invoke(_isInitialized);
             firebaseCallback?.Invoke(FirebaseCallback<bool>.Success(_isInitialized));
         }

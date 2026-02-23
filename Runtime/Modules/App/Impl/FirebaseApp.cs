@@ -7,7 +7,7 @@ namespace FirebaseWebGL
     public class FirebaseApp : IFirebaseApp, IDisposable
     {
         [DllImport("__Internal")]
-        private static extern void FirebaseWebGL_FirebaseApp_initalize();
+        private static extern bool FirebaseWebGL_FirebaseApp_initalize();
         [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseApp_deleteApp();
         [DllImport("__Internal")]
@@ -84,7 +84,23 @@ namespace FirebaseWebGL
         }
 
         public FirebaseApp(FirebaseSettings settings)
-        { 
+        {
+            if (Application.isEditor)
+            {
+                _isInitialized = false;
+                onInitialized?.Invoke(_isInitialized);
+                return;
+            }
+
+            _isInitialized = FirebaseWebGL_FirebaseApp_initalize();
+            onInitialized?.Invoke(_isInitialized);
+
+            if (!_isInitialized)
+            {
+                Debug.LogError("FirebaseApp is not initialized, modules registration no needed anymore.");
+                return;
+            }
+
             if (settings.includeAuth)
             {
                 //TODO: add FirebaseAuth initialization here
@@ -116,26 +132,6 @@ namespace FirebaseWebGL
             if (settings.includePerformance)
             {
                 _performance = new FirebasePerformance();
-            }
-
-            if (Application.isEditor)
-            {
-                _isInitialized = false;
-                onInitialized?.Invoke(_isInitialized);
-                return;
-            }
-
-            try
-            {
-                FirebaseWebGL_FirebaseApp_initalize();
-                _isInitialized = true;
-                onInitialized?.Invoke(_isInitialized);
-            }
-            catch (Exception ex)
-            {
-                Debug.LogError(ex);
-                _isInitialized = false;
-                onInitialized?.Invoke(_isInitialized);
             }
         }
 

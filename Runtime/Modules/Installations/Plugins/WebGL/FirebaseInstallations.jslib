@@ -9,12 +9,20 @@ const firebaseInstallationsLibrary = {
 			plugin.firebaseToUnity = window.firebaseToUnity;
 			
 			if (typeof sdk !== 'undefined') {
-				console.error("already initialized");
-				return;
+				console.error("[Firebase Installations] initialize: already initialized");
+				return false;
 			}
-			plugin.sdk = document.firebaseSdk.installations;
-			plugin.api = document.firebaseSdk.installationsApi;
-			console.log('[Firebase Installations] initialize: initialized');
+			
+			try {
+				plugin.sdk = document.firebaseSdk.installations;
+				plugin.api = document.firebaseSdk.installationsApi;
+				console.log('[Firebase Installations] initialize: initialized');
+				return true;
+			}
+			catch(error) {
+				console.error(`[Firebase Installations] initialize: failed, error=${error}`);
+				return false;
+			}
 		},
 		
 		deleteInstallations: function(requestId, callbackPtr) {
@@ -79,7 +87,7 @@ const firebaseInstallationsLibrary = {
 	},
 	
 	FirebaseWebGL_FirebaseInstallations_initialize: function() {
-		firebaseInstallations.initialize();
+		return firebaseInstallations.initialize();
 	},
 	
 	FirebaseWebGL_FirebaseInstallations_deleteInstallations: function(requestId, callbackPtr) {

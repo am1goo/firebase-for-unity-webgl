@@ -9,13 +9,20 @@ const firebaseAppCheckLibrary = {
 			plugin.firebaseToUnity = window.firebaseToUnity;
 			
 			if (typeof sdk !== 'undefined') {
-				console.error("already initialized");
-				return;
+				console.error("[Firebase AppCheck] initialize: already initialized");
+				return false;
 			}
 			
-			plugin.sdk = document.firebaseSdk.appCheck;
-			plugin.api = document.firebaseSdk.appCheckApi;
-			console.log('[Firebase AppCheck] initialize: initialized');
+			try {
+				plugin.sdk = document.firebaseSdk.appCheck;
+				plugin.api = document.firebaseSdk.appCheckApi;
+				console.log('[Firebase AppCheck] initialize: initialized');
+				return true;
+			}
+			catch(error) {
+				console.error(`[Firebase AppCheck] initialize: failed, error=${error}`);
+				return false;
+			}
 		},
 		
 		getLimitedUseToken: function(requestId, callbackPtr) {
@@ -90,7 +97,7 @@ const firebaseAppCheckLibrary = {
 	},
 	
 	FirebaseWebGL_FirebaseAppCheck_initialize: function() {
-		firebaseAppCheck.initialize();
+		return firebaseAppCheck.initialize();
 	},
 	
 	FirebaseWebGL_FirebaseAppCheck_getLimitedUseToken: function(requestId, callbackPtr) {

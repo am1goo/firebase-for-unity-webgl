@@ -10,7 +10,7 @@ namespace FirebaseWebGL
     internal sealed class FirebaseAppCheck : IFirebaseAppCheck
     {
         [DllImport("__Internal")]
-        private static extern void FirebaseWebGL_FirebaseAppCheck_initialize();
+        private static extern bool FirebaseWebGL_FirebaseAppCheck_initialize();
         [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseAppCheck_getLimitedUseToken(int requestId, FirebaseCallbackDelegate callbackPtr);
         [DllImport("__Internal")]
@@ -51,8 +51,7 @@ namespace FirebaseWebGL
                 return;
             }
 
-            FirebaseWebGL_FirebaseAppCheck_initialize();
-            _isInitialized = true;
+            _isInitialized = FirebaseWebGL_FirebaseAppCheck_initialize();
             onInitialized?.Invoke(_isInitialized);
             firebaseCallback?.Invoke(FirebaseCallback<bool>.Success(_isInitialized));
         }

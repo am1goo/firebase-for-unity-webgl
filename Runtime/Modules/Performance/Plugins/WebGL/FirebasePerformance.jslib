@@ -12,13 +12,21 @@ const firebasePerformanceLibrary = {
 			plugin.firebaseToUnity = window.firebaseToUnity;
 			
 			if (typeof sdk !== 'undefined') {
-				console.error("already initialized");
-				return;
+				console.error("[Firebase Performance] initialize: already initialized");
+				return false;
 			}
-			plugin.sdk = document.firebaseSdk.performance;
-			plugin.api = document.firebaseSdk.performanceApi;
-			plugin.traceCounter = this.createCounter();
-			console.log('[Firebase Performance] initialize: initialized');
+			
+			try {
+				plugin.sdk = document.firebaseSdk.performance;
+				plugin.api = document.firebaseSdk.performanceApi;
+				plugin.traceCounter = this.createCounter();
+				console.log('[Firebase Performance] initialize: initialized');
+				return true;
+			}
+			catch(error) {
+				console.error(`[Firebase Performance] initialize: failed, error=${error}`);
+				return false;
+			}
 		},
 		
 		trace: function(name) {
@@ -116,7 +124,7 @@ const firebasePerformanceLibrary = {
 	},
 	
 	FirebaseWebGL_FirebasePerformance_initialize: function() {
-		firebasePerformance.initialize();
+		return firebasePerformance.initialize();
 	},
 	
 	FirebaseWebGL_FirebasePerformance_trace: function(namePtr) {

@@ -20,12 +20,25 @@ const firebaseAppLibrary = {
 			window.firebaseToUnity = this.firebaseToUnity;
 			
 			if (typeof sdk !== 'undefined') {
-				return;
+				console.error("[Firebase App] initialize: already initialized");
+				return false;
 			}
 			
-			this.sdk = document.firebaseSdk.app;
-			this.api = document.firebaseSdk.appApi;
-			console.log("[Firebase App] initialize: initialized");
+			if (typeof document.firebaseSdk === 'undefined') {
+				console.error("[Firebase App] initialize: missing SDK");
+				return false;
+			}
+					
+			try {
+				this.sdk = document.firebaseSdk.app;
+				this.api = document.firebaseSdk.appApi;
+				console.log("[Firebase App] initialize: initialized");
+				return true;
+			}
+			catch(error) {
+				console.error(`[Firebase App] initialize: failed, error=${error}`);
+				return false;
+			}
 		},
 		
 		deleteApp: function() {
@@ -42,7 +55,7 @@ const firebaseAppLibrary = {
 	},
 	
 	FirebaseWebGL_FirebaseApp_initalize: function () {
-		firebaseApp.initialize();
+		return firebaseApp.initialize();
 	},
 	
 	FirebaseWebGL_FirebaseApp_deleteApp: function () {
