@@ -10,15 +10,15 @@ namespace FirebaseWebGL
     internal sealed class FirebaseRemoteConfig : IFirebaseRemoteConfig
     {
         [DllImport("__Internal")]
-        private static extern void FirebaseWebGL_FirebaseRemoteConfig_initialize(int requestId, FirebaseCallbackDelegate callback);
+        private static extern void FirebaseWebGL_FirebaseRemoteConfig_initialize(int requestId, FirebaseJsonCallbackDelegate callback);
         [DllImport("__Internal")]
-        private static extern void FirebaseWebGL_FirebaseRemoteConfig_activate(int requestId, FirebaseCallbackDelegate callback);
+        private static extern void FirebaseWebGL_FirebaseRemoteConfig_activate(int requestId, FirebaseJsonCallbackDelegate callback);
         [DllImport("__Internal")]
-        private static extern void FirebaseWebGL_FirebaseRemoteConfig_ensureInitialized(int requestId, FirebaseCallbackDelegate callback);
+        private static extern void FirebaseWebGL_FirebaseRemoteConfig_ensureInitialized(int requestId, FirebaseJsonCallbackDelegate callback);
         [DllImport("__Internal")]
-        private static extern void FirebaseWebGL_FirebaseRemoteConfig_fetchAndActivate(int requestId, FirebaseCallbackDelegate callback);
+        private static extern void FirebaseWebGL_FirebaseRemoteConfig_fetchAndActivate(int requestId, FirebaseJsonCallbackDelegate callback);
         [DllImport("__Internal")]
-        private static extern void FirebaseWebGL_FirebaseRemoteConfig_fetchConfig(int requestId, FirebaseCallbackDelegate callback);
+        private static extern void FirebaseWebGL_FirebaseRemoteConfig_fetchConfig(int requestId, FirebaseJsonCallbackDelegate callback);
         [DllImport("__Internal")]
         private static extern string FirebaseWebGL_FirebaseRemoteConfig_getKeys();
         [DllImport("__Internal")]
@@ -28,7 +28,7 @@ namespace FirebaseWebGL
         [DllImport("__Internal")]
         private static extern string FirebaseWebGL_FirebaseRemoteConfig_getString(string key);
         [DllImport("__Internal")]
-        private static extern void FirebaseWebGL_FirebaseRemoteConfig_onConfigUpdate(int instanceId, FirebaseCallbackDelegate callback);
+        private static extern void FirebaseWebGL_FirebaseRemoteConfig_onConfigUpdate(int instanceId, FirebaseJsonCallbackDelegate callback);
         [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseRemoteConfig_setCustomSignals(string customSignalsAsJson);
         [DllImport("__Internal")]
@@ -208,7 +208,7 @@ namespace FirebaseWebGL
             FirebaseWebGL_FirebaseRemoteConfig_setLogLevel((int)logLevel);
         }
 
-        [MonoPInvokeCallback(typeof(FirebaseCallbackDelegate))]
+        [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnBoolCallback(string json)
         {
             var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<bool>>(json);
@@ -227,7 +227,7 @@ namespace FirebaseWebGL
             }
         }
 
-        [MonoPInvokeCallback(typeof(FirebaseCallbackDelegate))]
+        [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnConfigUpdateCallback(string json)
         {
             var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<string[]>>(json);

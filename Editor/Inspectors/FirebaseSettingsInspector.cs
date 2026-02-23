@@ -16,6 +16,8 @@ namespace FirebaseWebGL {
         private SerializedProperty _includeRemoteConfig;
         private SerializedProperty _includeInstallations;
         private SerializedProperty _includePerformance;
+        private SerializedProperty _includeStorage;
+        private SerializedProperty _includeStorageSettings;
 
         private void OnEnable()
         {
@@ -29,6 +31,8 @@ namespace FirebaseWebGL {
             _includeRemoteConfig = serializedObject.FindProperty(nameof(_includeRemoteConfig));
             _includeInstallations = serializedObject.FindProperty(nameof(_includeInstallations));
             _includePerformance = serializedObject.FindProperty(nameof(_includePerformance));
+            _includeStorage = serializedObject.FindProperty(nameof(_includeStorage));
+            _includeStorageSettings = serializedObject.FindProperty(nameof(_includeStorageSettings));
         }
 
         public override void OnInspectorGUI()
@@ -48,11 +52,20 @@ namespace FirebaseWebGL {
             EditorGUILayout.PropertyField(_includeMessaging);
             if (_includeMessaging.boolValue)
             {
+                EditorGUI.indentLevel++;
                 EditorGUILayout.PropertyField(_includeMessagingServiceWorker, includeChildren: true);
+                EditorGUI.indentLevel--;
             }
             EditorGUILayout.PropertyField(_includeRemoteConfig);
             EditorGUILayout.PropertyField(_includeInstallations);
             EditorGUILayout.PropertyField(_includePerformance);
+            EditorGUILayout.PropertyField(_includeStorage);
+            if (_includeStorage.boolValue)
+            {
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(_includeStorageSettings, includeChildren: true);
+                EditorGUI.indentLevel--;
+            }
 
             serializedObject.ApplyModifiedProperties();
         }
@@ -119,6 +132,30 @@ namespace FirebaseWebGL {
                 var isTokenAutoRefreshEnabled = property.FindPropertyRelative("_isTokenAutoRefreshEnabled");
                 r.height = EditorGUI.GetPropertyHeight(isTokenAutoRefreshEnabled);
                 EditorGUI.PropertyField(r, isTokenAutoRefreshEnabled);
+                r.y += r.height;
+            }
+        }
+
+        [CustomPropertyDrawer(typeof(FirebaseSettings.StorageSettings))]
+        sealed class StorageSettingsDrawer : PropertyDrawer
+        {
+            public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+            {
+                var height = 0.0f;
+
+                var bucketUrl = property.FindPropertyRelative("_bucketUrl");
+                height += EditorGUI.GetPropertyHeight(bucketUrl);
+
+                return height;
+            }
+
+            public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+            {
+                var r = position;
+
+                var bucketUrl = property.FindPropertyRelative("_bucketUrl");
+                r.height = EditorGUI.GetPropertyHeight(bucketUrl);
+                EditorGUI.PropertyField(r, bucketUrl);
                 r.y += r.height;
             }
         }

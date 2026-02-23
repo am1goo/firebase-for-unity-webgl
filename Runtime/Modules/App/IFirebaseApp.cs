@@ -8,5 +8,6 @@ namespace FirebaseWebGL
         IFirebaseRemoteConfig RemoteConfig { get; }
         IFirebaseInstallations Installations { get; }
         IFirebasePerformance Performance { get; }
+        IFirebaseStorage Storage { get; }
     }
 }

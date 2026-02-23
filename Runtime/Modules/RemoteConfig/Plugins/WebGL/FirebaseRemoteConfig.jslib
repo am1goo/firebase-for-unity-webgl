@@ -191,12 +191,7 @@ const firebaseRemoteConfigLibrary = {
 	FirebaseWebGL_FirebaseRemoteConfig_getKeys: function() {
 		const keys = firebaseRemoteConfig.getKeys();
 		const keysAsJson = JSON.stringify(keys);
-		
-		var buffer = stringToNewUTF8(keysAsJson);
-		setTimeout(function() {
-			_free(buffer);
-		}, 100);
-		return buffer;
+		return stringToNewUTF8(keysAsJson);
 	},
 	
 	FirebaseWebGL_FirebaseRemoteConfig_getBoolean: function(keyPtr) {
@@ -212,12 +207,7 @@ const firebaseRemoteConfigLibrary = {
 	FirebaseWebGL_FirebaseRemoteConfig_getString: function(keyPtr) {
 		const key = UTF8ToString(keyPtr);
 		const value = firebaseRemoteConfig.getString(key);
-		
-		var buffer = stringToNewUTF8(value);
-		setTimeout(function() {
-			_free(buffer);
-		}, 100);
-		return buffer;
+		return stringToNewUTF8(value);
 	},
 	
 	FirebaseWebGL_FirebaseRemoteConfig_onConfigUpdate: function(instanceId, callbackPtr) {

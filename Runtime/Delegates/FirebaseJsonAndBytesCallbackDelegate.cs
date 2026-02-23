@@ -1,0 +1,1 @@
+public delegate void FirebaseJsonAndBytesCallbackDelegate(string json, int bytesPointer, int bytesLength);

@@ -11,9 +11,9 @@ namespace FirebaseWebGL
     internal sealed class FirebaseAnalytics : IFirebaseAnalytics
     {
         [DllImport("__Internal")]
-        private static extern void FirebaseWebGL_FirebaseAnalytics_initialize(int requestId, FirebaseCallbackDelegate callback);
+        private static extern void FirebaseWebGL_FirebaseAnalytics_initialize(int requestId, FirebaseJsonCallbackDelegate callback);
         [DllImport("__Internal")]
-        private static extern void FirebaseWebGL_FirebaseAnalytics_getGoogleAnalyticsClientId(int requestId, FirebaseCallbackDelegate callback);
+        private static extern void FirebaseWebGL_FirebaseAnalytics_getGoogleAnalyticsClientId(int requestId, FirebaseJsonCallbackDelegate callback);
         [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseAnalytics_setAnalyticsCollectionEnabled(bool enabled);
         [DllImport("__Internal")]
@@ -187,7 +187,7 @@ namespace FirebaseWebGL
             FirebaseWebGL_FirebaseAnalytics_logEvent(eventName, eventParamsAsJson);
         }
 
-        [MonoPInvokeCallback(typeof(FirebaseCallbackDelegate))]
+        [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnBoolCallback(string json)
         {
             var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<bool>>(json);
@@ -206,7 +206,7 @@ namespace FirebaseWebGL
             }
         }
 
-        [MonoPInvokeCallback(typeof(FirebaseCallbackDelegate))]
+        [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnStringCallback(string json)
         {
             var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<string>>(json);

@@ -12,11 +12,11 @@ namespace FirebaseWebGL
         [DllImport("__Internal")]
         private static extern bool FirebaseWebGL_FirebaseAppCheck_initialize();
         [DllImport("__Internal")]
-        private static extern void FirebaseWebGL_FirebaseAppCheck_getLimitedUseToken(int requestId, FirebaseCallbackDelegate callbackPtr);
+        private static extern void FirebaseWebGL_FirebaseAppCheck_getLimitedUseToken(int requestId, FirebaseJsonCallbackDelegate callbackPtr);
         [DllImport("__Internal")]
-        private static extern void FirebaseWebGL_FirebaseAppCheck_getToken(bool forceRefresh, int requestId, FirebaseCallbackDelegate callbackPtr);
+        private static extern void FirebaseWebGL_FirebaseAppCheck_getToken(bool forceRefresh, int requestId, FirebaseJsonCallbackDelegate callbackPtr);
         [DllImport("__Internal")]
-        private static extern void FirebaseWebGL_FirebaseAppCheck_onTokenChanged(int instanceId, FirebaseCallbackDelegate callbackPtr);
+        private static extern void FirebaseWebGL_FirebaseAppCheck_onTokenChanged(int instanceId, FirebaseJsonCallbackDelegate callbackPtr);
         [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseAppCheck_setTokenAutoRefreshEnabled(bool isTokenAutoRefreshEnabled);
 
@@ -110,7 +110,7 @@ namespace FirebaseWebGL
             FirebaseWebGL_FirebaseAppCheck_setTokenAutoRefreshEnabled(isTokenAutoRefreshEnabled);
         }
 
-        [MonoPInvokeCallback(typeof(FirebaseCallbackDelegate))]
+        [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnStringCallback(string json)
         {
             var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<string>>(json);
@@ -129,7 +129,7 @@ namespace FirebaseWebGL
             }
         }
 
-        [MonoPInvokeCallback(typeof(FirebaseCallbackDelegate))]
+        [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnTokenChangedCallback(string json)
         {
             var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<string>>(json);

@@ -12,13 +12,13 @@ namespace FirebaseWebGL
         [DllImport("__Internal")]
         private static extern bool FirebaseWebGL_FirebaseInstallations_initialize();
         [DllImport("__Internal")]
-        private static extern void FirebaseWebGL_FirebaseInstallations_deleteInstallations(int requestId, FirebaseCallbackDelegate callback);
+        private static extern void FirebaseWebGL_FirebaseInstallations_deleteInstallations(int requestId, FirebaseJsonCallbackDelegate callback);
         [DllImport("__Internal")]
-        private static extern void FirebaseWebGL_FirebaseInstallations_getId(int requestId, FirebaseCallbackDelegate callback);
+        private static extern void FirebaseWebGL_FirebaseInstallations_getId(int requestId, FirebaseJsonCallbackDelegate callback);
         [DllImport("__Internal")]
-        private static extern void FirebaseWebGL_FirebaseInstallations_getToken(bool forceRefresh, int requestId, FirebaseCallbackDelegate callback);
+        private static extern void FirebaseWebGL_FirebaseInstallations_getToken(bool forceRefresh, int requestId, FirebaseJsonCallbackDelegate callback);
         [DllImport("__Internal")]
-        private static extern void FirebaseWebGL_FirebaseInstallations_onIdChange(int instanceId, FirebaseCallbackDelegate callback);
+        private static extern void FirebaseWebGL_FirebaseInstallations_onIdChange(int instanceId, FirebaseJsonCallbackDelegate callback);
 
         private static readonly FirebaseRequests _requests = new FirebaseRequests();
         private static readonly Dictionary<int, Action<FirebaseCallback<bool>>> _onBoolCallbacks = new Dictionary<int, Action<FirebaseCallback<bool>>>();
@@ -117,7 +117,7 @@ namespace FirebaseWebGL
             FirebaseWebGL_FirebaseInstallations_onIdChange(_instanceId, OnIdChangeCallback);
         }
 
-        [MonoPInvokeCallback(typeof(FirebaseCallbackDelegate))]
+        [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnBoolCallback(string json)
         {
             var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<bool>>(json);
@@ -136,7 +136,7 @@ namespace FirebaseWebGL
             }
         }
 
-        [MonoPInvokeCallback(typeof(FirebaseCallbackDelegate))]
+        [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnStringCallback(string json)
         {
             var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<string>>(json);
@@ -155,7 +155,7 @@ namespace FirebaseWebGL
             }
         }
 
-        [MonoPInvokeCallback(typeof(FirebaseCallbackDelegate))]
+        [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnIdChangeCallback(string json)
         {
             var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<string>>(json);

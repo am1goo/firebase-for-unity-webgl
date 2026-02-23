@@ -39,6 +39,9 @@ namespace FirebaseWebGL
         private IFirebasePerformance _performance;
         public IFirebasePerformance Performance => _performance;
 
+        private IFirebaseStorage _storage;
+        public IFirebaseStorage Storage => _storage;
+
         ~FirebaseApp()
         {
             Dispose(false);
@@ -132,6 +135,10 @@ namespace FirebaseWebGL
             if (settings.includePerformance)
             {
                 _performance = new FirebasePerformance();
+            }
+            if (settings.includeStorage)
+            {
+                _storage = new FirebaseStorage();
             }
         }
 

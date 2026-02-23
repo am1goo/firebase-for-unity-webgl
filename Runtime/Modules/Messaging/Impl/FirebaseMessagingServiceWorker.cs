@@ -10,7 +10,7 @@ namespace FirebaseWebGL
     internal sealed class FirebaseMessagingServiceWorker : IFirebaseMessagingServiceWorker
     {
         [DllImport("__Internal")]
-        private static extern void FirebaseWebGL_FirebaseMessaging_ServiceWorker_initialize(int requestId, FirebaseCallbackDelegate callback);
+        private static extern void FirebaseWebGL_FirebaseMessaging_ServiceWorker_initialize(int requestId, FirebaseJsonCallbackDelegate callback);
         [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseMessaging_ServiceWorker_experimentalSetDeliveryMetricsExportedToBigQueryEnabled(bool enabled);
 
@@ -75,7 +75,7 @@ namespace FirebaseWebGL
             FirebaseWebGL_FirebaseMessaging_ServiceWorker_experimentalSetDeliveryMetricsExportedToBigQueryEnabled(enabled);
         }
 
-        [MonoPInvokeCallback(typeof(FirebaseCallbackDelegate))]
+        [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnBoolCallback(string json)
         {
             var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<bool>>(json);

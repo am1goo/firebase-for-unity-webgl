@@ -65,12 +65,7 @@ const firebasePerformanceLibrary = {
 			const plugin = this;
 			const trace = plugin.getTrace(traceId);
 			const attrValue = trace.getAttribute(attr);
-			
-			var buffer = stringToNewUTF8(attrValue);
-			setTimeout(function() {
-				_free(buffer);
-			}, 100);
-			return buffer;
+			return stringToNewUTF8(attrValue);
 		},
 		
 		getAttributes: function(traceId) {
@@ -154,23 +149,13 @@ const firebasePerformanceLibrary = {
 	FirebaseWebGL_FirebasePerformance_Trace_getAttribute: function(traceId, attrPtr) {
 		const attr = UTF8ToString(attrPtr);
 		const value = firebasePerformance.getAttribute(traceId, attr);
-		
-		var buffer = stringToNewUTF8(value);
-		setTimeout(function() {
-			_free(buffer);
-		}, 100);
-		return buffer;
+		return stringToNewUTF8(value);
 	},
 	
 	FirebaseWebGL_FirebasePerformance_Trace_getAttributes: function(traceId) {
 		const attributes = firebasePerformance.getAttributes(traceId);
 		const attributesAsJson = JSON.stringify(attributes);
-		
-		var buffer = stringToNewUTF8(attributesAsJson);
-		setTimeout(function() {
-			_free(buffer);
-		}, 100);
-		return buffer;
+		return stringToNewUTF8(attributesAsJson);
 	},
 	
 	FirebaseWebGL_FirebasePerformance_Trace_putMetric: function(traceId, namePtr, num) {

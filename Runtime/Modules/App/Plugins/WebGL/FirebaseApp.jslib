@@ -5,19 +5,48 @@ const firebaseAppLibrary = {
 		
 		firebaseToUnity: function(requestId, callbackPtr, success, result, e) {
 			var error = (e instanceof Error ? e.message : e);
-			var args = { requestId, success, result, error };
+			var args = { 
+				requestId: requestId,
+				success: success,
+				result: result,
+				error: error
+			};
 			var json = JSON.stringify(args);
-			var buffer = stringToNewUTF8(json);
+			var jsonBuffer = stringToNewUTF8(json);
 			try {
-				{{{ makeDynCall('vi', 'callbackPtr') }}} (buffer);
+				{{{ makeDynCall('vi', 'callbackPtr') }}} (jsonBuffer);
 			}
 			finally {
-				_free(buffer);
+				_free(jsonBuffer);
+			}
+		},
+		
+		firebaseToUnityBytes: function(requestId, callbackPtr, success, bytes, e) {
+			var error = (e instanceof Error ? e.message : e);
+			var args = { 
+				requestId: requestId,
+				success: success,
+				result: null,
+				error: error
+			};
+			var json = JSON.stringify(args);
+			var jsonBuffer = stringToNewUTF8(json);
+			
+			var bytesArray = new Uint8Array(bytes);
+			var bytesBuffer = _malloc(bytesArray.length * bytesArray.BYTES_PER_ELEMENT);
+			HEAPU8.set(bytesArray, bytesBuffer);
+			try {
+				{{{ makeDynCall('viii', 'callbackPtr') }}} (jsonBuffer, bytesBuffer, bytesArray.length);
+			}
+			finally {
+				_free(jsonBuffer);
+				_free(bytesBuffer);
 			}
 		},
 		
 		initialize: function() {
 			window.firebaseToUnity = this.firebaseToUnity;
+			window.firebaseToUnityBytes = this.firebaseToUnityBytes;
 			
 			if (typeof sdk !== 'undefined') {
 				console.error("[Firebase App] initialize: already initialized");

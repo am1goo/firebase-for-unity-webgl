@@ -145,6 +145,10 @@ namespace FirebaseWebGL
             {
                 sb.Append(indent).AppendLine("import { getPerformance, trace } from \"https://www.gstatic.com/firebasejs/12.9.0/firebase-performance.js\";");
             }
+            if (settings.includeStorage)
+            {
+                sb.Append(indent).AppendLine("import { getStorage, connectStorageEmulator, deleteObject, getBlob, getBytes, getDownloadURL, getMetadata, getStream, list, listAll, ref, updateMetadata, uploadBytes, uploadBytesResumable, uploadString } from \"https://www.gstatic.com/firebasejs/12.9.0/firebase-storage.js\";");
+            }
             sb.AppendLine();
             sb.Append(indent).AppendLine("const firebaseConfig = {");
             sb.Append(indent).Append(indent).AppendLine($"apiKey: \"{settings.apiKey}\",");
@@ -209,6 +213,32 @@ namespace FirebaseWebGL
             {
                 sb.Append(indent).AppendLine("firebaseSdk.performance = getPerformance(app);");
                 sb.Append(indent).AppendLine("firebaseSdk.performanceApi = { trace };");
+            }
+            if (settings.includeStorage)
+            {
+                var bucketUrl = settings.includeStorageSettings.bucketUrl;
+                if (!string.IsNullOrWhiteSpace(bucketUrl))
+                {
+                    var uri = default(Uri);
+                    try
+                    {
+                        uri = new Uri(bucketUrl);
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception($"{nameof(bucketUrl)} cannot be parsed as uri", ex);
+                    }
+
+                    if (uri.Scheme != "gs")
+                        throw new Exception($"{nameof(bucketUrl)} should starts with 'gs://' scheme");
+
+                    sb.Append(indent).AppendLine("firebaseSdk.storage = getStorage(app, \'" + uri.ToString() + "\');");
+                }
+                else
+                {
+                    sb.Append(indent).AppendLine("firebaseSdk.storage = getStorage(app);");
+                }
+                sb.Append(indent).AppendLine("firebaseSdk.storageApi = { connectStorageEmulator, deleteObject, getBlob, getBytes, getDownloadURL, getMetadata, getStream, list, listAll, ref, updateMetadata, uploadBytes, uploadBytesResumable, uploadString };");
             }
             sb.AppendLine(indent).AppendLine("document.firebaseSdk = firebaseSdk;");
             return sb.ToString();

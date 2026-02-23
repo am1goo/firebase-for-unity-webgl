@@ -59,6 +59,12 @@ namespace FirebaseWebGL
         [SerializeField, HideInInspector]
         private bool _includePerformance;
         public bool includePerformance => _includePerformance;
+        [SerializeField, HideInInspector]
+        private bool _includeStorage;
+        public bool includeStorage => _includeStorage;
+        [SerializeField, HideInInspector]
+        private StorageSettings _includeStorageSettings;
+        public StorageSettings includeStorageSettings => _includeStorageSettings;
 
         private static FirebaseSettings _instance;
         public static FirebaseSettings instance
@@ -94,6 +100,14 @@ namespace FirebaseWebGL
                 ReCaptchaV3 = 0,
                 ReCaptchaEnterprise = 1,
             }
+        }
+
+        [Serializable]
+        public sealed class StorageSettings
+        {
+            [SerializeField]
+            private string _bucketUrl;
+            public string bucketUrl => _bucketUrl;
         }
     }
 }
