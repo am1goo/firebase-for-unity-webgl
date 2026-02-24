@@ -1,18 +1,28 @@
 using System;
+using UnityEngine.Scripting;
 
 namespace FirebaseWebGL
 {
     [Serializable]
     public sealed class FirebaseStorageReferenceFullMetadata
     {
+        [Preserve]
         public string bucket { get; set; }
+        [Preserve]
         public string[] downloadTokens { get; set; }
+        [Preserve]
         public string fullPath { get; set; }
+        [Preserve]
         public string generation { get; set; }
+        [Preserve]
         public string metageneration { get; set; }
+        [Preserve]
         public string name { get; set; }
+        [Preserve]
         public int size { get; set; }
+        [Preserve]
         public string timeCreated { get; set; }
+        [Preserve]
         public string updated { get; set; }
 
         public override string ToString()
