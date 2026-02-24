@@ -69,9 +69,6 @@ const firebaseAppCheckLibrary = {
 				console.log('[Firebase AppCheck] onTokenChanged: unsubscribed');
 			}
 			
-			if (callbackPtr == 0)
-				return;
-			
 			plugin.callbacks.onTokenChangedUnsubscribe = plugin.api.onTokenChanged(plugin.sdk, {
 				next: (tokenResult) => {
 					const token = tokenResult.token;

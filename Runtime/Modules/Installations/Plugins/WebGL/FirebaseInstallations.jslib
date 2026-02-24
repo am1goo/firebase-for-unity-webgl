@@ -78,7 +78,13 @@ const firebaseInstallationsLibrary = {
 		
 		onIdChange: function(instanceId, callbackPtr) {
 			const plugin = this;
-			plugin.api.onIdChange(plugin.sdk, function(newId) {
+			if (typeof plugin.callbacks.onIdChangeUnsubscribe !== 'undefined') {
+				plugin.callbacks.onIdChangeUnsubscribe();
+				plugin.callbacks.onIdChangeUnsubscribe = null;
+				console.log('[Firebase Installations] onIdChange: unsubscribed');
+			}
+			
+			plugin.callbacks.onIdChangeUnsubscribe = plugin.api.onIdChange(plugin.sdk, function(newId) {
 				console.log(`[Firebase Installations] onIdChange: newId=${newId}`);
 				plugin.firebaseToUnity(instanceId, callbackPtr, true, newId, null);
 			});
