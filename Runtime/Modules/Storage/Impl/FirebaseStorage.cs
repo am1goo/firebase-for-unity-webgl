@@ -10,7 +10,7 @@ namespace FirebaseWebGL
         [DllImport("__Internal")]
         private static extern bool FirebaseWebGL_FirebaseStorage_initialize();
         [DllImport("__Internal")]
-        private static extern void FirebaseWebGL_FirebaseStorage_connectStorageEmulator(string host, int port, string optionsAsJson);
+        private static extern bool FirebaseWebGL_FirebaseStorage_connectStorageEmulator(string host, int port, string optionsAsJson);
         [DllImport("__Internal")]
         private static extern string FirebaseWebGL_FirebaseStorage_ref(string url);
 
@@ -44,7 +44,11 @@ namespace FirebaseWebGL
                 throw new FirebaseModuleNotInitializedException(this);
 
             var optionsAsJson = options != null ? JsonConvert.SerializeObject(options) : null;
-            FirebaseWebGL_FirebaseStorage_connectStorageEmulator(host, port, optionsAsJson);
+            var connected = FirebaseWebGL_FirebaseStorage_connectStorageEmulator(host, port, optionsAsJson);
+            if (!connected)
+                throw new Exception("unable to connect to emulator");
+
+            //do nothing
         }
 
         public IFirebaseStorageReference Ref(string url)
