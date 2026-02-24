@@ -1,6 +1,6 @@
 {
     "name": "com.am1goo.firebase.webgl",
-    "version": "0.7.0",
+    "version": "0.8.0",
     "displayName": "Firebase for WebGL",
     "description": "Naive wrapper over JavaScript Firebase library",
     "unity": "2022.3",
@@ -13,6 +13,7 @@
         "app",
         "appcheck",
         "analytics",
+        "functions",
         "installations",
         "messaging",
         "remoteconfig",

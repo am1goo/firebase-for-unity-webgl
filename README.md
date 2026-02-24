@@ -12,7 +12,7 @@ Naive implementation of the most popular Firebase modules for Web apps and games
 - [x] Analytics
 - [ ] Database
 - [ ] Firestore
-- [ ] Functions
+- [x] Functions
 - [x] Installations
 - [x] Messaging (limitations: no support for Service Worker 'onBackgroundMessage')
 - [x] Performance
@@ -29,7 +29,7 @@ I hope that I'll add other modules as soon as possible.
 ##### via Unity Package Manager
 The latest version can be installed via [package manager](https://docs.unity3d.com/Manual/upm-ui-giturl.html) using following git URL:
 ```
-https://github.com/am1goo/FirebaseWebGL-Unity.git#0.7.0
+https://github.com/am1goo/FirebaseWebGL-Unity.git#0.8.0
 ```
 
 ## Extensions

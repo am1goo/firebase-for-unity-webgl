@@ -28,8 +28,15 @@ const firebaseStorageLibrary = {
 		
 		connectStorageEmulator: function(host, port, options) {
 			const plugin = this;
-			plugin.api.connectStorageEmulator(plugin.sdk, host, port, options);
-			console.log(`[Firebase Storage] connectStorageEmulator: host=${host}, port=${port}`);
+			try {
+				plugin.api.connectStorageEmulator(plugin.sdk, host, port, options);
+				console.log(`[Firebase Storage] connectStorageEmulator: host=${host}, port=${port}`);
+				return true;
+			}
+			catch(error) {
+				console.error(`[Firebase Storage] connectStorageEmulator: error=${error}`);
+				return false;
+			}
 		},
 		
 		ref: function(url) {
@@ -215,10 +222,10 @@ const firebaseStorageLibrary = {
 		if (optionsAsJsonPtr != 0) {
 			const optionsAsJson = UTF8ToString(optionsAsJsonPtr);
 			const options = JSON.parse(optionsAsJson);
-			firebaseStorage.connectStorageEmulator(host, port, options);
+			return firebaseStorage.connectStorageEmulator(host, port, options);
 		}
 		else {
-			firebaseStorage.connectStorageEmulator(host, port);
+			return firebaseStorage.connectStorageEmulator(host, port);
 		}
 	},
 	

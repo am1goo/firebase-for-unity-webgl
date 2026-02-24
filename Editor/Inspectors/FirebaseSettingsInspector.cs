@@ -11,7 +11,8 @@ namespace FirebaseWebGL.Editor
         private SerializedProperty _includeAnalytics;
         private SerializedProperty _includeAppCheck;
         private SerializedProperty _includeAppCheckSettings;
-        private SerializedProperty _includeFirestore;
+        private SerializedProperty _includeFunctions;
+        private SerializedProperty _includeFunctionsSettings;
         private SerializedProperty _includeMessaging;
         private SerializedProperty _includeMessagingSettings;
         private SerializedProperty _includeRemoteConfig;
@@ -26,7 +27,8 @@ namespace FirebaseWebGL.Editor
             _includeAnalytics = serializedObject.FindProperty(nameof(_includeAnalytics));
             _includeAppCheck = serializedObject.FindProperty(nameof(_includeAppCheck));
             _includeAppCheckSettings = serializedObject.FindProperty(nameof(_includeAppCheckSettings));
-            _includeFirestore = serializedObject.FindProperty(nameof(_includeFirestore));
+            _includeFunctions = serializedObject.FindProperty(nameof(_includeFunctions));
+            _includeFunctionsSettings = serializedObject.FindProperty(nameof(_includeFunctionsSettings));
             _includeMessaging = serializedObject.FindProperty(nameof(_includeMessaging));
             _includeMessagingSettings = serializedObject.FindProperty(nameof(_includeMessagingSettings));
             _includeRemoteConfig = serializedObject.FindProperty(nameof(_includeRemoteConfig));
@@ -49,7 +51,13 @@ namespace FirebaseWebGL.Editor
                 EditorGUILayout.PropertyField(_includeAppCheckSettings, includeChildren: true);
                 EditorGUI.indentLevel--;
             }
-            EditorGUILayout.PropertyField(_includeFirestore);
+            EditorGUILayout.PropertyField(_includeFunctions);
+            if (_includeFunctions.boolValue)
+            {
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(_includeFunctionsSettings, includeChildren: true);
+                EditorGUI.indentLevel--;
+            }
             EditorGUILayout.PropertyField(_includeMessaging);
             if (_includeMessaging.boolValue)
             {
@@ -133,6 +141,30 @@ namespace FirebaseWebGL.Editor
                 var isTokenAutoRefreshEnabled = property.FindPropertyRelative("_isTokenAutoRefreshEnabled");
                 r.height = EditorGUI.GetPropertyHeight(isTokenAutoRefreshEnabled);
                 EditorGUI.PropertyField(r, isTokenAutoRefreshEnabled);
+                r.y += r.height;
+            }
+        }
+
+        [CustomPropertyDrawer(typeof(FirebaseSettings.FunctionsSettings))]
+        sealed class FunctionsSettingsDrawer : PropertyDrawer
+        {
+            public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+            {
+                var height = 0.0f;
+
+                var regionOrCustomDomain = property.FindPropertyRelative("_regionOnCustomDomain");
+                height += EditorGUI.GetPropertyHeight(regionOrCustomDomain);
+
+                return height;
+            }
+
+            public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+            {
+                var r = position;
+
+                var regionOrCustomDomain = property.FindPropertyRelative("_regionOnCustomDomain");
+                r.height = EditorGUI.GetPropertyHeight(regionOrCustomDomain);
+                EditorGUI.PropertyField(r, regionOrCustomDomain);
                 r.y += r.height;
             }
         }

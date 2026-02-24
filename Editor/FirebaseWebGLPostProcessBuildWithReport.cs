@@ -85,6 +85,7 @@ namespace FirebaseWebGL.Editor
                 { "analytics", new Uri("https://www.gstatic.com/firebasejs/12.9.0/firebase-analytics.js") },
                 { "appCheck", new Uri("https://www.gstatic.com/firebasejs/12.9.0/firebase-app-check.js") },
                 { "firestore", new Uri("https://www.gstatic.com/firebasejs/12.9.0/firebase-firestore.js") },
+                { "functions", new Uri("https://www.gstatic.com/firebasejs/12.9.0/firebase-functions.js") },
                 { "messaging", new Uri("https://www.gstatic.com/firebasejs/12.9.0/firebase-messaging.js") },
                 { "messagingSw", new Uri("https://www.gstatic.com/firebasejs/12.9.0/firebase-messaging-sw.js") },
                 { "remoteConfig", new Uri("https://www.gstatic.com/firebasejs/12.9.0/firebase-remote-config.js") },
@@ -153,14 +154,15 @@ namespace FirebaseWebGL.Editor
                 }, usePostfix: true);
                 injectors.Add(appCheck);
             }
-            if (settings.includeFirestore)
+            if (settings.includeFunctions)
             {
-                var firestore = new ModularApiInjector(rootName, "firestore", "firestoreApi", scriptsToInject["firestore"], new[]
+                var firestore = new ModularApiInjector(rootName, "functions", "functionsApi", scriptsToInject["functions"], new[]
                 {
-                    "getFirestore",
+                    "getFunctions", "FunctionsError", "connectFunctionsEmulator" , "httpsCallable", "httpsCallableFromURL",
                 }, (postfix) =>
                 {
-                    return $"getFirestore{postfix}({rootName}.app)";
+                    var injectOptions = $"\'{settings.includeFunctionsSettings.regionOnCustomDomain}\'";
+                    return $"getFunctions{postfix}({rootName}.app, {injectOptions})";
                 }, usePostfix: true);
                 injectors.Add(firestore);
             }

@@ -43,8 +43,11 @@ namespace FirebaseWebGL
         private AppCheckSettings _includeAppCheckSettings;
         public AppCheckSettings includeAppCheckSettings => _includeAppCheckSettings;
         [SerializeField, HideInInspector]
-        private bool _includeFirestore;
-        public bool includeFirestore => _includeFirestore;
+        private bool _includeFunctions;
+        public bool includeFunctions => _includeFunctions;
+        [SerializeField, HideInInspector]
+        private FunctionsSettings _includeFunctionsSettings;
+        public FunctionsSettings includeFunctionsSettings => _includeFunctionsSettings;
         [SerializeField, HideInInspector]
         private bool _includeMessaging;
         public bool includeMessaging => _includeMessaging;
@@ -101,6 +104,14 @@ namespace FirebaseWebGL
                 ReCaptchaV3 = 0,
                 ReCaptchaEnterprise = 1,
             }
+        }
+
+        [Serializable]
+        public sealed class FunctionsSettings
+        {
+            [SerializeField]
+            private string _regionOnCustomDomain;
+            public string regionOnCustomDomain => _regionOnCustomDomain;
         }
 
         [Serializable]
