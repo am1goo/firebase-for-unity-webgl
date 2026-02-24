@@ -22,5 +22,17 @@ namespace FirebaseWebGL
         public bool meetsMinPasswordLength { get; set; }
         [Preserve]
         public FirebaseAuthPasswordPolicy passwordPolicy { get; set; }
+
+        public override string ToString()
+        {
+            return $"containsLowercaseLetter={containsLowercaseLetter}, " +
+                $"containsNonAlphanumericCharacter={containsNonAlphanumericCharacter}, " +
+                $"containsNumericCharacter={containsNumericCharacter}, " +
+                $"containsUppercaseLetter={containsUppercaseLetter}, " +
+                $"isValid={isValid}, " +
+                $"meetsMaxPasswordLength={meetsMaxPasswordLength}, " +
+                $"meetsMinPasswordLength={meetsMinPasswordLength}, " +
+                $"passwordPolicy=[{passwordPolicy}]";
+        }
     }
 }

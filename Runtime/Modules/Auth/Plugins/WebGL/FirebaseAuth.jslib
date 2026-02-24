@@ -7,6 +7,7 @@ const firebaseAuthLibrary = {
 		initialize: function() {
 			const plugin = this;
 			plugin.firebaseToUnity = window.firebaseToUnity;
+			plugin.firebaseToUnityAndReturnInteger = window.firebaseToUnityAndReturnInteger;
 			
 			if (typeof sdk !== 'undefined') {
 				console.error("[Firebase Auth] initialize: already initialized");
@@ -144,6 +145,56 @@ const firebaseAuthLibrary = {
 			}
 		},
 		
+		beforeAuthStateChanged: function(instanceId, callbackPtr) {
+			const plugin = this;
+			if (typeof plugin.callbacks.beforeAuthStateChangedUnsubscribe !== 'undefined') {
+				plugin.callbacks.beforeAuthStateChangedUnsubscribe();
+				plugin.callbacks.beforeAuthStateChangedUnsubscribe = null;
+				console.log('[Firebase Auth] beforeAuthStateChanged: unsubscribed');
+			}
+			
+			plugin.callbacks.beforeAuthStateChangedUnsubscribe = plugin.api.beforeAuthStateChanged(plugin.sdk, function(user) {
+				console.log(`[Firebase Auth] beforeAuthStateChanged: user=${JSON.stringify(user)}`);
+				const result = plugin.firebaseToUnityAndReturnInteger(instanceId, callbackPtr, true, user, null);
+				if (!result)
+					throw new Error('callback from Unity Engine is failured');
+				
+			}, function() {
+				console.log(`[Firebase Auth] beforeAuthStateChanged: onAbort`);
+			});
+			console.log('[Firebase Auth] beforeAuthStateChanged: registered callback');
+		},
+		
+		onAuthStateChanged: function(instanceId, callbackPtr) {
+			const plugin = this;
+			if (typeof plugin.callbacks.onAuthStateChangedUnsubscribe !== 'undefined') {
+				plugin.callbacks.onAuthStateChangedUnsubscribe();
+				plugin.callbacks.onAuthStateChangedUnsubscribe = null;
+				console.log('[Firebase Auth] onAuthStateChanged: unsubscribed');
+			}
+			
+			plugin.callbacks.onAuthStateChangedUnsubscribe = plugin.api.onAuthStateChanged(plugin.sdk, function(user) {
+				console.log(`[Firebase Auth] onAuthStateChanged: user=${JSON.stringify(user)}`);
+				plugin.firebaseToUnity(instanceId, callbackPtr, true, user, null);
+			});
+			console.log('[Firebase Auth] onAuthStateChanged: registered callback');
+		},
+		
+		onIdTokenChanged: function(instanceId, callbackPtr) {
+			const plugin = this;
+			if (typeof plugin.callbacks.onIdTokenChangedUnsubscribe !== 'undefined') {
+				plugin.callbacks.onIdTokenChangedUnsubscribe();
+				plugin.callbacks.onIdTokenChangedUnsubscribe = null;
+				console.log('[Firebase Auth] onIdTokenChanged: unsubscribed');
+			}
+			
+			plugin.callbacks.onIdTokenChangedUnsubscribe = plugin.api.onIdTokenChanged(plugin.sdk, function(user) {
+				console.log(`[Firebase Auth] onIdTokenChanged: user=${JSON.stringify(user)}`);
+				plugin.firebaseToUnity(instanceId, callbackPtr, true, user, null);
+			});
+			console.log('[Firebase Auth] onIdTokenChanged: registered callback');
+		},
+		
 		revokeAccessToken: function(token, requestId, callbackPtr) {
 			const plugin = this;
 			try {
@@ -229,6 +280,23 @@ const firebaseAuthLibrary = {
 			}
 		},
 		
+		reauthenticateWithCredential: function(user, credential, requestId, callbackPtr) {
+			const plugin = this;
+			try {
+				plugin.api.reauthenticateWithCredential(plugin.sdk, user, credential).then(function(userCredential) {
+					console.log(`[Firebase Auth] reauthenticateWithCredential`);
+					plugin.firebaseToUnity(requestId, callbackPtr, true, userCredential, null);
+				}).catch(function(error) {
+					console.error(`[Firebase Auth] reauthenticateWithCredential: ${error}`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+				});
+			}
+			catch(error) {
+				console.error(`[Firebase Auth] reauthenticateWithCredential: ${error}`);
+				plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+			}
+		},
+		
 		signInWithCustomToken: function(customToken, requestId, callbackPtr) {
 			const plugin = this;
 			try {
@@ -306,6 +374,23 @@ const firebaseAuthLibrary = {
 			catch(error) {
 				console.error(`[Firebase Auth] useDeviceLanguage: error=${error}`);
 				return false;
+			}
+		},
+		
+		updateCurrentUser: function(user, requestId, callbackPtr) {
+			const plugin = this;
+			try {
+				plugin.api.updateCurrentUser(plugin.sdk, user).then(function() {
+					console.log(`[Firebase Auth] updateCurrentUser`);
+					plugin.firebaseToUnity(requestId, callbackPtr, true, true, null);
+				}).catch(function(error) {
+					console.error(`[Firebase Auth] updateCurrentUser: ${error}`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+				});
+			}
+			catch(error) {
+				console.error(`[Firebase Auth] updateCurrentUser: ${error}`);
+				plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
 			}
 		},
 		
@@ -407,6 +492,18 @@ const firebaseAuthLibrary = {
 		return firebaseAuth.isSignInWithEmailLink(emailLink);
 	},
 	
+	FirebaseWebGL_FirebaseAuth_beforeAuthStateChanged: function(instanceId, callbackPtr) {
+		firebaseAuth.beforeAuthStateChanged(instanceId, callbackPtr);
+	},
+	
+	FirebaseWebGL_FirebaseAuth_onAuthStateChanged: function(instanceId, callbackPtr) {
+		firebaseAuth.onAuthStateChanged(instanceId, callbackPtr);
+	},
+	
+	FirebaseWebGL_FirebaseAuth_onIdTokenChanged: function(instanceId, callbackPtr) {
+		firebaseAuth.onIdTokenChanged(instanceId, callbackPtr);
+	},
+	
 	FirebaseWebGL_FirebaseAuth_revokeAccessToken: function(tokenPtr, requestId, callbackPtr) {
 		const token = UTF8ToString(tokenPtr);
 		firebaseAuth.revokeAccessToken(token, requestId, callbackPtr);
@@ -436,6 +533,14 @@ const firebaseAuthLibrary = {
 		firebaseAuth.signInWithCredential(credential, requestId, callbackPtr);
 	},
 	
+	FirebaseWebGL_FirebaseAuth_reauthenticateWithCredential: function(userAsJsonPtr, credentialAsJsonPtr, requestId, callbackPtr) {
+		const userAsJson = UTF8ToString(userAsJsonPtr);
+		const user = JSON.parse(userAsJson);
+		const credentialAsJson = UTF8ToString(credentialAsJsonPtr);
+		const credential = JSON.parse(credentialAsJson);
+		firebaseAuth.reauthenticateWithCredential(user, credential, requestId, callbackPtr);
+	},
+	
 	FirebaseWebGL_FirebaseAuth_signInWithCustomToken: function(customTokenPtr, requestId, callbackPtr) {
 		const customToken = UTF8ToString(customTokenPtr);
 		firebaseAuth.signInWithCustomToken(customToken, requestId, callbackPtr);
@@ -455,6 +560,12 @@ const firebaseAuthLibrary = {
 	
 	FirebaseWebGL_FirebaseAuth_signOut: function(requestId, callbackPtr) {
 		firebaseAuth.signOut(requestId, callbackPtr);
+	},
+	
+	FirebaseWebGL_FirebaseAuth_updateCurrentUser: function(userAsJsonPtr, requestId, callbackPtr) {
+		const userAsJson = UTF8ToString(userAsJsonPtr);
+		const user = UTF8ToString(userAsJson);
+		firebaseAuth.updateCurrentUser(user, requestId, callbackPtr);
 	},
 	
 	FirebaseWebGL_FirebaseAuth_useDeviceLanguage: function() {

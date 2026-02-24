@@ -12,5 +12,10 @@ namespace FirebaseWebGL
         public bool isAnonymous { get; set; }
         [Preserve]
         public FirebaseAuthUserMetadata metadata { get; set; }
+
+        public override string ToString()
+        {
+            return $"{base.ToString()}, emailVerified={emailVerified}, isAnonymous={isAnonymous}, metadata=[{metadata}]";
+        }
     }
 }

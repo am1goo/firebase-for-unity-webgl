@@ -29,9 +29,12 @@ namespace FirebaseWebGL
         private static extern void FirebaseWebGL_FirebaseAuth_initializeRecaptchaConfig(int requestId, FirebaseJsonCallbackDelegate callback);
         [DllImport("__Internal")]
         private static extern bool FirebaseWebGL_FirebaseAuth_isSignInWithEmailLink(string emailLink);
-        //beforeAuthStateChanged
-        //onAuthStateChanged
-        //onIdTokenChanged
+        [DllImport("__Internal")]
+        private static extern bool FirebaseWebGL_FirebaseAuth_beforeAuthStateChanged(int instanceId, FirebaseJsonFunctionDelegate<bool> callback);
+        [DllImport("__Internal")]
+        private static extern bool FirebaseWebGL_FirebaseAuth_onAuthStateChanged(int instanceId, FirebaseJsonCallbackDelegate callback);
+        [DllImport("__Internal")]
+        private static extern bool FirebaseWebGL_FirebaseAuth_onIdTokenChanged(int instanceId, FirebaseJsonCallbackDelegate callback);
         [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseAuth_revokeAccessToken(string token, int requestId, FirebaseJsonCallbackDelegate callback);
         [DllImport("__Internal")]
@@ -44,6 +47,8 @@ namespace FirebaseWebGL
         [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseAuth_signInWithCredential(string credentialAsJson, int requestId, FirebaseJsonCallbackDelegate callback);
         [DllImport("__Internal")]
+        private static extern void FirebaseWebGL_FirebaseAuth_reauthenticateWithCredential(string userAsJson, string credentialAsJson, int requestId, FirebaseJsonCallbackDelegate callback);
+        [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseAuth_signInWithCustomToken(string customToken, int requestId, FirebaseJsonCallbackDelegate callback);
         [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseAuth_signInWithEmailAndPassword(string email, string password, int requestId, FirebaseJsonCallbackDelegate callback);
@@ -54,6 +59,8 @@ namespace FirebaseWebGL
         //signInWithRedirect
         [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseAuth_signOut(int requestId, FirebaseJsonCallbackDelegate callback);
+        [DllImport("__Internal")]
+        private static extern void FirebaseWebGL_FirebaseAuth_updateCurrentUser(string userAsJson, int requestId, FirebaseJsonCallbackDelegate callback);
         [DllImport("__Internal")]
         private static extern bool FirebaseWebGL_FirebaseAuth_useDeviceLanguage();
         [DllImport("__Internal")]
@@ -70,11 +77,30 @@ namespace FirebaseWebGL
         private static readonly Dictionary<int, Action<FirebaseCallback<FirebaseAuthUserCredential>>> _onUserCredentialCallbacks = new Dictionary<int, Action<FirebaseCallback<FirebaseAuthUserCredential>>>();
         private static readonly Dictionary<int, Action<FirebaseCallback<FirebaseAuthActionCodeInfo>>> _onActionCodeInfoCallbacks = new Dictionary<int, Action<FirebaseCallback<FirebaseAuthActionCodeInfo>>>();
         private static readonly Dictionary<int, Action<FirebaseCallback<FirebaseAuthPasswordValidationStatus>>> _onPasswordValidationStatusCallbacks = new Dictionary<int, Action<FirebaseCallback<FirebaseAuthPasswordValidationStatus>>>();
+        private static readonly Dictionary<int, Func<FirebaseCallback<FirebaseAuthUser>, bool>> _onBeforeAuthStateChangeCallbacks = new Dictionary<int, Func<FirebaseCallback<FirebaseAuthUser>, bool>>();
+        private static readonly Dictionary<int, Action<FirebaseCallback<FirebaseAuthUser>>> _onAuthStateChangeCallbacks = new Dictionary<int, Action<FirebaseCallback<FirebaseAuthUser>>>();
+        private static readonly Dictionary<int, Action<FirebaseCallback<FirebaseAuthUser>>> _onIdTokenChangeCallbacks = new Dictionary<int, Action<FirebaseCallback<FirebaseAuthUser>>>();
 
         private bool _isInitialized;
         public bool isInitialized => _isInitialized;
 
         public Action<bool> onInitialized { get; set; }
+        public Func<FirebaseAuthUser, bool> onBeforeAuthStateChanged { get; set; }
+        public Action<FirebaseAuthUser> onAuthStateChanged { get; set; }
+        public Action<FirebaseAuthUser> onIdTokenChanged { get; set; }
+
+        private bool _isRecaptchaInitialized;
+        public bool isRecaptchaInitialized => _isRecaptchaInitialized;
+
+        private FirebaseAuthUser _currentUser;
+        public FirebaseAuthUser currentUser => _currentUser;
+
+        private readonly int _instanceId;
+
+        public FirebaseAuth()
+        {
+            _instanceId = _requests.NextId();
+        }
 
         public void Initialize(Action<FirebaseCallback<bool>> firebaseCallback)
         {
@@ -155,6 +181,12 @@ namespace FirebaseWebGL
             _onUserCredentialCallbacks.Add(requestId, (callback) =>
             {
                 firebaseCallback?.Invoke(callback);
+
+                if (callback.success)
+                {
+                    var userCredential = callback.result;
+                    _currentUser = userCredential.user;
+                }
             });
 
             FirebaseWebGL_FirebaseAuth_createUserWithEmailAndPassword(email, password, requestId, OnUserCredentialCallback);
@@ -174,15 +206,26 @@ namespace FirebaseWebGL
             FirebaseWebGL_FirebaseAuth_fetchSignInMethodsForEmail(email, requestId, OnStringArrayCallback);
         }
 
-        public void InitializeRecaptchaConfig(string email, Action<FirebaseCallback<bool>> firebaseCallback)
+        public void InitializeRecaptchaConfig(Action<FirebaseCallback<bool>> firebaseCallback)
         {
             if (!_isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
+
+            if (_isRecaptchaInitialized)
+            {
+                firebaseCallback?.Invoke(FirebaseCallback<bool>.Error(FirebaseCallbackErrors.AuthRecaptchaAlreadInitialized));
+                return;
+            }
 
             var requestId = _requests.NextId();
             _onBoolCallbacks.Add(requestId, (callback) =>
             {
                 firebaseCallback?.Invoke(callback);
+
+                if (callback.success && callback.result)
+                {
+                    _isRecaptchaInitialized = true;
+                }
             });
 
             FirebaseWebGL_FirebaseAuth_initializeRecaptchaConfig(requestId, OnBoolCallback);
@@ -194,6 +237,72 @@ namespace FirebaseWebGL
                 throw new FirebaseModuleNotInitializedException(this);
 
             return FirebaseWebGL_FirebaseAuth_isSignInWithEmailLink(emailLink);
+        }
+
+        public void BeforeAuthStateChanged(Func<FirebaseAuthUser, bool> onBeforeAuthStateChanged)
+        {
+            if (!_isInitialized)
+                throw new FirebaseModuleNotInitializedException(this);
+
+            this.onBeforeAuthStateChanged = onBeforeAuthStateChanged;
+
+            _onBeforeAuthStateChangeCallbacks[_instanceId] = (callback) =>
+            {
+                if (callback.success)
+                {
+                    if (this.onBeforeAuthStateChanged != null)
+                    {
+                        var user = callback.result;
+                        return this.onBeforeAuthStateChanged.Invoke(user);
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    return false;
+                }
+            };
+
+            FirebaseWebGL_FirebaseAuth_beforeAuthStateChanged(_instanceId, OnBeforeAuthStateChangedCallback);
+        }
+
+        public void OnAuthStateChanged(Action<FirebaseAuthUser> onAuthStateChanged)
+        {
+            if (!_isInitialized)
+                throw new FirebaseModuleNotInitializedException(this);
+
+            this.onAuthStateChanged = onAuthStateChanged;
+
+            _onAuthStateChangeCallbacks[_instanceId] = (callback) =>
+            {
+                if (callback.success)
+                {
+                    this.onAuthStateChanged?.Invoke(callback.result);
+                }
+            };
+
+            FirebaseWebGL_FirebaseAuth_onAuthStateChanged(_instanceId, OnAuthStateChangedCallback);
+        }
+
+        public void OnIdTokenChanged(Action<FirebaseAuthUser> onIdTokenChanged)
+        {
+            if (!_isInitialized)
+                throw new FirebaseModuleNotInitializedException(this);
+
+            this.onIdTokenChanged = onIdTokenChanged;
+
+            _onIdTokenChangeCallbacks[_instanceId] = (callback) =>
+            {
+                if (callback.success)
+                {
+                    this.onIdTokenChanged?.Invoke(callback.result);
+                }
+            };
+
+            FirebaseWebGL_FirebaseAuth_onIdTokenChanged(_instanceId, OnIdTokenChangedCallback);
         }
 
         public void RevokeAccessToken(string token, Action<FirebaseCallback<bool>> firebaseCallback)
@@ -249,12 +358,18 @@ namespace FirebaseWebGL
             _onUserCredentialCallbacks.Add(requestId, (callback) =>
             {
                 firebaseCallback?.Invoke(callback);
+
+                if (callback.success)
+                {
+                    var userCredential = callback.result;
+                    _currentUser = userCredential.user;
+                }
             });
 
             FirebaseWebGL_FirebaseAuth_signInAnonymously(requestId, OnUserCredentialCallback);
         }
 
-        public void SignInWithCredential(FirebaseAuthUserCredential credential, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback)
+        public void SignInWithCredential(FirebaseAuthCredential credential, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback)
         {
             if (!_isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
@@ -263,10 +378,38 @@ namespace FirebaseWebGL
             _onUserCredentialCallbacks.Add(requestId, (callback) =>
             {
                 firebaseCallback?.Invoke(callback);
+
+                if (callback.success)
+                {
+                    var userCredential = callback.result;
+                    _currentUser = userCredential.user;
+                }
             });
 
             var credentialAsJson = JsonConvert.SerializeObject(credential);
             FirebaseWebGL_FirebaseAuth_signInWithCredential(credentialAsJson, requestId, OnUserCredentialCallback);
+        }
+
+        public void ReauthenticateWithCredential(FirebaseAuthUser user, FirebaseAuthCredential credential, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback)
+        {
+            if (!_isInitialized)
+                throw new FirebaseModuleNotInitializedException(this);
+
+            var requestId = _requests.NextId();
+            _onUserCredentialCallbacks.Add(requestId, (callback) =>
+            {
+                firebaseCallback?.Invoke(callback);
+
+                if (callback.success)
+                {
+                    var userCredential = callback.result;
+                    _currentUser = userCredential.user;
+                }
+            });
+
+            var userAsJson = JsonConvert.SerializeObject(credential);
+            var credentialAsJson = JsonConvert.SerializeObject(credential);
+            FirebaseWebGL_FirebaseAuth_reauthenticateWithCredential(userAsJson, credentialAsJson, requestId, OnUserCredentialCallback);
         }
 
         public void SignInWithCustomToken(string customToken, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback)
@@ -278,6 +421,12 @@ namespace FirebaseWebGL
             _onUserCredentialCallbacks.Add(requestId, (callback) =>
             {
                 firebaseCallback?.Invoke(callback);
+
+                if (callback.success)
+                {
+                    var userCredential = callback.result;
+                    _currentUser = userCredential.user;
+                }
             });
 
             FirebaseWebGL_FirebaseAuth_signInWithCustomToken(customToken, requestId, OnUserCredentialCallback);
@@ -292,6 +441,12 @@ namespace FirebaseWebGL
             _onUserCredentialCallbacks.Add(requestId, (callback) =>
             {
                 firebaseCallback?.Invoke(callback);
+
+                if (callback.success)
+                {
+                    var userCredential = callback.result;
+                    _currentUser = userCredential.user;
+                }
             });
 
             FirebaseWebGL_FirebaseAuth_signInWithEmailAndPassword(email, password, requestId, OnUserCredentialCallback);
@@ -306,6 +461,12 @@ namespace FirebaseWebGL
             _onUserCredentialCallbacks.Add(requestId, (callback) =>
             {
                 firebaseCallback?.Invoke(callback);
+
+                if (callback.success)
+                {
+                    var userCredential = callback.result;
+                    _currentUser = userCredential.user;
+                }
             });
 
             FirebaseWebGL_FirebaseAuth_signInWithEmailLink(email, emailLink, requestId, OnUserCredentialCallback);
@@ -320,9 +481,36 @@ namespace FirebaseWebGL
             _onBoolCallbacks.Add(requestId, (callback) =>
             {
                 firebaseCallback?.Invoke(callback);
+
+                if (callback.success)
+                {
+                    var userCredential = callback.result;
+                    _currentUser = null;
+                }
             });
 
             FirebaseWebGL_FirebaseAuth_signOut(requestId, OnBoolCallback);
+        }
+
+        public void UpdateCurrentUser(FirebaseAuthUser user, Action<FirebaseCallback<bool>> firebaseCallback)
+        {
+            if (!_isInitialized)
+                throw new FirebaseModuleNotInitializedException(this);
+
+            var requestId = _requests.NextId();
+            _onBoolCallbacks.Add(requestId, (callback) =>
+            {
+                firebaseCallback?.Invoke(callback);
+
+                if (callback.success)
+                {
+                    var userCredential = callback.result;
+                    _currentUser = null;
+                }
+            });
+
+            var userAsJson = JsonConvert.SerializeObject(user);
+            FirebaseWebGL_FirebaseAuth_updateCurrentUser(userAsJson, requestId, OnBoolCallback);
         }
 
         public bool UseDeviceLanguage()
@@ -473,6 +661,75 @@ namespace FirebaseWebGL
             if (_onPasswordValidationStatusCallbacks.TryGetValue(firebaseCallback.requestId, out var callback))
             {
                 _onPasswordValidationStatusCallbacks.Remove(firebaseCallback.requestId);
+                try
+                {
+                    callback?.Invoke(firebaseCallback);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogException(ex);
+                }
+            }
+        }
+
+        [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
+        private static bool OnBeforeAuthStateChangedCallback(string json)
+        {
+            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<FirebaseAuthUser>>(json);
+
+            var instanceId = firebaseCallback.requestId;
+            if (_onBeforeAuthStateChangeCallbacks.TryGetValue(instanceId, out var callback))
+            {
+                try
+                {
+                    if (callback != null)
+                    {
+                        return callback.Invoke(firebaseCallback);
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogException(ex);
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
+        private static void OnAuthStateChangedCallback(string json)
+        {
+            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<FirebaseAuthUser>>(json);
+
+            var instanceId = firebaseCallback.requestId;
+            if (_onAuthStateChangeCallbacks.TryGetValue(instanceId, out var callback))
+            {
+                try
+                {
+                    callback?.Invoke(firebaseCallback);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogException(ex);
+                }
+            }
+        }
+
+        [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
+        private static void OnIdTokenChangedCallback(string json)
+        {
+            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<FirebaseAuthUser>>(json);
+
+            var instanceId = firebaseCallback.requestId;
+            if (_onIdTokenChangeCallbacks.TryGetValue(instanceId, out var callback))
+            {
                 try
                 {
                     callback?.Invoke(firebaseCallback);

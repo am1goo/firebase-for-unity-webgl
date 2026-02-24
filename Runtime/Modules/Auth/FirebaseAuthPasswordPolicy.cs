@@ -9,11 +9,19 @@ namespace FirebaseWebGL
         [Preserve]
         public string allowedNonAlphanumericCharacters { get; set; }
         [Preserve]
-        public object customStrengthOptions { get; set; }
+        public CustomStrengthOptions customStrengthOptions { get; set; }
         [Preserve]
         public string enforcementState { get; set; }
         [Preserve]
         public bool forceUpgradeOnSignin { get; set; }
+
+        public override string ToString()
+        {
+            return $"allowedNonAlphanumericCharacters={allowedNonAlphanumericCharacters}, " +
+                $"customStrengthOptions=[{customStrengthOptions}], " +
+                $"enforcementState={enforcementState}, " +
+                $"forceUpgradeOnSignin={forceUpgradeOnSignin}";
+        }
 
         [Serializable]
         public sealed class CustomStrengthOptions
@@ -30,6 +38,16 @@ namespace FirebaseWebGL
             public bool? containsNumericCharacter { get; set; }
             [Preserve]
             public bool? containsNonAlphanumericCharacter { get; set; }
+
+            public override string ToString()
+            {
+                return $"minPasswordLength={minPasswordLength}, " +
+                    $"maxPasswordLength={maxPasswordLength}, " +
+                    $"containsLowercaseLetter={containsLowercaseLetter}, " +
+                    $"containsUppercaseLetter={containsUppercaseLetter}, " +
+                    $"containsNumericCharacter={containsNumericCharacter}, " +
+                    $"containsNonAlphanumericCharacter={containsNonAlphanumericCharacter}";
+            }
         }
     }
 }

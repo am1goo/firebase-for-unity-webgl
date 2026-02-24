@@ -44,9 +44,28 @@ const firebaseAppLibrary = {
 			}
 		},
 		
+		firebaseToUnityAndReturnInteger: function(requestId, callbackPtr, success, result, e) {
+			var error = (e instanceof Error ? e.message : e);
+			var args = { 
+				requestId: requestId,
+				success: success,
+				result: result,
+				error: error
+			};
+			var json = JSON.stringify(args);
+			var jsonBuffer = stringToNewUTF8(json);
+			try {
+				return {{{ makeDynCall('ii', 'callbackPtr') }}} (jsonBuffer);
+			}
+			finally {
+				_free(jsonBuffer);
+			}
+		},
+		
 		initialize: function() {
 			window.firebaseToUnity = this.firebaseToUnity;
 			window.firebaseToUnityBytes = this.firebaseToUnityBytes;
+			window.firebaseToUnityAndReturnInteger = this.firebaseToUnityAndReturnInteger;
 			
 			if (typeof sdk !== 'undefined') {
 				console.error("[Firebase App] initialize: already initialized");

@@ -10,5 +10,10 @@ namespace FirebaseWebGL
         public string creationTime { get; set; }
         [Preserve]
         public string lastSignInTime { get; set; }
+
+        public override string ToString()
+        {
+            return $"creationTime={creationTime}, lastSignInTime={lastSignInTime}";
+        }
     }
 }
