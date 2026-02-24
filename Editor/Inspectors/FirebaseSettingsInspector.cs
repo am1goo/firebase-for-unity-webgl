@@ -2,9 +2,10 @@ using System;
 using UnityEditor;
 using UnityEngine;
 
-namespace FirebaseWebGL {
+namespace FirebaseWebGL.Editor
+{
     [CustomEditor(typeof(FirebaseSettings))]
-    public sealed class FirebaseSettingsInspector : Editor
+    public sealed class FirebaseSettingsInspector : UnityEditor.Editor
     {
         private SerializedProperty _includeAuth;
         private SerializedProperty _includeAnalytics;
