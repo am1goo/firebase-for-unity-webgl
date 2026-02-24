@@ -4,14 +4,18 @@ using UnityEngine.Scripting;
 namespace FirebaseWebGL
 {
     [Serializable]
-    public sealed class FirebaseAuthMultiFactorInfo
+    public class FirebaseAuthUserInfo
     {
         [Preserve]
         public string displayName { get; set; }
         [Preserve]
-        public string enrollmentTime { get; set; }
+        public string email { get; set; }
         [Preserve]
-        public string factorId { get;set; }
+        public string phoneNumber { get; set; }
+        [Preserve]
+        public string photoURL { get; set; }
+        [Preserve]
+        public string providerId { get; set; }
         [Preserve]
         public string uid { get; set; }
     }
