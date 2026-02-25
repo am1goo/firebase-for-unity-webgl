@@ -186,6 +186,9 @@ namespace FirebaseWebGL
 
         public void UploadBytes(byte[] data, FirebaseStorageReferenceUploadMetadata metadata, Action<FirebaseCallback<FirebaseStorageReferenceUploadResult>> firebaseCallback)
         {
+            if (data == null)
+                throw new ArgumentNullException(nameof(data));
+
             if (_isDeleted)
                 throw new FirebaseStorageReferenceDeletedException(_ref);
 
@@ -206,6 +209,9 @@ namespace FirebaseWebGL
 
         public void UploadString(string value, FirebaseStorageReferenceStringFormat? format, FirebaseStorageReferenceUploadMetadata metadata, Action<FirebaseCallback<FirebaseStorageReferenceUploadResult>> firebaseCallback)
         {
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+
             if (_isDeleted)
                 throw new FirebaseStorageReferenceDeletedException(_ref);
 

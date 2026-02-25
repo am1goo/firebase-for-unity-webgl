@@ -40,6 +40,12 @@ namespace FirebaseWebGL
 
         public void ConnectStorageEmulator(string host, int port, FirebaseStorageEmulatorMockTokenOptions options)
         {
+            if (host == null)
+                throw new ArgumentNullException(nameof(host));
+
+            if (port <= 0)
+                throw new ArgumentOutOfRangeException(nameof(port), port, "port must be greater than 0 and lower than 65535");
+
             if (!_isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
 

@@ -151,6 +151,9 @@ namespace FirebaseWebGL
 
         public bool GetBoolean(string key)
         {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+
             if (!isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
 
@@ -159,6 +162,9 @@ namespace FirebaseWebGL
 
         public int GetInteger(string key)
         {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+
             if (!isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
 
@@ -167,6 +173,9 @@ namespace FirebaseWebGL
 
         public string GetString(string key)
         {
+            if (key == null)
+                throw new ArgumentNullException(nameof(key));
+
             if (!isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
 
@@ -193,6 +202,9 @@ namespace FirebaseWebGL
 
         public void SetCustomSignals(IReadOnlyDictionary<string, string> customSignals)
         {
+            if (customSignals == null)
+                throw new ArgumentNullException(nameof(customSignals));
+
             if (!isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
 

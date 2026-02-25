@@ -40,6 +40,9 @@ namespace FirebaseWebGL
 
         public IFirebasePerformanceTrace Trace(string name)
         {
+            if (name == null)
+                throw new ArgumentNullException(nameof(name));
+
             if (!_isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
 

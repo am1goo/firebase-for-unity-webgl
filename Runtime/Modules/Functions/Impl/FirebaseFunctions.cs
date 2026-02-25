@@ -54,6 +54,12 @@ namespace FirebaseWebGL
 
         public IFirebaseFunctionsHttpsCallable HttpsCallable(string name, FirebaseFunctionsHttpsCallableOptions options)
         {
+            if (name == null)
+                throw new ArgumentNullException(nameof(name));
+
+            if (options == null)
+                throw new ArgumentNullException(nameof(options));
+
             if (!_isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
 
@@ -67,6 +73,12 @@ namespace FirebaseWebGL
 
         public IFirebaseFunctionsHttpsCallable HttpsCallableFromURL(string url, FirebaseFunctionsHttpsCallableOptions options)
         {
+            if (url == null)
+                throw new ArgumentNullException(nameof(url));
+
+            if (options == null)
+                throw new ArgumentNullException(nameof(options));
+
             if (!_isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
 

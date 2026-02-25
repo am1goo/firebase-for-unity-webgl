@@ -207,6 +207,9 @@ namespace FirebaseWebGL
 
         public void ApplyActionCode(string oobCode, Action<FirebaseCallback<bool>> firebaseCallback)
         {
+            if (oobCode == null)
+                throw new ArgumentNullException(nameof(oobCode));
+
             if (!_isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
 
@@ -221,6 +224,9 @@ namespace FirebaseWebGL
 
         public void CheckActionCode(string oobCode, Action<FirebaseCallback<FirebaseAuthActionCodeInfo>> firebaseCallback)
         {
+            if (oobCode == null)
+                throw new ArgumentNullException(nameof(oobCode));
+
             if (!_isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
 
@@ -235,6 +241,12 @@ namespace FirebaseWebGL
 
         public void ConfirmPasswordReset(string oobCode, string newPassword, Action<FirebaseCallback<bool>> firebaseCallback)
         {
+            if (oobCode == null)
+                throw new ArgumentNullException(nameof(oobCode));
+
+            if (newPassword == null)
+                throw new ArgumentNullException(nameof(newPassword));
+
             if (!_isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
 
@@ -249,6 +261,12 @@ namespace FirebaseWebGL
 
         public void CreateUserWithEmailAndPassword(string email, string password, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback)
         {
+            if (email == null)
+                throw new ArgumentNullException(nameof(email));
+
+            if (password == null)
+                throw new ArgumentNullException(nameof(password));
+
             if (!_isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
 
@@ -263,6 +281,9 @@ namespace FirebaseWebGL
 
         public void FetchSignInMethodsForEmail(string email, Action<FirebaseCallback<string[]>> firebaseCallback)
         {
+            if (email == null)
+                throw new ArgumentNullException(nameof(email));
+
             if (!_isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
 
@@ -302,6 +323,9 @@ namespace FirebaseWebGL
 
         public bool IsSignInWithEmailLink(string emailLink)
         {
+            if (emailLink == null)
+                throw new ArgumentNullException(nameof(emailLink));
+
             if (!_isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
 
@@ -382,6 +406,9 @@ namespace FirebaseWebGL
 
         public void RevokeAccessToken(string token, Action<FirebaseCallback<bool>> firebaseCallback)
         {
+            if (token == null)
+                throw new ArgumentNullException(nameof(token));
+
             if (!_isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
 
@@ -396,6 +423,12 @@ namespace FirebaseWebGL
 
         public void SendPasswordResetEmail(string email, FirebaseAuthActionCodeSettings actionCodeSettings, Action<FirebaseCallback<bool>> firebaseCallback)
         {
+            if (email == null)
+                throw new ArgumentNullException(nameof(email));
+
+            if (actionCodeSettings == null)
+                throw new ArgumentNullException(nameof(actionCodeSettings));
+
             if (!_isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
 
@@ -411,6 +444,12 @@ namespace FirebaseWebGL
 
         public void SendSignInLinkToEmail(string email, FirebaseAuthActionCodeSettings actionCodeSettings, Action<FirebaseCallback<bool>> firebaseCallback)
         {
+            if (email == null)
+                throw new ArgumentNullException(nameof(email));
+
+            if (actionCodeSettings == null)
+                throw new ArgumentNullException(nameof(actionCodeSettings));
+
             if (!_isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
 
@@ -455,6 +494,9 @@ namespace FirebaseWebGL
 
         public void SignInWithCustomToken(string customToken, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback)
         {
+            if (customToken == null)
+                throw new ArgumentNullException(nameof(customToken));
+
             if (!_isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
 
@@ -469,6 +511,12 @@ namespace FirebaseWebGL
 
         public void SignInWithEmailAndPassword(string email, string password, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback)
         {
+            if (email == null)
+                throw new ArgumentNullException(nameof(email));
+
+            if (password == null)
+                throw new ArgumentNullException(nameof(password));
+
             if (!_isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
 
@@ -483,6 +531,12 @@ namespace FirebaseWebGL
 
         public void SignInWithEmailLink(string email, string emailLink, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback)
         {
+            if (email == null)
+                throw new ArgumentNullException(nameof(email));
+
+            if (emailLink == null)
+                throw new ArgumentNullException(nameof(emailLink));
+
             if (!_isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
 
@@ -502,6 +556,9 @@ namespace FirebaseWebGL
 
         public void SignInWithPopup(string providerId, Dictionary<string, string> customParameters, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback)
         {
+            if (providerId == null)
+                throw new ArgumentNullException(nameof(providerId));
+
             if (!_isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
 
@@ -531,6 +588,9 @@ namespace FirebaseWebGL
 
         public void UpdateCurrentUser(FirebaseAuthUser user, Action<FirebaseCallback<bool>> firebaseCallback)
         {
+            if (user == null)
+                throw new ArgumentNullException(nameof(user));
+
             if (!_isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
 
@@ -554,6 +614,9 @@ namespace FirebaseWebGL
 
         public void ValidatePassword(string password, Action<FirebaseCallback<FirebaseAuthPasswordValidationStatus>> firebaseCallback)
         {
+            if (password == null)
+                throw new ArgumentNullException(nameof(password));
+
             if (!_isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
 
@@ -568,6 +631,9 @@ namespace FirebaseWebGL
 
         public void VerifyPasswordResetCode(string code, Action<FirebaseCallback<string>> firebaseCallback)
         {
+            if (code == null)
+                throw new ArgumentNullException(nameof(code));
+
             if (!_isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
 
@@ -582,6 +648,9 @@ namespace FirebaseWebGL
 
         public FirebaseAuthActionCodeURL ParseActionCodeURL(string link)
         {
+            if (link == null)
+                throw new ArgumentNullException(nameof(link));
+
             if (!_isInitialized)
                 throw new FirebaseModuleNotInitializedException(this);
 

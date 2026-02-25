@@ -30,7 +30,7 @@ namespace FirebaseWebGL
         public void Request<REQ, RESP>(REQ requestData, Action<FirebaseCallback<RESP>> firebaseCallback)
         {
             if (requestData == null)
-                throw new ArgumentException($"{nameof(requestData)} is null");
+                throw new ArgumentNullException(nameof(requestData));
 
             var requestId = _requests.NextId();
             _onStringCallbacks.Add(requestId, (callback) =>

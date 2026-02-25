@@ -152,6 +152,9 @@ namespace FirebaseWebGL
 
         public void LinkInWithPopup(string providerId, Dictionary<string, string> customParameters, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback)
         {
+            if (providerId == null)
+                throw new ArgumentNullException(nameof(providerId));
+
             if (_isDeleted)
                 throw new FirebaseAuthUserDeletedException(_user.uid);
 
@@ -167,6 +170,9 @@ namespace FirebaseWebGL
 
         public void ReauthenticateWithCredential(FirebaseAuthCredential credential, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback)
         {
+            if (credential == null)
+                throw new ArgumentNullException(nameof(credential));
+
             if (_isDeleted)
                 throw new FirebaseAuthUserDeletedException(_user.uid);
 
@@ -187,6 +193,9 @@ namespace FirebaseWebGL
 
         public void ReauthenticateInWithPopup(string providerId, Dictionary<string, string> customParameters, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback)
         {
+            if (providerId == null)
+                throw new ArgumentNullException(nameof(providerId));
+
             if (_isDeleted)
                 throw new FirebaseAuthUserDeletedException(_user.uid);
 
@@ -222,6 +231,9 @@ namespace FirebaseWebGL
 
         public void Unlink(string providerId, Action<FirebaseCallback<FirebaseAuthUser>> firebaseCallback)
         {
+            if (providerId == null)
+                throw new ArgumentNullException(nameof(providerId));
+
             if (_isDeleted)
                 throw new FirebaseAuthUserDeletedException(_user.uid);
 
@@ -236,6 +248,9 @@ namespace FirebaseWebGL
 
         public void UpdateEmail(string newEmail, Action<FirebaseCallback<bool>> firebaseCallback)
         {
+            if (newEmail == null)
+                throw new ArgumentNullException(nameof(newEmail));
+
             if (_isDeleted)
                 throw new FirebaseAuthUserDeletedException(_user.uid);
 
@@ -250,6 +265,9 @@ namespace FirebaseWebGL
 
         public void UpdatePassword(string newPassword, Action<FirebaseCallback<bool>> firebaseCallback)
         {
+            if (newPassword == null)
+                throw new ArgumentNullException(nameof(newPassword));
+
             if (_isDeleted)
                 throw new FirebaseAuthUserDeletedException(_user.uid);
 
@@ -294,6 +312,9 @@ namespace FirebaseWebGL
 
         public void VerifyBeforeUpdateEmail(string newEmail, FirebaseAuthActionCodeSettings actionCodeSettings, Action<FirebaseCallback<bool>> firebaseCallback)
         {
+            if (newEmail == null)
+                throw new ArgumentNullException(nameof(newEmail));
+
             if (_isDeleted)
                 throw new FirebaseAuthUserDeletedException(_user.uid);
 

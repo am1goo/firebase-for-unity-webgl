@@ -64,61 +64,81 @@ namespace FirebaseWebGL
 
         public void PutAttribute(string attr, string value)
         {
+            if (attr == null)
+                throw new ArgumentNullException(nameof(attr));
+
+            if (value == null)
+                throw new ArgumentNullException(nameof(value));
+
             FirebaseWebGL_FirebasePerformance_Trace_putAttribute(_id, attr, value);
         }
 
         public void RemoteAttribute(string attr)
         {
+            if (attr == null)
+                throw new ArgumentNullException(nameof(attr));
+
             FirebaseWebGL_FirebasePerformance_Trace_removeAttribute(_id, attr);
         }
 
         public string GetAttribute(string attr)
         {
+            if (attr == null)
+                throw new ArgumentNullException(nameof(attr));
+
             return FirebaseWebGL_FirebasePerformance_Trace_getAttribute(_id, attr);
         }
 
         public IReadOnlyDictionary<string, string> GetAttributes()
         {
             var attributesAsJson = FirebaseWebGL_FirebasePerformance_Trace_getAttributes(_id);
-            var attributes = JsonConvert.DeserializeObject<Dictionary<string, string>>(attributesAsJson);
-            return attributes;
+            if (attributesAsJson == null)
+                return null;
+
+            return JsonConvert.DeserializeObject<Dictionary<string, string>>(attributesAsJson);
         }
 
         public void PutMetric(string name, int num)
         {
+            if (name == null)
+                throw new ArgumentNullException(nameof(name));
+
             FirebaseWebGL_FirebasePerformance_Trace_putMetric(_id, name, num);
         }
 
         public int GetMetric(string name)
         {
+            if (name == null)
+                throw new ArgumentNullException(nameof(name));
+
             return FirebaseWebGL_FirebasePerformance_Trace_getMetric(_id, name);
         }
 
         public void IncrementMetric(string name)
         {
+            if (name == null)
+                throw new ArgumentNullException(nameof(name));
+
             IncrementMetric(name, num: 1);
         }
 
         public void IncrementMetric(string name, int num)
         {
+            if (name == null)
+                throw new ArgumentNullException(nameof(name));
+
             FirebaseWebGL_FirebasePerformance_Trace_incrementMetric(_id, name, num);
         }
 
         public void Record(TimeSpan startTime, TimeSpan duration, FirebasePerformanceTraceRecordOptions options)
         {
             if (startTime.TotalMilliseconds <= 0)
-                throw new Exception($"{nameof(startTime)} should be positive");
+                throw new ArgumentException($"{nameof(startTime)} should be positive");
 
             if (duration.TotalMilliseconds <= 0)
-                throw new Exception($"{nameof(duration)} should be positive");
+                throw new ArgumentException($"{nameof(duration)} should be positive");
 
-            if (options == null)
-            {
-                FirebaseWebGL_FirebasePerformance_Trace_record(_id, (int)startTime.TotalMilliseconds, (int)duration.TotalMilliseconds, null);
-                return;
-            }
-
-            var optionsAsJson = JsonConvert.SerializeObject(options);
+            var optionsAsJson = options != null ? JsonConvert.SerializeObject(options) : null;
             FirebaseWebGL_FirebasePerformance_Trace_record(_id, (int)startTime.TotalMilliseconds, (int)duration.TotalMilliseconds, optionsAsJson);
         }
     }
