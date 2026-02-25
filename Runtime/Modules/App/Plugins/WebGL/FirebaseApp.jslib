@@ -4,13 +4,17 @@ const firebaseAppLibrary = {
 		api: undefined,
 		
 		firebaseToUnity: function(requestId, callbackPtr, success, result, e) {
-			var error = (e instanceof Error ? e.message : e);
-			var args = { 
+			var error = window.firebaseErrorAsString(e);
+			var args = {
 				requestId: requestId,
-				success: success,
-				result: result,
-				error: error
+				success: success
 			};
+			if (result != null) {
+				args.result = result;
+			}
+			if (error != null) {
+				args.error = error;
+			}
 			var json = JSON.stringify(args);
 			var jsonBuffer = stringToNewUTF8(json);
 			try {
@@ -22,13 +26,15 @@ const firebaseAppLibrary = {
 		},
 		
 		firebaseToUnityBytes: function(requestId, callbackPtr, success, bytes, e) {
-			var error = (e instanceof Error ? e.message : e);
+			var error = window.firebaseErrorAsString(e);
 			var args = { 
 				requestId: requestId,
-				success: success,
-				result: null,
-				error: error
+				success: success
 			};
+			if (error != null) {
+				args.error = error;
+			}
+			
 			var json = JSON.stringify(args);
 			var jsonBuffer = stringToNewUTF8(json);
 			
@@ -44,9 +50,34 @@ const firebaseAppLibrary = {
 			}
 		},
 		
+		firebaseToUnityAndReturnInteger: function(requestId, callbackPtr, success, result, e) {
+			var error = window.firebaseErrorAsString(e);
+			var args = { 
+				requestId: requestId,
+				success: success
+			};
+			if (result != null) {
+				args.result = result;
+			}
+			if (error != null) {
+				args.error = error;
+			}
+			
+			var json = JSON.stringify(args);
+			var jsonBuffer = stringToNewUTF8(json);
+			try {
+				return {{{ makeDynCall('ii', 'callbackPtr') }}} (jsonBuffer);
+			}
+			finally {
+				_free(jsonBuffer);
+			}
+		},
+		
 		initialize: function() {
 			window.firebaseToUnity = this.firebaseToUnity;
 			window.firebaseToUnityBytes = this.firebaseToUnityBytes;
+			window.firebaseToUnityAndReturnInteger = this.firebaseToUnityAndReturnInteger;
+			window.firebaseErrorAsString = this.firebaseErrorAsString;
 			
 			if (typeof sdk !== 'undefined') {
 				console.error("[Firebase App] initialize: already initialized");
@@ -80,6 +111,30 @@ const firebaseAppLibrary = {
 			const plugin = this;
 			plugin.api.setLogLevel(logLevel);
 			console.log(`[Firebase App] setLogLevel: logLevel=${logLevel}`);
+		},
+		
+		firebaseErrorAsString: function(e) {
+			if (e instanceof Error) {
+				if (e.message.startsWith('Firebase:')) {
+					const regex = new RegExp(/\(([^)]+)\)/);
+					var matches = e.message.match(regex);
+					if (matches) {
+						return matches[1];
+					}
+					else {
+						return e.message;
+					}
+				}
+				else {
+					return e.message;
+				}
+			}
+			else if (e instanceof String || typeof(e) === 'string') {
+				return e;
+			}
+			else {
+				return null;
+			}
 		},
 	},
 	
