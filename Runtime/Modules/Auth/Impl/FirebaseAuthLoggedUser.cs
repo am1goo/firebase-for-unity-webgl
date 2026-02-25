@@ -20,7 +20,11 @@ namespace FirebaseWebGL
         [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseAuth_User_linkWithCredential(string uid, string credentialAsJson, int requestId, FirebaseJsonCallbackDelegate callback);
         [DllImport("__Internal")]
+        private static extern void FirebaseWebGL_FirebaseAuth_User_linkWithPopup(string providerId, string customParametersAsJson, int requestId, FirebaseJsonCallbackDelegate callback);
+        [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseAuth_User_reauthenticateWithCredential(string uid, string credentialAsJson, int requestId, FirebaseJsonCallbackDelegate callback);
+        [DllImport("__Internal")]
+        private static extern void FirebaseWebGL_FirebaseAuth_User_reauthenticateWithPopup(string providerId, string customParametersAsJson, int requestId, FirebaseJsonCallbackDelegate callback);
         [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseAuth_User_sendEmailVerification(string uid, string actionCodeSettingsAsJson, int requestId, FirebaseJsonCallbackDelegate callback);
         [DllImport("__Internal")]
@@ -141,6 +145,26 @@ namespace FirebaseWebGL
             FirebaseWebGL_FirebaseAuth_User_linkWithCredential(_user.uid, credentialAsJson, requestId, OnUserCredentialCallback);
         }
 
+        public void LinkInWithPopup(string providerId, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback)
+        {
+            LinkInWithPopup(providerId, null, firebaseCallback);
+        }
+
+        public void LinkInWithPopup(string providerId, Dictionary<string, string> customParameters, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback)
+        {
+            if (_isDeleted)
+                throw new FirebaseAuthUserDeletedException(_user.uid);
+
+            var requestId = _requests.NextId();
+            _onUserCredentialCallbacks.Add(requestId, (callback) =>
+            {
+                firebaseCallback?.Invoke(callback);
+            });
+
+            var customParametersAsJson = customParameters != null ? JsonConvert.SerializeObject(customParameters) : null;
+            FirebaseWebGL_FirebaseAuth_User_linkWithPopup(providerId, customParametersAsJson, requestId, OnUserCredentialCallback);
+        }
+
         public void ReauthenticateWithCredential(FirebaseAuthCredential credential, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback)
         {
             if (_isDeleted)
@@ -154,6 +178,26 @@ namespace FirebaseWebGL
 
             var credentialAsJson = JsonConvert.SerializeObject(credential);
             FirebaseWebGL_FirebaseAuth_User_reauthenticateWithCredential(_user.uid, credentialAsJson, requestId, OnUserCredentialCallback);
+        }
+
+        public void ReauthenticateInWithPopup(string providerId, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback)
+        {
+            ReauthenticateInWithPopup(providerId, null, firebaseCallback);
+        }
+
+        public void ReauthenticateInWithPopup(string providerId, Dictionary<string, string> customParameters, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback)
+        {
+            if (_isDeleted)
+                throw new FirebaseAuthUserDeletedException(_user.uid);
+
+            var requestId = _requests.NextId();
+            _onUserCredentialCallbacks.Add(requestId, (callback) =>
+            {
+                firebaseCallback?.Invoke(callback);
+            });
+
+            var customParametersAsJson = customParameters != null ? JsonConvert.SerializeObject(customParameters) : null;
+            FirebaseWebGL_FirebaseAuth_User_reauthenticateWithPopup(providerId, customParametersAsJson, requestId, OnUserCredentialCallback);
         }
 
         public void SendEmailVerification(Action<FirebaseCallback<bool>> firebaseCallback)

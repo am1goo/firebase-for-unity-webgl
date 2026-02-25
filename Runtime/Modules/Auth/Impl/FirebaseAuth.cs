@@ -18,6 +18,8 @@ namespace FirebaseWebGL
         [DllImport("__Internal")]
         private static extern string FirebaseWebGL_FirebaseAuth_languageCode();
         [DllImport("__Internal")]
+        private static extern void FirebaseWebGL_FirebaseAuth_languageCodeSet(string locale);
+        [DllImport("__Internal")]
         private static extern string FirebaseWebGL_FirebaseAuth_tenantId();
         [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseAuth_applyActionCode(string oobCode, int requestId, FirebaseJsonCallbackDelegate callback);
@@ -59,7 +61,8 @@ namespace FirebaseWebGL
         [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseAuth_signInWithEmailLink(string email, string emailLink, int requestId, FirebaseJsonCallbackDelegate callback);
         //signInWithPhoneNumber
-        //signInWithPopup
+        [DllImport("__Internal")]
+        private static extern void FirebaseWebGL_FirebaseAuth_signInWithPopup(string providerId, string customParametersAsJson, int requestId, FirebaseJsonCallbackDelegate callback);
         //signInWithRedirect
         [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseAuth_signOut(int requestId, FirebaseJsonCallbackDelegate callback);
@@ -181,6 +184,13 @@ namespace FirebaseWebGL
                     throw new FirebaseModuleNotInitializedException(this);
 
                 return FirebaseWebGL_FirebaseAuth_languageCode();
+            }
+            set
+            {
+                if (!_isInitialized)
+                    throw new FirebaseModuleNotInitializedException(this);
+
+                FirebaseWebGL_FirebaseAuth_languageCodeSet(value);
             }
         }
 
@@ -483,6 +493,26 @@ namespace FirebaseWebGL
             });
 
             FirebaseWebGL_FirebaseAuth_signInWithEmailLink(email, emailLink, requestId, OnUserCredentialCallback);
+        }
+
+        public void SignInWithPopup(string providerId, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback)
+        {
+            SignInWithPopup(providerId, null, firebaseCallback);
+        }
+
+        public void SignInWithPopup(string providerId, Dictionary<string, string> customParameters, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback)
+        {
+            if (!_isInitialized)
+                throw new FirebaseModuleNotInitializedException(this);
+
+            var requestId = _requests.NextId();
+            _onUserCredentialCallbacks.Add(requestId, (callback) =>
+            {
+                firebaseCallback?.Invoke(callback);
+            });
+
+            var customParametersAsJson = customParameters != null ? JsonConvert.SerializeObject(customParameters) : null;
+            FirebaseWebGL_FirebaseAuth_signInWithPopup(providerId, customParametersAsJson, requestId, OnUserCredentialCallback);
         }
 
         public void SignOut(Action<FirebaseCallback<bool>> firebaseCallback)

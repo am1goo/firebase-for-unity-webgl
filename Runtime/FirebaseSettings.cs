@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace FirebaseWebGL
@@ -33,6 +34,9 @@ namespace FirebaseWebGL
         [SerializeField, HideInInspector]
         private bool _includeAuth;
         public bool includeAuth => _includeAuth;
+        [SerializeField, HideInInspector]
+        private AuthSettings _includeAuthSettings;
+        public AuthSettings includeAuthSettings => _includeAuthSettings;
         [SerializeField, HideInInspector]
         private bool _includeAnalytics;
         public bool includeAnalytics => _includeAnalytics;
@@ -80,6 +84,61 @@ namespace FirebaseWebGL
                     _instance = Resources.Load<FirebaseSettings>(nameof(FirebaseSettings));
                 }
                 return _instance;
+            }
+        }
+
+        [Serializable]
+        public sealed class AuthSettings
+        {
+            [SerializeField]
+            private bool _useGoogleAuthProvider;
+            public bool useGoogleAuthProvider => _useGoogleAuthProvider;
+            [SerializeField]
+            private OAuthProviderSettings _useGoogleAuthProviderSettings;
+            public OAuthProviderSettings useGoogleAuthProviderSettings => _useGoogleAuthProviderSettings;
+            [SerializeField]
+            private bool _useAppleAuthProvider;
+            public bool useAppleAuthProvider => _useAppleAuthProvider;
+            [SerializeField]
+            private OAuthProviderSettings _useAppleAuthProviderSettings;
+            public OAuthProviderSettings useAppleAuthProviderSettings => _useAppleAuthProviderSettings;
+            [SerializeField]
+            private bool _useFacebookAuthProvider;
+            public bool useFacebookAuthProvider => _useFacebookAuthProvider;
+            [SerializeField]
+            private OAuthProviderSettings _useFacebookAuthProviderSettings;
+            public OAuthProviderSettings useFacebookAuthProviderSettings => _useFacebookAuthProviderSettings;
+            [SerializeField]
+            private bool _useGithubAuthProvider;
+            public bool useGithubAuthProvider => _useGithubAuthProvider;
+            [SerializeField]
+            private OAuthProviderSettings _useGithubAuthProviderSettings;
+            public OAuthProviderSettings useGithubAuthProviderSettings => _useGithubAuthProviderSettings;
+            [SerializeField]
+            private bool _useTwitterAuthProvider;
+            public bool useTwitterAuthProvider => _useTwitterAuthProvider;
+            [SerializeField]
+            private OAuthProviderSettings _useTwitterAuthProviderSettings;
+            public OAuthProviderSettings useTwitterAuthProviderSettings => _useTwitterAuthProviderSettings;
+            [SerializeField]
+            private bool _useMicrosoftAuthProvider;
+            public bool useMicrosoftAuthProvider => _useMicrosoftAuthProvider;
+            [SerializeField]
+            private OAuthProviderSettings _useMicrosoftAuthProviderSettings;
+            public OAuthProviderSettings useMicrosoftAuthProviderSettings => _useMicrosoftAuthProviderSettings;
+            [SerializeField]
+            private bool _useYahooAuthProvider;
+            public bool useYahooAuthProvider => _useYahooAuthProvider;
+            [SerializeField]
+            private OAuthProviderSettings _useYahooAuthProviderSettings;
+            public OAuthProviderSettings useYahooAuthProviderSettings => _useYahooAuthProviderSettings;
+
+            [Serializable]
+            public class OAuthProviderSettings
+            {
+                [SerializeField]
+                private string[] _scopes;
+                public string[] scopes => _scopes;
             }
         }
 

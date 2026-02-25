@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace FirebaseWebGL
 {
@@ -18,7 +19,11 @@ namespace FirebaseWebGL
         void GetIdTokenResult(bool forceRefresh, Action<FirebaseCallback<FirebaseAuthIdTokenResult>> firebaseCallback);
         void Reload(Action<FirebaseCallback<bool>> firebaseCallback);
         void LinkWithCredential(FirebaseAuthCredential credential, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback);
+        void LinkInWithPopup(string providerId, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback);
+        void LinkInWithPopup(string providerId, Dictionary<string, string> customParameters, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback);
         void ReauthenticateWithCredential(FirebaseAuthCredential credential, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback);
+        void ReauthenticateInWithPopup(string providerId, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback);
+        void ReauthenticateInWithPopup(string providerId, Dictionary<string, string> customParameters, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback);
         void SendEmailVerification(Action<FirebaseCallback<bool>> firebaseCallback);
         void SendEmailVerification(FirebaseAuthActionCodeSettings actionCodeSettings, Action<FirebaseCallback<bool>> firebaseCallback);
         void Unlink(string providerId, Action<FirebaseCallback<FirebaseAuthUser>> firebaseCallback);

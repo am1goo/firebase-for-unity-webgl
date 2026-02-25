@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace FirebaseWebGL
 {
@@ -9,7 +10,7 @@ namespace FirebaseWebGL
         public delegate void OnLoggerUserChangedDelegate(IFirebaseAuthLoggedUser currentUser);
         OnLoggerUserChangedDelegate onLoggedUserChanged { get; set; }
 
-        string languageCode { get; }
+        string languageCode { get; set; }
         string tenantId { get; }
         bool isRecaptchaInitialized { get; }
 
@@ -33,6 +34,8 @@ namespace FirebaseWebGL
         void SignInWithCustomToken(string customToken, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback);
         void SignInWithEmailAndPassword(string email, string password, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback);
         void SignInWithEmailLink(string email, string emailLink, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback);
+        void SignInWithPopup(string providerId, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback);
+        void SignInWithPopup(string providerId, Dictionary<string, string> customParameters, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback);
         void SignOut(Action<FirebaseCallback<bool>> firebaseCallback);
         void UpdateCurrentUser(FirebaseAuthUser user, Action<FirebaseCallback<bool>> firebaseCallback);
         bool UseDeviceLanguage();

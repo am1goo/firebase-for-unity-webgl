@@ -3,6 +3,7 @@ using HtmlAgilityPack;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using UnityEditor.Build;
@@ -101,49 +102,103 @@ namespace FirebaseWebGL.Editor
             var injectors = new List<ModularApiInjector>();
             if (true) //always have to add Firebase App module
             {
-                var app = new ModularApiInjector(rootName, "app", "appApi", scriptsToInject["app"], new[]
+                var app = new ModularApiInjector(rootName, "app", "appApi", postfix: null, scriptsToInject["app"], new[]
                 {
                     "initializeApp", "setLogLevel",
                 }, (postfix) =>
                 {
                     var injectConfig = $"{{ apiKey: \"{settings.apiKey}\", authDomain: \"{settings.authDomain}\", projectId: \"{settings.projectId}\", storageBucket: \"{settings.storageBucket}\", messagingSenderId: \"{settings.messagingSenderId}\", appId: \"{settings.appId}\", measurementId: \"{settings.measurementId}\" }}";
                     return $"initializeApp{postfix}({injectConfig})";
-                }, usePostfix: false);
+                });
                 injectors.Add(app);
             }
             if (settings.includeAuth)
             {
-                var auth = new ModularApiInjector(rootName, "auth", "authApi", scriptsToInject["auth"], new[]
+                var auth = new ModularApiInjector(rootName, "auth", "authApi", postfix: "auth", scriptsToInject["auth"], new[]
                 {
                     "getAuth", "ActionCodeOperation", "ActionCodeURL", "AuthCredential", "AuthErrorCodes", "EmailAuthCredential", "EmailAuthProvider", "FacebookAuthProvider", "FactorId", "GithubAuthProvider", "GoogleAuthProvider", "OAuthCredential", "OAuthProvider", "OperationType", "PhoneAuthCredential", "PhoneAuthProvider", "PhoneMultiFactorGenerator", "ProviderId", "RecaptchaVerifier", "SAMLAuthProvider", "SignInMethod", "TotpMultiFactorGenerator", "TotpSecret", "TwitterAuthProvider", "applyActionCode", "beforeAuthStateChanged", "browserCookiePersistence", "browserLocalPersistence", "browserPopupRedirectResolver", "browserSessionPersistence", "checkActionCode", "confirmPasswordReset", "connectAuthEmulator", "createUserWithEmailAndPassword", "debugErrorMap", "deleteUser", "fetchSignInMethodsForEmail", "getAdditionalUserInfo", "getIdToken", "getIdTokenResult", "getMultiFactorResolver", "getRedirectResult", "inMemoryPersistence", "indexedDBLocalPersistence", "initializeAuth", "initializeRecaptchaConfig", "isSignInWithEmailLink", "linkWithCredential", "linkWithPhoneNumber", "linkWithPopup", "linkWithRedirect", "multiFactor", "onAuthStateChanged", "onIdTokenChanged", "parseActionCodeURL", "reauthenticateWithCredential", "reauthenticateWithPhoneNumber", "reauthenticateWithPopup", "reauthenticateWithRedirect", "reload", "revokeAccessToken", "sendEmailVerification", "sendPasswordResetEmail", "sendSignInLinkToEmail", "setPersistence", "signInAnonymously", "signInWithCredential", "signInWithCustomToken", "signInWithEmailAndPassword", "signInWithEmailLink", "signInWithPhoneNumber", "signInWithPopup", "signInWithRedirect", "signOut", "unlink", "updateCurrentUser", "updateEmail", "updatePassword", "updatePhoneNumber", "updateProfile", "useDeviceLanguage", "validatePassword", "verifyBeforeUpdateEmail", "verifyPasswordResetCode",
                 }, (postfix) =>
                 {
                     return $"getAuth{postfix}({rootName}.app)";
-                }, usePostfix: true);
+                });
                 injectors.Add(auth);
+
+                var providerConfigs = new List<string>();
+                if (settings.includeAuthSettings.useGoogleAuthProvider)
+                {
+                    var providerSettings = settings.includeAuthSettings.useGoogleAuthProviderSettings;
+                    var providerConfig = $"signWithGoogle: {{ provider: new GoogleAuthProvider(), scopes: [{string.Join(',', providerSettings.scopes.Select(x => $"\"{x}\""))}] }}";
+                    providerConfigs.Add(providerConfig);
+                }
+                if (settings.includeAuthSettings.useAppleAuthProvider)
+                {
+                    var providerSettings = settings.includeAuthSettings.useAppleAuthProviderSettings;
+                    var providerConfig = $"signWithApple: {{ provider: new OAuthProvider('apple.com'), scopes: [{string.Join(',', providerSettings.scopes.Select(x => $"\"{x}\""))}] }}";
+                    providerConfigs.Add(providerConfig);
+                }
+                if (settings.includeAuthSettings.useFacebookAuthProvider)
+                {
+                    var providerSettings = settings.includeAuthSettings.useFacebookAuthProviderSettings;
+                    var providerConfig = $"facebook: {{ provider: new FacebookAuthProvider(), scopes: [{string.Join(',', providerSettings.scopes.Select(x => $"\"{x}\""))}] }}";
+                    providerConfigs.Add(providerConfig);
+                }
+                if (settings.includeAuthSettings.useGithubAuthProvider)
+                {
+                    var providerSettings = settings.includeAuthSettings.useGithubAuthProviderSettings;
+                    var providerConfig = $"github: {{ provider: new GithubAuthProvider(), scopes: [{string.Join(',', providerSettings.scopes.Select(x => $"\"{x}\""))}] }}";
+                    providerConfigs.Add(providerConfig);
+                }
+                if (settings.includeAuthSettings.useTwitterAuthProvider)
+                {
+                    var providerSettings = settings.includeAuthSettings.useTwitterAuthProviderSettings;
+                    var providerConfig = $"twitter: {{ provider: new TwitterAuthProvider(), scopes: [{string.Join(',', providerSettings.scopes.Select(x => $"\"{x}\""))}] }}";
+                    providerConfigs.Add(providerConfig);
+                }
+                if (settings.includeAuthSettings.useMicrosoftAuthProvider)
+                {
+                    var providerSettings = settings.includeAuthSettings.useMicrosoftAuthProviderSettings;
+                    var providerConfig = $"microsoft: {{ provider: new OAuthProvider('microsoft.com'), scopes: [{string.Join(',', providerSettings.scopes.Select(x => $"\"{x}\""))}] }}";
+                    providerConfigs.Add(providerConfig);
+                }
+                if (settings.includeAuthSettings.useYahooAuthProvider)
+                {
+                    var providerSettings = settings.includeAuthSettings.useYahooAuthProviderSettings;
+                    var providerConfig = $"yahoo: {{ provider: new OAuthProvider('yahoo.com'), scopes: [{string.Join(',', providerSettings.scopes.Select(x => $"\"{x}\""))}] }}";
+                    providerConfigs.Add(providerConfig);
+                }
+
+                if (providerConfigs.Count > 0)
+                {
+                    var injectConfigs = string.Join(", ", providerConfigs);
+                    var authProviders = new ModularApiInjector(rootName, "authProviders", null, postfix: null, null, null, (postfix) =>
+                    {
+                        return $"{{ {injectConfigs} }};";
+                    });
+                    injectors.Add(authProviders);
+                }
             }
             if (settings.includeAnalytics)
             {
-                var analytics = new ModularApiInjector(rootName, "analytics", "analyticsApi", scriptsToInject["analytics"], new[]
+                var analytics = new ModularApiInjector(rootName, "analytics", "analyticsApi", postfix: "analytics", scriptsToInject["analytics"], new[]
                 {
                     "getAnalytics", "isSupported", "getGoogleAnalyticsClientId", "logEvent", "setAnalyticsCollectionEnabled", "setConsent", "setDefaultEventParameters", "setUserId", "setUserProperties",
                 }, (postfix) =>
                 {
                     return $"getAnalytics{postfix}({rootName}.app)";
-                }, usePostfix: true);
+                });
                 injectors.Add(analytics);
             }
             if (settings.includeAppCheck)
             {
-                var appCheck = new ModularApiInjector(rootName, "appCheck", "appCheckApi", scriptsToInject["appCheck"], new[]
+                var appCheck = new ModularApiInjector(rootName, "appCheck", "appCheckApi", postfix: "appCheck", scriptsToInject["appCheck"], new[]
                 {
                     "initializeAppCheck", "getLimitedUseToken", "getToken", "onTokenChanged", "setTokenAutoRefreshEnabled", "CustomProvider", "ReCaptchaEnterpriseProvider", "ReCaptchaV3Provider"
                 }, (postfix) =>
                 {
                     var provider = settings.includeAppCheckSettings.providerType switch
                     {
-                        FirebaseSettings.AppCheckSettings.ProviderType.ReCaptchaV3 => $"new ReCaptchaV3Provider{postfix}(\'" + settings.includeAppCheckSettings.reCaptchaV3PublicKey + "\')",
-                        FirebaseSettings.AppCheckSettings.ProviderType.ReCaptchaEnterprise => $"new ReCaptchaEnterpriseProvider{postfix}(\'" + settings.includeAppCheckSettings.reCaptchaEnterprisePublicKey + "\')",
+                        FirebaseSettings.AppCheckSettings.ProviderType.ReCaptchaV3 => $"new ReCaptchaV3Provider(\'" + settings.includeAppCheckSettings.reCaptchaV3PublicKey + "\')",
+                        FirebaseSettings.AppCheckSettings.ProviderType.ReCaptchaEnterprise => $"new ReCaptchaEnterpriseProvider(\'" + settings.includeAppCheckSettings.reCaptchaEnterprisePublicKey + "\')",
                         _ => throw new Exception($"unsupported provider type {settings.includeAppCheckSettings.providerType}"),
                     };
                     var reCaptchaV3PublicKey = settings.includeAppCheckSettings.reCaptchaV3PublicKey;
@@ -151,83 +206,83 @@ namespace FirebaseWebGL.Editor
 
                     var injectOptions = $"{{ provider: {provider}, isTokenAutoRefreshEnabled: {(isTokenAutoRefreshEnabled ? 1 : 0)} }}";
                     return $"initializeAppCheck{postfix}({rootName}.app, {injectOptions})";
-                }, usePostfix: true);
+                });
                 injectors.Add(appCheck);
             }
             if (settings.includeFunctions)
             {
-                var firestore = new ModularApiInjector(rootName, "functions", "functionsApi", scriptsToInject["functions"], new[]
+                var firestore = new ModularApiInjector(rootName, "functions", "functionsApi", postfix: "functions", scriptsToInject["functions"], new[]
                 {
                     "getFunctions", "FunctionsError", "connectFunctionsEmulator" , "httpsCallable", "httpsCallableFromURL",
                 }, (postfix) =>
                 {
                     var injectOptions = $"\'{settings.includeFunctionsSettings.regionOnCustomDomain}\'";
                     return $"getFunctions{postfix}({rootName}.app, {injectOptions})";
-                }, usePostfix: true);
+                });
                 injectors.Add(firestore);
             }
             if (settings.includeMessaging)
             {
-                var messaging = new ModularApiInjector(rootName, "messaging", "messagingApi", scriptsToInject["messaging"], new[]
+                var messaging = new ModularApiInjector(rootName, "messaging", "messagingApi", postfix: "messaging", scriptsToInject["messaging"], new[]
                 {
                     "getMessaging", "isSupported", "getToken", "deleteToken", "onMessage",
                 }, (postfix) =>
                 {
                     return $"getMessaging{postfix}({rootName}.app)";
-                }, usePostfix: true);
+                });
                 injectors.Add(messaging);
 
                 if (settings.includeMessagingSettings.enableServiceWorker)
                 {
-                    var messagingSw = new ModularApiInjector(rootName, "messagingSw", "messagingSwApi", scriptsToInject["messagingSw"], new[]
+                    var messagingSw = new ModularApiInjector(rootName, "messagingSw", "messagingSwApi", postfix: "messagingSw", scriptsToInject["messagingSw"], new[]
                     {
                         "getMessaging", "isSupported", "experimentalSetDeliveryMetricsExportedToBigQueryEnabled",
                     }, (postfix) =>
                     {
                         return $"getMessaging{postfix}({rootName}.app)";
-                    }, usePostfix: true);
+                    });
                     injectors.Add(messagingSw);
                 }
             }
             if (settings.includeRemoteConfig)
             {
-                var remoteConfig = new ModularApiInjector(rootName, "remoteConfig", "remoteConfigApi", scriptsToInject["remoteConfig"], new[]
+                var remoteConfig = new ModularApiInjector(rootName, "remoteConfig", "remoteConfigApi", postfix: "remoteConfig", scriptsToInject["remoteConfig"], new[]
                 {
                     "getRemoteConfig", "isSupported", "activate", "ensureInitialized", "fetchAndActivate", "fetchConfig", "getAll", "getBoolean", "getNumber", "getString", "getValue", "onConfigUpdate", "setCustomSignals", "setLogLevel",
                 }, (postfix) =>
                 {
                     return $"getRemoteConfig{postfix}({rootName}.app)";
-                }, usePostfix: true);
+                });
                 injectors.Add(remoteConfig);
             }
 
             if (settings.includeInstallations)
             {
-                var installations = new ModularApiInjector(rootName, "installations", "installationsApi", scriptsToInject["installations"], new[]
+                var installations = new ModularApiInjector(rootName, "installations", "installationsApi", postfix: "installations", scriptsToInject["installations"], new[]
                 {
                     "getInstallations", "deleteInstallations", "getId", "getToken", "onIdChange",
                 }, (postfix) =>
                 {
                     return $"getInstallations{postfix}({rootName}.app)";
-                }, usePostfix: true);
+                });
                 injectors.Add(installations);
             }
 
             if (settings.includePerformance)
             {
-                var performance = new ModularApiInjector(rootName, "performance", "performanceApi", scriptsToInject["performance"], new[]
+                var performance = new ModularApiInjector(rootName, "performance", "performanceApi", postfix: "performance", scriptsToInject["performance"], new[]
                 {
                     "getPerformance", "trace",
                 }, (postfix) =>
                 {
                     return $"getPerformance{postfix}({rootName}.app)";
-                }, usePostfix: true);
+                });
                 injectors.Add(performance);
             }
 
             if (settings.includeStorage)
             { 
-                var storage = new ModularApiInjector(rootName, "storage", "storageApi", scriptsToInject["storage"], new[]
+                var storage = new ModularApiInjector(rootName, "storage", "storageApi", postfix: "storage", scriptsToInject["storage"], new[]
                 {
                     "getStorage", "connectStorageEmulator", "deleteObject", "getBlob", "getBytes", "getDownloadURL", "getMetadata", "getStream", "list", "ref", "updateMetadata", "uploadBytes", "uploadBytesResumable", "uploadString",
                 }, (postfix) =>
@@ -254,7 +309,7 @@ namespace FirebaseWebGL.Editor
                     {
                         return $"getStorage{postfix}({rootName}.app)";
                     }
-                }, usePostfix: true);
+                });
                 injectors.Add(storage);
             }
 
@@ -299,15 +354,19 @@ namespace FirebaseWebGL.Editor
             sb.Append(indent).AppendLine("// Import the functions you need from the SDKs you need");
             foreach (var injector in injectors)
             {
-                sb.Append(indent).InjectImport(injector);
+                if (injector.importSupported)
+                    sb.Append(indent).InjectImport(injector);
             }
             sb.AppendLine();
             sb.Append(indent).AppendLine("// Initialize Firebase");
             sb.Append(indent).AppendLine($"const {rootName} = {{ }}");
             foreach (var injector in injectors)
             {
-                sb.Append(indent).InjectSdk(injector);
-                sb.Append(indent).InjectApi(injector);
+                if (injector.sdkSupported)
+                    sb.Append(indent).InjectSdk(injector);
+
+                if (injector.apiSupported)
+                    sb.Append(indent).InjectApi(injector);
             }
             sb.AppendLine(indent).AppendLine($"document.{rootName} = {rootName};");
             return sb.ToString();

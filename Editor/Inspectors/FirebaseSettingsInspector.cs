@@ -8,6 +8,7 @@ namespace FirebaseWebGL.Editor
     public sealed class FirebaseSettingsInspector : UnityEditor.Editor
     {
         private SerializedProperty _includeAuth;
+        private SerializedProperty _includeAuthSettings;
         private SerializedProperty _includeAnalytics;
         private SerializedProperty _includeAppCheck;
         private SerializedProperty _includeAppCheckSettings;
@@ -24,6 +25,7 @@ namespace FirebaseWebGL.Editor
         private void OnEnable()
         {
             _includeAuth = serializedObject.FindProperty(nameof(_includeAuth));
+            _includeAuthSettings = serializedObject.FindProperty(nameof(_includeAuthSettings));
             _includeAnalytics = serializedObject.FindProperty(nameof(_includeAnalytics));
             _includeAppCheck = serializedObject.FindProperty(nameof(_includeAppCheck));
             _includeAppCheckSettings = serializedObject.FindProperty(nameof(_includeAppCheckSettings));
@@ -43,6 +45,12 @@ namespace FirebaseWebGL.Editor
             base.OnInspectorGUI();
 
             EditorGUILayout.PropertyField(_includeAuth);
+            if (_includeAuth.boolValue)
+            {
+                EditorGUI.indentLevel++;
+                EditorGUILayout.PropertyField(_includeAuthSettings, includeChildren: true);
+                EditorGUI.indentLevel--;
+            }
             EditorGUILayout.PropertyField(_includeAnalytics);
             EditorGUILayout.PropertyField(_includeAppCheck);
             if (_includeAppCheck.boolValue)
@@ -77,6 +85,98 @@ namespace FirebaseWebGL.Editor
             }
 
             serializedObject.ApplyModifiedProperties();
+        }
+
+        [CustomPropertyDrawer(typeof(FirebaseSettings.AuthSettings))]
+        sealed class AuthSettingsDrawer : PropertyDrawer
+        {
+            public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+            {
+                var height = 0.0f;
+
+                height += GetHeight("_useGoogleAuthProvider", "_useGoogleAuthProviderSettings");
+                height += GetHeight("_useAppleAuthProvider", "_useAppleAuthProviderSettings");
+                height += GetHeight("_useFacebookAuthProvider", "_useFacebookAuthProviderSettings");
+                height += GetHeight("_useGithubAuthProvider", "_useGithubAuthProviderSettings");
+                height += GetHeight("_useTwitterAuthProvider", "_useTwitterAuthProviderSettings");
+                height += GetHeight("_useMicrosoftAuthProvider", "_useMicrosoftAuthProviderSettings");
+                height += GetHeight("_useYahooAuthProvider", "_useYahooAuthProviderSettings");
+
+                return height;
+
+                float GetHeight(string usePropertyName, string propertyName)
+                {
+                    var height = 0.0f;
+
+                    var useProp = property.FindPropertyRelative(usePropertyName);
+                    height += EditorGUI.GetPropertyHeight(useProp);
+
+                    if (useProp.boolValue)
+                    {
+                        var prop = property.FindPropertyRelative(propertyName);
+                        height += EditorGUI.GetPropertyHeight(prop);
+                    }
+
+                    return height;
+                }
+            }
+
+            public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+            {
+                var r = position;
+
+                DrawPair(ref r, "_useGoogleAuthProvider", "_useGoogleAuthProviderSettings");
+                DrawPair(ref r, "_useAppleAuthProvider", "_useAppleAuthProviderSettings");
+                DrawPair(ref r, "_useFacebookAuthProvider", "_useFacebookAuthProviderSettings");
+                DrawPair(ref r, "_useGithubAuthProvider", "_useGithubAuthProviderSettings");
+                DrawPair(ref r, "_useTwitterAuthProvider", "_useTwitterAuthProviderSettings");
+                DrawPair(ref r, "_useMicrosoftAuthProvider", "_useMicrosoftAuthProviderSettings");
+                DrawPair(ref r, "_useYahooAuthProvider", "_useYahooAuthProviderSettings");
+
+                void DrawPair(ref Rect r, string usePropertyName, string propertyName)
+                {
+                    var useProp = property.FindPropertyRelative(usePropertyName);
+                    r.height = EditorGUI.GetPropertyHeight(useProp);
+                    EditorGUI.PropertyField(r, useProp);
+                    r.y += r.height;
+
+                    if (useProp.boolValue)
+                    {
+                        EditorGUI.indentLevel++;
+
+                        var prop = property.FindPropertyRelative(propertyName);
+                        r.height = EditorGUI.GetPropertyHeight(prop);
+                        EditorGUI.PropertyField(r, prop);
+                        r.y += r.height;
+
+                        EditorGUI.indentLevel--;
+                    }
+                }
+            }
+        }
+
+        [CustomPropertyDrawer(typeof(FirebaseSettings.AuthSettings.OAuthProviderSettings), useForChildren: true)]
+        sealed class OAuthProviderSettingsDrawer : PropertyDrawer
+        {
+            public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+            {
+                var height = 0.0f;
+
+                var scopes = property.FindPropertyRelative("_scopes");
+                height += EditorGUI.GetPropertyHeight(scopes);
+
+                return height;
+            }
+
+            public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+            {
+                var r = position;
+
+                var scopes = property.FindPropertyRelative("_scopes");
+                r.height = EditorGUI.GetPropertyHeight(scopes);
+                EditorGUI.PropertyField(r, scopes);
+                r.y += r.height;
+            }
         }
 
         [CustomPropertyDrawer(typeof(FirebaseSettings.AppCheckSettings))]

@@ -9,38 +9,55 @@ namespace FirebaseWebGL.Editor
         public readonly string sdkName;
         public readonly string apiName;
         private readonly string sourcePath;
-        private readonly string[] injectedMethods;
+        private readonly string[] injectedExports;
         private readonly OnSdkInjector sdkInjector;
         private readonly string postfix;
 
         internal delegate string OnSdkInjector(string postfix);
 
-        internal ModularApiInjector(string rootName, string sdkName, string apiName, string sourcePath, string[] injectedMethods, OnSdkInjector sdkInjector, bool usePostfix)
+        internal ModularApiInjector(string rootName, string sdkName, string apiName, string postfix, string sourcePath, string[] injectedExports, OnSdkInjector sdkInjector)
         {
             this.rootName = rootName;
             this.sdkName = sdkName;
             this.apiName = apiName;
             this.sourcePath = sourcePath;
-            this.injectedMethods = injectedMethods;
+            this.injectedExports = injectedExports;
             this.sdkInjector = sdkInjector;
-            this.postfix = usePostfix ? $"_{sdkName}" : "";
+            this.postfix = postfix != null ? $"_{postfix}" : "";
+        }
+
+        public bool importSupported
+        {
+            get => !string.IsNullOrWhiteSpace(sourcePath);
         }
 
         public StringBuilder InjectImport(StringBuilder sb)
         {
-            var injectedMethods = string.Join(", ", this.injectedMethods.Select(x => $"{x} as {x}{postfix}"));
+            var injectedMethods = string.Join(", ", this.injectedExports.Select(x => IsMethod(x) ? $"{x} as {x}{postfix}" : x));
             return sb.AppendLine($"import {{ {injectedMethods} }} from \"{sourcePath}\";");
         }
+
+        public bool sdkSupported => !string.IsNullOrWhiteSpace(sdkName) && sdkInjector != null;
 
         public StringBuilder InjectSdk(StringBuilder sb)
         {
             return sb.AppendLine($"{rootName}.{sdkName} = {sdkInjector(postfix)};");
         }
 
+        public bool apiSupported => !string.IsNullOrWhiteSpace(apiName);
+
         public StringBuilder InjectApi(StringBuilder sb)
         {
-            var injectedMethods = string.Join(", ", this.injectedMethods.Select(x => $"{x}: {x}{postfix}"));
+            var injectedMethods = string.Join(", ", this.injectedExports.Select(x => IsMethod(x) ? $"{x}: {x}{postfix}" : x));
             return sb.AppendLine($"{rootName}.{apiName} = {{ {injectedMethods} }};");
+        }
+
+        private static bool IsMethod(string name)
+        {
+            if (name.Length == 0)
+                return false;
+
+            return char.IsLower(name[0]);
         }
     }
 }

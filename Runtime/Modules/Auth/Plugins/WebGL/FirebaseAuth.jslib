@@ -2,6 +2,7 @@ const firebaseAuthLibrary = {
 	$firebaseAuth: {
 		sdk: undefined,
 		api: undefined,
+		providers: undefined,
 		callbacks: {},
 	
 		initialize: function() {
@@ -17,6 +18,27 @@ const firebaseAuthLibrary = {
 			try {
 				plugin.sdk = document.firebaseSdk.auth;
 				plugin.api = document.firebaseSdk.authApi;
+				plugin.providers = document.firebaseSdk.authProviders;
+				plugin.providers.get = function(providerId) {
+				switch (providerId) {
+					case 'google.com':
+						return plugin.providers.signWithGoogle.provider;
+					case 'apple.com':
+						return plugin.providers.signWithApple.provider;
+					case 'facebook.com':
+						return plugin.providers.facebook.provider;
+					case 'github.com':
+						return plugin.providers.github.provider;
+					case 'twitter.com':
+						return plugin.providers.twitter.provider;
+					case 'microsoft.com':
+						return plugin.providers.microsoft.provider;
+					case 'yahoo.com':
+						return plugin.providers.yahoo.provider;
+					default:
+						return null;
+					}
+				}
 				console.log('[Firebase Auth] initialize: initialized');
 				return true;
 			}
@@ -50,6 +72,17 @@ const firebaseAuthLibrary = {
 			catch(error) {
 				console.error(`[Firebase Auth] languageCode: ${error}`);
 				return null;
+			}
+		},
+		
+		languageCodeSet: function(locale) {
+			const plugin = this;
+			try {
+				plugin.sdk.languageCode = locale;
+				console.log(`[Firebase Auth] languageCodeSet: locale=${locale}`);
+			}
+			catch(error) {
+				console.error(`[Firebase Auth] languageCodeSet: ${error}`);
 			}
 		},
 		
@@ -364,6 +397,33 @@ const firebaseAuthLibrary = {
 			}
 		},
 		
+		signInWithPopup: function(providerId, customParameters, requestId, callbackPtr) {
+			const plugin = this;
+			try {
+				const provider = plugin.providers.get(providerId);
+				if (provider == null)
+				{
+					const error = `provider with id '${providerId}' is not found`;
+					console.error(`[Firebase Auth] signInWithPopup: ${error}`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+					return;
+				}
+				provider.setCustomParameters(customParameters);
+				
+				plugin.api.signInWithPopup(plugin.sdk, provider).then(function(userCredential) {
+					console.log(`[Firebase Auth] signInWithPopup: signed in by ${providerId} provider`);
+					plugin.firebaseToUnity(requestId, callbackPtr, true, userCredential, null);
+				}).catch(function(error) {
+					console.error(`[Firebase Auth] signInWithPopup: ${error}`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+				});
+			}
+			catch(error) {
+				console.error(`[Firebase Auth] signInWithPopup: ${error}`);
+				plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+			}
+		},
+		
 		signOut: function(requestId, callbackPtr) {
 			const plugin = this;
 			try {
@@ -593,6 +653,33 @@ const firebaseAuthLibrary = {
 			}
 		},
 		
+		linkWithPopup: function(providerId, customParameters, requestId, callbackPtr) {
+			const plugin = this;
+			try {
+				const provider = plugin.providers.get(providerId);
+				if (provider == null)
+				{
+					const error = `provider with id '${providerId}' is not found`;
+					console.error(`[Firebase Auth] linkWithPopup: ${error}`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+					return;
+				}
+				provider.setCustomParameters(customParameters);
+				
+				plugin.api.linkWithPopup(plugin.sdk, provider).then(function(userCredential) {
+					console.log(`[Firebase Auth] linkWithPopup: signed in by ${providerId} provider`);
+					plugin.firebaseToUnity(requestId, callbackPtr, true, userCredential, null);
+				}).catch(function(error) {
+					console.error(`[Firebase Auth] linkWithPopup: ${error}`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+				});
+			}
+			catch(error) {
+				console.error(`[Firebase Auth] linkWithPopup: ${error}`);
+				plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+			}
+		},
+		
 		reauthenticateWithCredential: function(uid, credential, requestId, callbackPtr) {
 			const plugin = this;
 			try {
@@ -614,6 +701,33 @@ const firebaseAuthLibrary = {
 			}
 			catch(error) {
 				console.error(`[Firebase Auth] reauthenticateWithCredential: ${error}`);
+				plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+			}
+		},
+		
+		reauthenticateWithPopup: function(providerId, customParameters, requestId, callbackPtr) {
+			const plugin = this;
+			try {
+				const provider = plugin.providers.get(providerId);
+				if (provider == null)
+				{
+					const error = `provider with id '${providerId}' is not found`;
+					console.error(`[Firebase Auth] reauthenticateWithPopup: ${error}`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+					return;
+				}
+				provider.setCustomParameters(customParameters);
+				
+				plugin.api.reauthenticateWithPopup(plugin.sdk, provider).then(function(userCredential) {
+					console.log(`[Firebase Auth] reauthenticateWithPopup: signed in by ${providerId} provider`);
+					plugin.firebaseToUnity(requestId, callbackPtr, true, userCredential, null);
+				}).catch(function(error) {
+					console.error(`[Firebase Auth] reauthenticateWithPopup: ${error}`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+				});
+			}
+			catch(error) {
+				console.error(`[Firebase Auth] reauthenticateWithPopup: ${error}`);
 				plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
 			}
 		},
@@ -802,6 +916,11 @@ const firebaseAuthLibrary = {
 		return new stringToNewUTF8(languageCode);
 	},
 	
+	FirebaseWebGL_FirebaseAuth_languageCodeSet: function(localePtr) {
+		const locale = UTF8ToString(localePtr);
+		firebaseAuth.languageCodeSet(locale);
+	},
+	
 	FirebaseWebGL_FirebaseAuth_tenantId: function() {
 		const tenantId = firebaseAuth.tenantId();
 		if (tenantId == null)
@@ -903,6 +1022,18 @@ const firebaseAuthLibrary = {
 		firebaseAuth.signInWithEmailLink(email, emailLink, requestId, callbackPtr);
 	},
 	
+	FirebaseWebGL_FirebaseAuth_signInWithPopup: function(providerIdPtr, customParametersAsJsonPtr, requestId, callbackPtr) {
+		const providerId = UTF8ToString(providerIdPtr);
+		if (customParametersAsJsonPtr != 0) {
+			const customParametersAsJson = UTF8ToString(customParametersAsJson);
+			const customParameters = JSON.parse(customParametersAsJson);
+			firebaseAuth.signInWithPopup(providerId, customParameters, requestId, callbackPtr);
+		}
+		else {
+			firebaseAuth.signInWithPopup(providerId, {}, requestId, callbackPtr);
+		}
+	},
+	
 	FirebaseWebGL_FirebaseAuth_signOut: function(requestId, callbackPtr) {
 		firebaseAuth.signOut(requestId, callbackPtr);
 	},
@@ -973,11 +1104,35 @@ const firebaseAuthLibrary = {
 		firebaseAuth.linkWithCredential(uid, credential, requestId, callbackPtr);
 	},
 	
+	FirebaseWebGL_FirebaseAuth_User_linkWithPopup: function(providerIdPtr, customParametersAsJsonPtr, requestId, callbackPtr) {
+		const providerId = UTF8ToString(providerIdPtr);
+		if (customParametersAsJsonPtr != 0) {
+			const customParametersAsJson = UTF8ToString(customParametersAsJson);
+			const customParameters = JSON.parse(customParametersAsJson);
+			firebaseAuth.linkWithPopup(providerId, customParameters, requestId, callbackPtr);
+		}
+		else {
+			firebaseAuth.linkWithPopup(providerId, {}, requestId, callbackPtr);
+		}
+	},
+	
 	FirebaseWebGL_FirebaseAuth_User_reauthenticateWithCredential: function(uidPtr, credentialAsJsonPtr, requestId, callbackPtr) {
 		const uid = UTF8ToString(uidPtr);
 		const credentialAsJson = UTF8ToString(credentialAsJsonPtr);
 		const credential = JSON.parse(credentialAsJson);
 		firebaseAuth.reauthenticateWithCredential(uid, credential, requestId, callbackPtr);
+	},
+	
+	FirebaseWebGL_FirebaseAuth_User_reauthenticateWithPopup: function(providerIdPtr, customParametersAsJsonPtr, requestId, callbackPtr) {
+		const providerId = UTF8ToString(providerIdPtr);
+		if (customParametersAsJsonPtr != 0) {
+			const customParametersAsJson = UTF8ToString(customParametersAsJson);
+			const customParameters = JSON.parse(customParametersAsJson);
+			firebaseAuth.reauthenticateWithPopup(providerId, customParameters, requestId, callbackPtr);
+		}
+		else {
+			firebaseAuth.reauthenticateWithPopup(providerId, {}, requestId, callbackPtr);
+		}
 	},
 	
 	FirebaseWebGL_FirebaseAuth_User_sendEmailVerification: function(uidPtr, actionCodeSettingsAsJsonPtr, requestId, callbackPtr) {
