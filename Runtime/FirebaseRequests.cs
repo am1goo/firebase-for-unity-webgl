@@ -1,11 +1,14 @@
 using System.Threading;
 
-internal class FirebaseRequests
+namespace FirebaseWebGL
 {
-    private int _requestIds = 0;
-
-    internal int NextId()
+    internal class FirebaseRequests
     {
-        return Interlocked.Increment(ref _requestIds);
+        private int _requestIds = 0;
+
+        internal int NextId()
+        {
+            return Interlocked.Increment(ref _requestIds);
+        }
     }
 }

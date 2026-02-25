@@ -2,15 +2,18 @@ using System;
 using System.Collections.Generic;
 using UnityEngine.Scripting;
 
-[Serializable]
-public sealed class FirebaseAuthAdditionalUserInfo
+namespace FirebaseWebGL
 {
-    [Preserve]
-    public bool isNewUser { get; set; }
-    [Preserve]
-    public Dictionary<string, object> profile { get; set; }
-    [Preserve]
-    public string providerId { get; set; }
-    [Preserve]
-    public string username { get; set; }
+    [Serializable]
+    public sealed class FirebaseAuthAdditionalUserInfo
+    {
+        [Preserve]
+        public bool isNewUser { get; set; }
+        [Preserve]
+        public Dictionary<string, object> profile { get; set; }
+        [Preserve]
+        public string providerId { get; set; }
+        [Preserve]
+        public string username { get; set; }
+    }
 }
