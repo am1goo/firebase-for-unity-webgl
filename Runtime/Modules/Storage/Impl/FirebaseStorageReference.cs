@@ -52,7 +52,7 @@ namespace FirebaseWebGL
         public void DeleteObject()
         {
             if (_isDeleted)
-                throw new FirebaseStorageReferenceDeletedException();
+                throw new FirebaseStorageReferenceDeletedException(_ref);
 
             if (_isRootRef)
             {
@@ -75,7 +75,7 @@ namespace FirebaseWebGL
         public void GetBytes(int maxDownloadSizeBytes, Action<FirebaseCallback<byte[]>> firebaseCallback)
         {
             if (_isDeleted)
-                throw new FirebaseStorageReferenceDeletedException();
+                throw new FirebaseStorageReferenceDeletedException(_ref);
 
             if (_isRootRef)
             {
@@ -101,7 +101,7 @@ namespace FirebaseWebGL
         public void GetDownloadURL(Action<FirebaseCallback<string>> firebaseCallback)
         {
             if (_isDeleted)
-                throw new FirebaseStorageReferenceDeletedException();
+                throw new FirebaseStorageReferenceDeletedException(_ref);
 
             if (_isRootRef)
             {
@@ -121,7 +121,7 @@ namespace FirebaseWebGL
         public void GetMetadata(Action<FirebaseCallback<FirebaseStorageReferenceFullMetadata>> firebaseCallback)
         {
             if (_isDeleted)
-                throw new FirebaseStorageReferenceDeletedException();
+                throw new FirebaseStorageReferenceDeletedException(_ref);
 
             if (_isRootRef)
             {
@@ -141,7 +141,7 @@ namespace FirebaseWebGL
         public void UpdateMetadata(FirebaseStorageReferenceFullMetadata metadata, Action<FirebaseCallback<FirebaseStorageReferenceFullMetadata>> firebaseCallback)
         {
             if (_isDeleted)
-                throw new FirebaseStorageReferenceDeletedException();
+                throw new FirebaseStorageReferenceDeletedException(_ref);
 
             if (_isRootRef)
             {
@@ -167,7 +167,7 @@ namespace FirebaseWebGL
         public void List(FirebaseStorageReferenceListOptions options, Action<FirebaseCallback<FirebaseStorageReferenceListResult>> firebaseCallback)
         {
             if (_isDeleted)
-                throw new FirebaseStorageReferenceDeletedException();
+                throw new FirebaseStorageReferenceDeletedException(_ref);
 
             var requestId = _requests.NextId();
             _onListResultCallbacks.Add(requestId, (callback) =>
@@ -187,7 +187,7 @@ namespace FirebaseWebGL
         public void UploadBytes(byte[] data, FirebaseStorageReferenceUploadMetadata metadata, Action<FirebaseCallback<FirebaseStorageReferenceUploadResult>> firebaseCallback)
         {
             if (_isDeleted)
-                throw new FirebaseStorageReferenceDeletedException();
+                throw new FirebaseStorageReferenceDeletedException(_ref);
 
             var requestId = _requests.NextId();
             _onUploadResultCallbacks.Add(requestId, (callback) =>
@@ -207,7 +207,7 @@ namespace FirebaseWebGL
         public void UploadString(string value, FirebaseStorageReferenceStringFormat? format, FirebaseStorageReferenceUploadMetadata metadata, Action<FirebaseCallback<FirebaseStorageReferenceUploadResult>> firebaseCallback)
         {
             if (_isDeleted)
-                throw new FirebaseStorageReferenceDeletedException();
+                throw new FirebaseStorageReferenceDeletedException(_ref);
 
             var requestId = _requests.NextId();
             _onUploadResultCallbacks.Add(requestId, (callback) =>
