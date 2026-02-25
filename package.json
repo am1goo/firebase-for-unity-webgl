@@ -1,29 +1,30 @@
 {
-    "name": "com.am1goo.firebase.webgl",
-    "version": "0.9.0",
-    "displayName": "Firebase for WebGL",
-    "description": "Naive wrapper over JavaScript Firebase library",
-    "unity": "2022.3",
-    "dependencies": {
-        "com.unity.nuget.newtonsoft-json": "3.2.1"
-    },
-    "keywords": [
-        "realtime",
-        "firebase",
-        "app",
-        "appcheck",
-        "analytics",
-        "auth",
-        "functions",
-        "installations",
-        "messaging",
-        "remoteconfig",
-        "performance"
-    ],
-    "author": {
-        "name": "Pavel 'am1goo' Shestakov",
-        "email": "0xShestakov@gmail.com",
-        "url": "https://github.com/am1goo"
-    },
-    "type": "library"
+  "name": "com.am1goo.firebase.webgl",
+  "version": "0.9.0",
+  "displayName": "Firebase for WebGL",
+  "description": "Naive wrapper over JavaScript Firebase library",
+  "unity": "2021.3",
+  "unityRelease": "26f1",
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.2.1"
+  },
+  "keywords": [
+    "realtime",
+    "firebase",
+    "app",
+    "appcheck",
+    "analytics",
+    "auth",
+    "functions",
+    "installations",
+    "messaging",
+    "remoteconfig",
+    "performance"
+  ],
+  "author": {
+    "name": "Pavel 'am1goo' Shestakov",
+    "email": "0xShestakov@gmail.com",
+    "url": "https://github.com/am1goo"
+  },
+  "type": "library"
 }
