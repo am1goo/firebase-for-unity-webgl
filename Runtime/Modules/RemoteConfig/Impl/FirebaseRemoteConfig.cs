@@ -211,39 +211,13 @@ namespace FirebaseWebGL
         [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnBoolCallback(string json)
         {
-            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<bool>>(json);
-
-            if (_onBoolCallbacks.TryGetValue(firebaseCallback.requestId, out var callback))
-            {
-                _onBoolCallbacks.Remove(firebaseCallback.requestId);
-                try
-                {
-                    callback?.Invoke(firebaseCallback);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
-            }
+            FirebaseModuleUtility.InvokeCallback(_onBoolCallbacks, json);
         }
 
         [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnConfigUpdateCallback(string json)
         {
-            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<string[]>>(json);
-
-            var instanceId = firebaseCallback.requestId;
-            if (_onConfigUpdateCallbacks.TryGetValue(instanceId, out var callback))
-            {
-                try
-                {
-                    callback?.Invoke(firebaseCallback);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
-            }
+            FirebaseModuleUtility.InvokeCallback(_onConfigUpdateCallbacks, json, doNotRemoveCallback: true);
         }
     }
 }

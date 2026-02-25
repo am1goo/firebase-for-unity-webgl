@@ -29,8 +29,8 @@ namespace FirebaseWebGL
 
         private static readonly FirebaseRequests _requests = new FirebaseRequests();
 
-        private static readonly Dictionary<long, Action<FirebaseCallback<bool>>> _onBoolCallbacks = new Dictionary<long, Action<FirebaseCallback<bool>>>();
-        private static readonly Dictionary<long, Action<FirebaseCallback<string>>> onStringCallbacks = new Dictionary<long, Action<FirebaseCallback<string>>>();
+        private static readonly Dictionary<int, Action<FirebaseCallback<bool>>> _onBoolCallbacks = new Dictionary<int, Action<FirebaseCallback<bool>>>();
+        private static readonly Dictionary<int, Action<FirebaseCallback<string>>> _onStringCallbacks = new Dictionary<int, Action<FirebaseCallback<string>>>();
         
         private bool _isInitializing = false;
 
@@ -89,7 +89,7 @@ namespace FirebaseWebGL
             }
 
             var requestId = _requests.NextId();
-            onStringCallbacks.Add(requestId, (callback) =>
+            _onStringCallbacks.Add(requestId, (callback) =>
             {
                 if (callback.success)
                 {
@@ -190,39 +190,13 @@ namespace FirebaseWebGL
         [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnBoolCallback(string json)
         {
-            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<bool>>(json);
-
-            if (_onBoolCallbacks.TryGetValue(firebaseCallback.requestId, out var callback))
-            {
-                _onBoolCallbacks.Remove(firebaseCallback.requestId);
-                try
-                {
-                    callback?.Invoke(firebaseCallback);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
-            }
+            FirebaseModuleUtility.InvokeCallback(_onBoolCallbacks, json);
         }
 
         [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnStringCallback(string json)
         {
-            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<string>>(json);
-
-            if (onStringCallbacks.TryGetValue(firebaseCallback.requestId, out var callback))
-            {
-                onStringCallbacks.Remove(firebaseCallback.requestId);
-                try
-                {
-                    callback?.Invoke(firebaseCallback);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
-            }
+            FirebaseModuleUtility.InvokeCallback(_onStringCallbacks, json);
         }
     }
 }

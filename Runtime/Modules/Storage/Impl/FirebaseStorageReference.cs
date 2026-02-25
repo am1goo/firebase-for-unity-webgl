@@ -228,77 +228,25 @@ namespace FirebaseWebGL
         [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnStringCallback(string json)
         {
-            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<string>>(json);
-
-            if (_onStringCallbacks.TryGetValue(firebaseCallback.requestId, out var callback))
-            {
-                _onStringCallbacks.Remove(firebaseCallback.requestId);
-                try
-                {
-                    callback?.Invoke(firebaseCallback);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
-            }
+            FirebaseModuleUtility.InvokeCallback(_onStringCallbacks, json);
         }
 
         [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnMetadataCallback(string json)
         {
-            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<FirebaseStorageReferenceFullMetadata>>(json);
-
-            if (_onMetadataCallbacks.TryGetValue(firebaseCallback.requestId, out var callback))
-            {
-                _onMetadataCallbacks.Remove(firebaseCallback.requestId);
-                try
-                {
-                    callback?.Invoke(firebaseCallback);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
-            }
+            FirebaseModuleUtility.InvokeCallback(_onMetadataCallbacks, json);
         }
 
         [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnListResultCallback(string json)
         {
-            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<FirebaseStorageReferenceListResult>>(json);
-
-            if (_onListResultCallbacks.TryGetValue(firebaseCallback.requestId, out var callback))
-            {
-                _onListResultCallbacks.Remove(firebaseCallback.requestId);
-                try
-                {
-                    callback?.Invoke(firebaseCallback);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
-            }
+            FirebaseModuleUtility.InvokeCallback(_onListResultCallbacks, json);
         }
 
         [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnUploadResultCallback(string json)
         {
-            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<FirebaseStorageReferenceUploadResult>>(json);
-
-            if (_onUploadResultCallbacks.TryGetValue(firebaseCallback.requestId, out var callback))
-            {
-                _onUploadResultCallbacks.Remove(firebaseCallback.requestId);
-                try
-                {
-                    callback?.Invoke(firebaseCallback);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
-            }
+            FirebaseModuleUtility.InvokeCallback(_onUploadResultCallbacks, json);
         }
 
         [MonoPInvokeCallback(typeof(FirebaseJsonAndBytesCallbackDelegate))]

@@ -78,20 +78,7 @@ namespace FirebaseWebGL
         [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnBoolCallback(string json)
         {
-            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<bool>>(json);
-
-            if (_onBoolCallbacks.TryGetValue(firebaseCallback.requestId, out var callback))
-            {
-                _onBoolCallbacks.Remove(firebaseCallback.requestId);
-                try
-                {
-                    callback?.Invoke(firebaseCallback);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
-            }
+            FirebaseModuleUtility.InvokeCallback(_onBoolCallbacks, json);
         }
     }
 }
