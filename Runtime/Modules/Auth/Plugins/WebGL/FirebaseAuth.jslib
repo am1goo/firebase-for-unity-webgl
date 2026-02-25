@@ -31,6 +31,39 @@ const firebaseAuthLibrary = {
 			plugin.api.connectAuthEmulator(plugin.sdk, url, options);
 		},
 		
+		currentUser: function() {
+			const plugin = this;
+			try {
+				return plugin.sdk.currentUser;
+			}
+			catch(error) {
+				console.error(`[Firebase Auth] currentUser: ${error}`);
+				return null;
+			}
+		},
+		
+		languageCode: function() {
+			const plugin = this;
+			try {
+				return plugin.sdk.languageCode;
+			}
+			catch(error) {
+				console.error(`[Firebase Auth] languageCode: ${error}`);
+				return null;
+			}
+		},
+		
+		tenantId: function() {
+			const plugin = this;
+			try {
+				return plugin.sdk.tenantId;
+			}
+			catch(error) {
+				console.error(`[Firebase Auth] tenantId: ${error}`);
+				return null;
+			}
+		},
+		
 		applyActionCode: function(oobCode, requestId, callbackPtr) {
 			const plugin = this;
 			try {
@@ -439,6 +472,118 @@ const firebaseAuthLibrary = {
 				return null;
 			}
 		},
+		
+		getAdditionalUserInfo: function(credential) {
+			const plugin = this;
+			try {
+				console.log(`[Firebase Auth] getAdditionalUserInfo: link=${JSON.stringify(link)}`);
+				return plugin.api.getAdditionalUserInfo(plugin.sdk, credential);
+			}
+			catch(error) {
+				console.error(`[Firebase Auth] getAdditionalUserInfo: error=${error}`);
+				return null;
+			}
+		},
+		
+		deleteUser: function(uid, requestId, callbackPtr) {
+			const plugin = this;
+			try {
+				const currentUser = plugin.sdk.currentUser;
+				if (currentUser.uid != uid)
+				{
+					console.error(`[Firebase Auth] deleteUser: you're trying to delete a different user`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+					return;
+				}
+				
+				currentUser.delete().then(function() {
+					console.log(`[Firebase Auth] deleteUser: uid=${uid} deleted`);
+					plugin.firebaseToUnity(requestId, callbackPtr, true, true, null);
+				}).catch(function(error) {
+					console.error(`[Firebase Auth] deleteUser: ${error}`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+				});
+			}
+			catch(error) {
+				console.error(`[Firebase Auth] deleteUser: ${error}`);
+				plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+			}
+		},
+		
+		getIdToken: function(uid, forceRefresh, requestId, callbackPtr) {
+			const plugin = this;
+			try {
+				const currentUser = plugin.sdk.currentUser;
+				if (currentUser.uid != uid)
+				{
+					console.error(`[Firebase Auth] getIdToken: you're trying to delete a different user`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+					return;
+				}
+				
+				currentUser.getIdToken(forceRefresh).then(function(token) {
+					console.log(`[Firebase Auth] getIdToken: token=${token}`);
+					plugin.firebaseToUnity(requestId, callbackPtr, true, token, null);
+				}).catch(function(error) {
+					console.error(`[Firebase Auth] getIdToken: ${error}`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+				});
+			}
+			catch(error) {
+				console.error(`[Firebase Auth] getIdToken: ${error}`);
+				plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+			}
+		},
+		
+		getIdTokenResult: function(uid, forceRefresh, requestId, callbackPtr) {
+			const plugin = this;
+			try {
+				const currentUser = plugin.sdk.currentUser;
+				if (currentUser.uid != uid)
+				{
+					console.error(`[Firebase Auth] getIdTokenResult: you're trying to delete a different user`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+					return;
+				}
+				
+				currentUser.getIdTokenResult(forceRefresh).then(function(tokenResult) {
+					console.log(`[Firebase Auth] getIdTokenResult: tokenResult=${JSON.stringify(tokenResult)}`);
+					plugin.firebaseToUnity(requestId, callbackPtr, true, tokenResult, null);
+				}).catch(function(error) {
+					console.error(`[Firebase Auth] getIdTokenResult: ${error}`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+				});
+			}
+			catch(error) {
+				console.error(`[Firebase Auth] getIdTokenResult: ${error}`);
+				plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+			}
+		},
+		
+		reload: function(uid, requestId, callbackPtr) {
+			const plugin = this;
+			try {
+				const currentUser = plugin.sdk.currentUser;
+				if (currentUser.uid != uid)
+				{
+					console.error(`[Firebase Auth] reload: you're trying to delete a different user`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+					return;
+				}
+				
+				currentUser.reload().then(function() {
+					console.log(`[Firebase Auth] reload: reloaded`);
+					plugin.firebaseToUnity(requestId, callbackPtr, true, true, null);
+				}).catch(function(error) {
+					console.error(`[Firebase Auth] reload: ${error}`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+				});
+			}
+			catch(error) {
+				console.error(`[Firebase Auth] reload: ${error}`);
+				plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+			}
+		},
 	},
 	
 	FirebaseWebGL_FirebaseAuth_initialize: function() {
@@ -455,6 +600,31 @@ const firebaseAuthLibrary = {
 		else {
 			return firebaseAuth.connectAuthEmulator(url);
 		}
+	},
+	
+	FirebaseWebGL_FirebaseAuth_currentUser: function() {
+		const user = firebaseAuth.currentUser();
+		if (user == null)
+			return null;
+		
+		const userAsJson = JSON.stringify(user);
+		return new stringToNewUTF8(userAsJson);
+	},
+	
+	FirebaseWebGL_FirebaseAuth_languageCode: function() {
+		const languageCode = firebaseAuth.languageCode();
+		if (languageCode == null)
+			return null;
+		
+		return new stringToNewUTF8(languageCode);
+	},
+	
+	FirebaseWebGL_FirebaseAuth_tenantId: function() {
+		const tenantId = firebaseAuth.tenantId();
+		if (tenantId == null)
+			return null;
+		
+		return new stringToNewUTF8(tenantId);
 	},
 	
 	FirebaseWebGL_FirebaseAuth_applyActionCode: function(oobCodePtr, requestId, callbackPtr) {
@@ -587,6 +757,38 @@ const firebaseAuthLibrary = {
 		const actionCodeUrl = firebaseAuth.parseActionCodeURL(link);
 		const actionCodeUrlAsJson = JSON.stringify(actionCodeUrl);
 		return stringToNewUTF8(actionCodeUrlAsJson);
+	},
+	
+	FirebaseWebGL_FirebaseAuth_getAdditionalUserInfo: function(credentialAsJsonPtr) {
+		const credentialAsJson = UTF8ToString(credentialAsJsonPtr);
+		const credential = JSON.parse(credentialAsJson);
+		
+		const additionalUserInfo = firebaseAuth.getAdditionalUserInfo(credential);
+		if (additionalUserInfo == null)
+			return null;
+		
+		const additionalUserInfoAsJson = JSON.stringify(additionalUserInfo);
+		return stringToNewUTF8(additionalUserInfoAsJson);
+	},
+	
+	FirebaseWebGL_FirebaseAuth_User_deleteUser: function(uidPtr, requestId, callbackPtr) {
+		const uid = UTF8ToString(uidPtr);
+		firebaseAuth.deleteUser(uid, requestId, callbackPtr);
+	},
+	
+	FirebaseWebGL_FirebaseAuth_User_getIdToken: function(uidPtr, forceRefresh, requestId, callbackPtr) {
+		const uid = UTF8ToString(uidPtr);
+		firebaseAuth.getIdToken(uid, forceRefresh, requestId, callbackPtr);
+	},
+	
+	FirebaseWebGL_FirebaseAuth_User_getIdTokenResult: function(uidPtr, forceRefresh, requestId, callbackPtr) {
+		const uid = UTF8ToString(uidPtr);
+		firebaseAuth.getIdTokenResult(uid, forceRefresh, requestId, callbackPtr);
+	},
+	
+	FirebaseWebGL_FirebaseAuth_User_reload: function(uidPtr, requestId, callbackPtr) {
+		const uid = UTF8ToString(uidPtr);
+		firebaseAuth.reload(uid, requestId, callbackPtr);
 	},
 };
 

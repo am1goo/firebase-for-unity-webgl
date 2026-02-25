@@ -4,8 +4,14 @@ namespace FirebaseWebGL
 {
     public interface IFirebaseAuth : IFirebaseModule
     {
+        IFirebaseAuthLoggedUser loggerUser { get; }
+
+        public delegate void OnLoggerUserChangedDelegate(IFirebaseAuthLoggedUser currentUser);
+        OnLoggerUserChangedDelegate onLoggedUserChanged { get; set; }
+
+        string languageCode { get; }
+        string tenantId { get; }
         bool isRecaptchaInitialized { get; }
-        FirebaseAuthUser currentUser { get; }
 
         void Initialize(Action<FirebaseCallback<bool>> firebaseCallback);
         void ConnectAuthEmulator(string url, FirebaseAuthEmulatorOptions options);
