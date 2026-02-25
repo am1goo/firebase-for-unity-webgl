@@ -572,184 +572,55 @@ namespace FirebaseWebGL
         [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnBoolCallback(string json)
         {
-            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<bool>>(json);
-
-            if (_onBoolCallbacks.TryGetValue(firebaseCallback.requestId, out var callback))
-            {
-                _onBoolCallbacks.Remove(firebaseCallback.requestId);
-                try
-                {
-                    callback?.Invoke(firebaseCallback);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
-            }
+            FirebaseModuleUtility.InvokeCallback(_onBoolCallbacks, json);
         }
 
         [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnStringCallback(string json)
         {
-            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<string>>(json);
-
-            if (_onStringCallbacks.TryGetValue(firebaseCallback.requestId, out var callback))
-            {
-                _onStringCallbacks.Remove(firebaseCallback.requestId);
-                try
-                {
-                    callback?.Invoke(firebaseCallback);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
-            }
+            FirebaseModuleUtility.InvokeCallback(_onStringCallbacks, json);
         }
 
         [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnStringArrayCallback(string json)
         {
-            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<string[]>>(json);
-
-            if (_onStringArrayCallbacks.TryGetValue(firebaseCallback.requestId, out var callback))
-            {
-                _onStringArrayCallbacks.Remove(firebaseCallback.requestId);
-                try
-                {
-                    callback?.Invoke(firebaseCallback);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
-            }
+            FirebaseModuleUtility.InvokeCallback(_onStringArrayCallbacks, json);
         }
 
         [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnActionCodeInfoCallback(string json)
         {
-            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<FirebaseAuthActionCodeInfo>>(json);
-
-            if (_onActionCodeInfoCallbacks.TryGetValue(firebaseCallback.requestId, out var callback))
-            {
-                _onActionCodeInfoCallbacks.Remove(firebaseCallback.requestId);
-                try
-                {
-                    callback?.Invoke(firebaseCallback);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
-            }
+            FirebaseModuleUtility.InvokeCallback(_onActionCodeInfoCallbacks, json);
         }
 
         [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnUserCredentialCallback(string json)
         {
-            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<FirebaseAuthUserCredential>>(json);
-
-            if (_onUserCredentialCallbacks.TryGetValue(firebaseCallback.requestId, out var callback))
-            {
-                _onUserCredentialCallbacks.Remove(firebaseCallback.requestId);
-                try
-                {
-                    callback?.Invoke(firebaseCallback);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
-            }
+            FirebaseModuleUtility.InvokeCallback(_onUserCredentialCallbacks, json);
         }
 
         [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnPasswordValidationStatusCallback(string json)
         {
-            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<FirebaseAuthPasswordValidationStatus>>(json);
-
-            if (_onPasswordValidationStatusCallbacks.TryGetValue(firebaseCallback.requestId, out var callback))
-            {
-                _onPasswordValidationStatusCallbacks.Remove(firebaseCallback.requestId);
-                try
-                {
-                    callback?.Invoke(firebaseCallback);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
-            }
+            FirebaseModuleUtility.InvokeCallback(_onPasswordValidationStatusCallbacks, json);
         }
 
         [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static bool OnBeforeAuthStateChangedCallback(string json)
         {
-            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<FirebaseAuthUser>>(json);
-
-            var instanceId = firebaseCallback.requestId;
-            if (_onBeforeAuthStateChangeCallbacks.TryGetValue(instanceId, out var callback))
-            {
-                try
-                {
-                    if (callback != null)
-                    {
-                        return callback.Invoke(firebaseCallback);
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                    return false;
-                }
-            }
-            else
-            {
-                return false;
-            }
+            return FirebaseModuleUtility.InvokeCallback(_onBeforeAuthStateChangeCallbacks, json, doNotRemoveCallback: true);
         }
 
         [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnAuthStateChangedCallback(string json)
         {
-            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<FirebaseAuthUser>>(json);
-
-            var instanceId = firebaseCallback.requestId;
-            if (_onAuthStateChangeCallbacks.TryGetValue(instanceId, out var callback))
-            {
-                try
-                {
-                    callback?.Invoke(firebaseCallback);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
-            }
+            FirebaseModuleUtility.InvokeCallback(_onAuthStateChangeCallbacks, json, doNotRemoveCallback: true);
         }
 
         [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnIdTokenChangedCallback(string json)
         {
-            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<FirebaseAuthUser>>(json);
-
-            var instanceId = firebaseCallback.requestId;
-            if (_onIdTokenChangeCallbacks.TryGetValue(instanceId, out var callback))
-            {
-                try
-                {
-                    callback?.Invoke(firebaseCallback);
-                }
-                catch (Exception ex)
-                {
-                    Debug.LogException(ex);
-                }
-            }
+            FirebaseModuleUtility.InvokeCallback(_onIdTokenChangeCallbacks, json, doNotRemoveCallback: true);
         }
     }
 }
