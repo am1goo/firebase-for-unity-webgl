@@ -53,8 +53,6 @@ namespace FirebaseWebGL
         [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseAuth_signInWithCredential(string credentialAsJson, int requestId, FirebaseJsonCallbackDelegate callback);
         [DllImport("__Internal")]
-        private static extern void FirebaseWebGL_FirebaseAuth_reauthenticateWithCredential(string userAsJson, string credentialAsJson, int requestId, FirebaseJsonCallbackDelegate callback);
-        [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseAuth_signInWithCustomToken(string customToken, int requestId, FirebaseJsonCallbackDelegate callback);
         [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseAuth_signInWithEmailAndPassword(string email, string password, int requestId, FirebaseJsonCallbackDelegate callback);
@@ -443,22 +441,6 @@ namespace FirebaseWebGL
 
             var credentialAsJson = JsonConvert.SerializeObject(credential);
             FirebaseWebGL_FirebaseAuth_signInWithCredential(credentialAsJson, requestId, OnUserCredentialCallback);
-        }
-
-        public void ReauthenticateWithCredential(FirebaseAuthUser user, FirebaseAuthCredential credential, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback)
-        {
-            if (!_isInitialized)
-                throw new FirebaseModuleNotInitializedException(this);
-
-            var requestId = _requests.NextId();
-            _onUserCredentialCallbacks.Add(requestId, (callback) =>
-            {
-                firebaseCallback?.Invoke(callback);
-            });
-
-            var userAsJson = JsonConvert.SerializeObject(credential);
-            var credentialAsJson = JsonConvert.SerializeObject(credential);
-            FirebaseWebGL_FirebaseAuth_reauthenticateWithCredential(userAsJson, credentialAsJson, requestId, OnUserCredentialCallback);
         }
 
         public void SignInWithCustomToken(string customToken, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback)

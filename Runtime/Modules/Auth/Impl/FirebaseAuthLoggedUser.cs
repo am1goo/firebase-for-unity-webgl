@@ -17,11 +17,29 @@ namespace FirebaseWebGL
         private static extern void FirebaseWebGL_FirebaseAuth_User_getIdTokenResult(string uid, bool forceRefresh, int requestId, FirebaseJsonCallbackDelegate callback);
         [DllImport("__Internal")]
         private static extern void FirebaseWebGL_FirebaseAuth_User_reload(string uid, int requestId, FirebaseJsonCallbackDelegate callback);
+        [DllImport("__Internal")]
+        private static extern void FirebaseWebGL_FirebaseAuth_User_linkWithCredential(string uid, string credentialAsJson, int requestId, FirebaseJsonCallbackDelegate callback);
+        [DllImport("__Internal")]
+        private static extern void FirebaseWebGL_FirebaseAuth_User_reauthenticateWithCredential(string uid, string credentialAsJson, int requestId, FirebaseJsonCallbackDelegate callback);
+        [DllImport("__Internal")]
+        private static extern void FirebaseWebGL_FirebaseAuth_User_sendEmailVerification(string uid, string actionCodeSettingsAsJson, int requestId, FirebaseJsonCallbackDelegate callback);
+        [DllImport("__Internal")]
+        private static extern void FirebaseWebGL_FirebaseAuth_User_unlink(string uid, string providerId, int requestId, FirebaseJsonCallbackDelegate callback);
+        [DllImport("__Internal")]
+        private static extern void FirebaseWebGL_FirebaseAuth_User_updateEmail(string uid, string newEmail, int requestId, FirebaseJsonCallbackDelegate callback);
+        [DllImport("__Internal")]
+        private static extern void FirebaseWebGL_FirebaseAuth_User_updatePassword(string uid, string newPassword, int requestId, FirebaseJsonCallbackDelegate callback);
+        [DllImport("__Internal")]
+        private static extern void FirebaseWebGL_FirebaseAuth_User_updateProfile(string uid, string optionsAsJson, int requestId, FirebaseJsonCallbackDelegate callback);
+        [DllImport("__Internal")]
+        private static extern void FirebaseWebGL_FirebaseAuth_User_verifyBeforeUpdateEmail(string uid, string newEmail, string actionCodeSettingsAsJson, int requestId, FirebaseJsonCallbackDelegate callback);
 
         private static readonly FirebaseRequests _requests = new FirebaseRequests();
         private static readonly Dictionary<int, Action<FirebaseCallback<bool>>> _onBoolCallbacks = new Dictionary<int, Action<FirebaseCallback<bool>>>();
         private static readonly Dictionary<int, Action<FirebaseCallback<string>>> _onStringCallbacks = new Dictionary<int, Action<FirebaseCallback<string>>>();
         private static readonly Dictionary<int, Action<FirebaseCallback<FirebaseAuthIdTokenResult>>> _onIdTokenResultCallbacks = new Dictionary<int, Action<FirebaseCallback<FirebaseAuthIdTokenResult>>>();
+        private static readonly Dictionary<int, Action<FirebaseCallback<FirebaseAuthUser>>> _onUserCallbacks = new Dictionary<int, Action<FirebaseCallback<FirebaseAuthUser>>>();
+        private static readonly Dictionary<int, Action<FirebaseCallback<FirebaseAuthUserCredential>>> _onUserCredentialCallbacks = new Dictionary<int, Action<FirebaseCallback<FirebaseAuthUserCredential>>>();
 
         public string uid => _user.uid;
         public string displayName => _user.displayName;
@@ -108,6 +126,138 @@ namespace FirebaseWebGL
             FirebaseWebGL_FirebaseAuth_User_reload(_user.uid, requestId, OnBoolCallback);
         }
 
+        public void LinkWithCredential(FirebaseAuthCredential credential, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback)
+        {
+            if (_isDeleted)
+                throw new FirebaseAuthUserDeletedException(_user.uid);
+
+            var requestId = _requests.NextId();
+            _onUserCredentialCallbacks.Add(requestId, (callback) =>
+            {
+                firebaseCallback?.Invoke(callback);
+            });
+
+            var credentialAsJson = JsonConvert.SerializeObject(credential);
+            FirebaseWebGL_FirebaseAuth_User_linkWithCredential(_user.uid, credentialAsJson, requestId, OnUserCredentialCallback);
+        }
+
+        public void ReauthenticateWithCredential(FirebaseAuthCredential credential, Action<FirebaseCallback<FirebaseAuthUserCredential>> firebaseCallback)
+        {
+            if (_isDeleted)
+                throw new FirebaseAuthUserDeletedException(_user.uid);
+
+            var requestId = _requests.NextId();
+            _onUserCredentialCallbacks.Add(requestId, (callback) =>
+            {
+                firebaseCallback?.Invoke(callback);
+            });
+
+            var credentialAsJson = JsonConvert.SerializeObject(credential);
+            FirebaseWebGL_FirebaseAuth_User_reauthenticateWithCredential(_user.uid, credentialAsJson, requestId, OnUserCredentialCallback);
+        }
+
+        public void SendEmailVerification(Action<FirebaseCallback<bool>> firebaseCallback)
+        {
+            SendEmailVerification(null, firebaseCallback);
+        }
+
+        public void SendEmailVerification(FirebaseAuthActionCodeSettings actionCodeSettings, Action<FirebaseCallback<bool>> firebaseCallback)
+        {
+            if (_isDeleted)
+                throw new FirebaseAuthUserDeletedException(_user.uid);
+
+            var requestId = _requests.NextId();
+            _onBoolCallbacks.Add(requestId, (callback) =>
+            {
+                firebaseCallback?.Invoke(callback);
+            });
+
+            var actionCodeSettingsAsJson = actionCodeSettings != null ? JsonConvert.SerializeObject(actionCodeSettings) : null;
+            FirebaseWebGL_FirebaseAuth_User_sendEmailVerification(_user.uid, actionCodeSettingsAsJson, requestId, OnBoolCallback);
+        }
+
+        public void Unlink(string providerId, Action<FirebaseCallback<FirebaseAuthUser>> firebaseCallback)
+        {
+            if (_isDeleted)
+                throw new FirebaseAuthUserDeletedException(_user.uid);
+
+            var requestId = _requests.NextId();
+            _onUserCallbacks.Add(requestId, (callback) =>
+            {
+                firebaseCallback?.Invoke(callback);
+            });
+
+            FirebaseWebGL_FirebaseAuth_User_unlink(_user.uid, providerId, requestId, OnUserCallback);
+        }
+
+        public void UpdateEmail(string newEmail, Action<FirebaseCallback<bool>> firebaseCallback)
+        {
+            if (_isDeleted)
+                throw new FirebaseAuthUserDeletedException(_user.uid);
+
+            var requestId = _requests.NextId();
+            _onBoolCallbacks.Add(requestId, (callback) =>
+            {
+                firebaseCallback?.Invoke(callback);
+            });
+
+            FirebaseWebGL_FirebaseAuth_User_updateEmail(_user.uid, newEmail, requestId, OnBoolCallback);
+        }
+
+        public void UpdatePassword(string newPassword, Action<FirebaseCallback<bool>> firebaseCallback)
+        {
+            if (_isDeleted)
+                throw new FirebaseAuthUserDeletedException(_user.uid);
+
+            var requestId = _requests.NextId();
+            _onBoolCallbacks.Add(requestId, (callback) =>
+            {
+                firebaseCallback?.Invoke(callback);
+            });
+
+            FirebaseWebGL_FirebaseAuth_User_updatePassword(_user.uid, newPassword, requestId, OnBoolCallback);
+        }
+
+        public void UpdateProfile(string displayName, string photoURL, Action<FirebaseCallback<bool>> firebaseCallback)
+        {
+            if (_isDeleted)
+                throw new FirebaseAuthUserDeletedException(_user.uid);
+
+            var requestId = _requests.NextId();
+            _onBoolCallbacks.Add(requestId, (callback) =>
+            {
+                firebaseCallback?.Invoke(callback);
+            });
+
+            var options = new Dictionary<string, string>
+            {
+                { "displayName", displayName },
+                { "photoURL", photoURL },
+            };
+            var optionsAsJson = JsonConvert.SerializeObject(options);
+            FirebaseWebGL_FirebaseAuth_User_updateProfile(_user.uid, optionsAsJson, requestId, OnBoolCallback);
+        }
+
+        public void VerifyBeforeUpdateEmail(string newEmail, Action<FirebaseCallback<bool>> firebaseCallback)
+        {
+            VerifyBeforeUpdateEmail(newEmail, null, firebaseCallback);
+        }
+
+        public void VerifyBeforeUpdateEmail(string newEmail, FirebaseAuthActionCodeSettings actionCodeSettings, Action<FirebaseCallback<bool>> firebaseCallback)
+        {
+            if (_isDeleted)
+                throw new FirebaseAuthUserDeletedException(_user.uid);
+
+            var requestId = _requests.NextId();
+            _onBoolCallbacks.Add(requestId, (callback) =>
+            {
+                firebaseCallback?.Invoke(callback);
+            });
+
+            var actionCodeSettingsAsJson = actionCodeSettings != null ? JsonConvert.SerializeObject(actionCodeSettings) : null;
+            FirebaseWebGL_FirebaseAuth_User_verifyBeforeUpdateEmail(_user.uid, newEmail, actionCodeSettingsAsJson, requestId, OnBoolCallback);
+        }
+
         [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
         private static void OnBoolCallback(string json)
         {
@@ -154,6 +304,44 @@ namespace FirebaseWebGL
             if (_onIdTokenResultCallbacks.TryGetValue(firebaseCallback.requestId, out var callback))
             {
                 _onIdTokenResultCallbacks.Remove(firebaseCallback.requestId);
+                try
+                {
+                    callback?.Invoke(firebaseCallback);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogException(ex);
+                }
+            }
+        }
+
+        [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
+        private static void OnUserCallback(string json)
+        {
+            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<FirebaseAuthUser>>(json);
+
+            if (_onUserCallbacks.TryGetValue(firebaseCallback.requestId, out var callback))
+            {
+                _onUserCallbacks.Remove(firebaseCallback.requestId);
+                try
+                {
+                    callback?.Invoke(firebaseCallback);
+                }
+                catch (Exception ex)
+                {
+                    Debug.LogException(ex);
+                }
+            }
+        }
+
+        [MonoPInvokeCallback(typeof(FirebaseJsonCallbackDelegate))]
+        private static void OnUserCredentialCallback(string json)
+        {
+            var firebaseCallback = JsonConvert.DeserializeObject<FirebaseCallback<FirebaseAuthUserCredential>>(json);
+
+            if (_onUserCredentialCallbacks.TryGetValue(firebaseCallback.requestId, out var callback))
+            {
+                _onUserCredentialCallbacks.Remove(firebaseCallback.requestId);
                 try
                 {
                     callback?.Invoke(firebaseCallback);

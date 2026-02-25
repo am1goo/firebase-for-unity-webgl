@@ -4,11 +4,11 @@ using UnityEngine.Scripting;
 namespace FirebaseWebGL
 {
     [Serializable]
-    public sealed class FirebaseAuthCredential
+    public class FirebaseAuthCredential
     {
         [Preserve]
         public string providerId { get; set; }
         [Preserve]
-        public FirebaseAuthSignInMethod signInMethod { get; set; }
+        public string signInMethod { get; set; }
     }
 }

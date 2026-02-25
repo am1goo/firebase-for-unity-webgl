@@ -313,23 +313,6 @@ const firebaseAuthLibrary = {
 			}
 		},
 		
-		reauthenticateWithCredential: function(user, credential, requestId, callbackPtr) {
-			const plugin = this;
-			try {
-				plugin.api.reauthenticateWithCredential(plugin.sdk, user, credential).then(function(userCredential) {
-					console.log(`[Firebase Auth] reauthenticateWithCredential`);
-					plugin.firebaseToUnity(requestId, callbackPtr, true, userCredential, null);
-				}).catch(function(error) {
-					console.error(`[Firebase Auth] reauthenticateWithCredential: ${error}`);
-					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
-				});
-			}
-			catch(error) {
-				console.error(`[Firebase Auth] reauthenticateWithCredential: ${error}`);
-				plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
-			}
-		},
-		
 		signInWithCustomToken: function(customToken, requestId, callbackPtr) {
 			const plugin = this;
 			try {
@@ -584,6 +567,206 @@ const firebaseAuthLibrary = {
 				plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
 			}
 		},
+		
+		linkWithCredential: function(uid, credential, requestId, callbackPtr) {
+			const plugin = this;
+			try {
+				const currentUser = plugin.sdk.currentUser;
+				if (currentUser.uid != uid)
+				{
+					console.error(`[Firebase Auth] linkWithCredential: you're trying to delete a different user`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+					return;
+				}
+				
+				plugin.api.linkWithCredential(currentUser, credential).then(function(userCredential) {
+					console.log(`[Firebase Auth] linkWithCredential: linked`);
+					plugin.firebaseToUnity(requestId, callbackPtr, true, userCredential, null);
+				}).catch(function(error) {
+					console.error(`[Firebase Auth] linkWithCredential: ${error}`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+				});
+			}
+			catch(error) {
+				console.error(`[Firebase Auth] linkWithCredential: ${error}`);
+				plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+			}
+		},
+		
+		reauthenticateWithCredential: function(uid, credential, requestId, callbackPtr) {
+			const plugin = this;
+			try {
+				const currentUser = plugin.sdk.currentUser;
+				if (currentUser.uid != uid)
+				{
+					console.error(`[Firebase Auth] reauthenticateWithCredential: you're trying to delete a different user`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+					return;
+				}
+				
+				plugin.api.reauthenticateWithCredential(currentUser, credential).then(function(userCredential) {
+					console.log(`[Firebase Auth] reauthenticateWithCredential: reauthenticated`);
+					plugin.firebaseToUnity(requestId, callbackPtr, true, userCredential, null);
+				}).catch(function(error) {
+					console.error(`[Firebase Auth] reauthenticateWithCredential: ${error}`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+				});
+			}
+			catch(error) {
+				console.error(`[Firebase Auth] reauthenticateWithCredential: ${error}`);
+				plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+			}
+		},
+		
+		sendEmailVerification: function(uid, actionCodeSettings, requestId, callbackPtr) {
+			const plugin = this;
+			try {
+				const currentUser = plugin.sdk.currentUser;
+				if (currentUser.uid != uid)
+				{
+					console.error(`[Firebase Auth] sendEmailVerification: you're trying to delete a different user`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+					return;
+				}
+				
+				plugin.api.sendEmailVerification(currentUser, actionCodeSettings).then(function() {
+					console.log(`[Firebase Auth] sendEmailVerification: sent`);
+					plugin.firebaseToUnity(requestId, callbackPtr, true, true, null);
+				}).catch(function(error) {
+					console.error(`[Firebase Auth] sendEmailVerification: ${error}`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+				});
+			}
+			catch(error) {
+				console.error(`[Firebase Auth] sendEmailVerification: ${error}`);
+				plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+			}
+		},
+		
+		unlink: function(uid, providerId, requestId, callbackPtr) {
+			const plugin = this;
+			try {
+				const currentUser = plugin.sdk.currentUser;
+				if (currentUser.uid != uid)
+				{
+					console.error(`[Firebase Auth] unlink: you're trying to delete a different user`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+					return;
+				}
+				
+				plugin.api.unlink(currentUser, providerId).then(function(user) {
+					console.log(`[Firebase Auth] unlink: unlinked`);
+					plugin.firebaseToUnity(requestId, callbackPtr, true, user, null);
+				}).catch(function(error) {
+					console.error(`[Firebase Auth] unlink: ${error}`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+				});
+			}
+			catch(error) {
+				console.error(`[Firebase Auth] unlink: ${error}`);
+				plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+			}
+		},
+		
+		updateEmail: function(uid, newEmail, requestId, callbackPtr) {
+			const plugin = this;
+			try {
+				const currentUser = plugin.sdk.currentUser;
+				if (currentUser.uid != uid)
+				{
+					console.error(`[Firebase Auth] updateEmail: you're trying to delete a different user`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+					return;
+				}
+				
+				plugin.api.updateEmail(currentUser, newEmail).then(function() {
+					console.log(`[Firebase Auth] updateEmail: updated`);
+					plugin.firebaseToUnity(requestId, callbackPtr, true, true, null);
+				}).catch(function(error) {
+					console.error(`[Firebase Auth] updateEmail: ${error}`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+				});
+			}
+			catch(error) {
+				console.error(`[Firebase Auth] updateEmail: ${error}`);
+				plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+			}
+		},
+		
+		updatePassword: function(uid, newPassword, requestId, callbackPtr) {
+			const plugin = this;
+			try {
+				const currentUser = plugin.sdk.currentUser;
+				if (currentUser.uid != uid)
+				{
+					console.error(`[Firebase Auth] updatePassword: you're trying to delete a different user`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+					return;
+				}
+				
+				plugin.api.updatePassword(currentUser, newPassword).then(function() {
+					console.log(`[Firebase Auth] updatePassword: updated`);
+					plugin.firebaseToUnity(requestId, callbackPtr, true, true, null);
+				}).catch(function(error) {
+					console.error(`[Firebase Auth] updatePassword: ${error}`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+				});
+			}
+			catch(error) {
+				console.error(`[Firebase Auth] updatePassword: ${error}`);
+				plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+			}
+		},
+		
+		updateProfile: function(uid, options, requestId, callbackPtr) {
+			const plugin = this;
+			try {
+				const currentUser = plugin.sdk.currentUser;
+				if (currentUser.uid != uid)
+				{
+					console.error(`[Firebase Auth] updateProfile: you're trying to delete a different user`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+					return;
+				}
+				
+				plugin.api.updateProfile(currentUser, options).then(function() {
+					console.log(`[Firebase Auth] updateProfile: updated`);
+					plugin.firebaseToUnity(requestId, callbackPtr, true, true, null);
+				}).catch(function(error) {
+					console.error(`[Firebase Auth] updateProfile: ${error}`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+				});
+			}
+			catch(error) {
+				console.error(`[Firebase Auth] updateProfile: ${error}`);
+				plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+			}
+		},
+		
+		verifyBeforeUpdateEmail: function(uid, newEmail, actionCodeSettings, requestId, callbackPtr) {
+			const plugin = this;
+			try {
+				const currentUser = plugin.sdk.currentUser;
+				if (currentUser.uid != uid)
+				{
+					console.error(`[Firebase Auth] verifyBeforeUpdateEmail: you're trying to delete a different user`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+					return;
+				}
+				
+				plugin.api.verifyBeforeUpdateEmail(currentUser, newEmail, actionCodeSettings).then(function() {
+					console.log(`[Firebase Auth] verifyBeforeUpdateEmail: updated`);
+					plugin.firebaseToUnity(requestId, callbackPtr, true, true, null);
+				}).catch(function(error) {
+					console.error(`[Firebase Auth] verifyBeforeUpdateEmail: ${error}`);
+					plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+				});
+			}
+			catch(error) {
+				console.error(`[Firebase Auth] verifyBeforeUpdateEmail: ${error}`);
+				plugin.firebaseToUnity(requestId, callbackPtr, false, null, error);
+			}
+		},
 	},
 	
 	FirebaseWebGL_FirebaseAuth_initialize: function() {
@@ -703,14 +886,6 @@ const firebaseAuthLibrary = {
 		firebaseAuth.signInWithCredential(credential, requestId, callbackPtr);
 	},
 	
-	FirebaseWebGL_FirebaseAuth_reauthenticateWithCredential: function(userAsJsonPtr, credentialAsJsonPtr, requestId, callbackPtr) {
-		const userAsJson = UTF8ToString(userAsJsonPtr);
-		const user = JSON.parse(userAsJson);
-		const credentialAsJson = UTF8ToString(credentialAsJsonPtr);
-		const credential = JSON.parse(credentialAsJson);
-		firebaseAuth.reauthenticateWithCredential(user, credential, requestId, callbackPtr);
-	},
-	
 	FirebaseWebGL_FirebaseAuth_signInWithCustomToken: function(customTokenPtr, requestId, callbackPtr) {
 		const customToken = UTF8ToString(customTokenPtr);
 		firebaseAuth.signInWithCustomToken(customToken, requestId, callbackPtr);
@@ -789,6 +964,65 @@ const firebaseAuthLibrary = {
 	FirebaseWebGL_FirebaseAuth_User_reload: function(uidPtr, requestId, callbackPtr) {
 		const uid = UTF8ToString(uidPtr);
 		firebaseAuth.reload(uid, requestId, callbackPtr);
+	},
+	
+	FirebaseWebGL_FirebaseAuth_User_linkWithCredential: function(uidPtr, credentialAsJsonPtr, requestId, callbackPtr) {
+		const uid = UTF8ToString(uidPtr);
+		const credentialAsJson = UTF8ToString(credentialAsJsonPtr);
+		const credential = JSON.parse(credentialAsJson);
+		firebaseAuth.linkWithCredential(uid, credential, requestId, callbackPtr);
+	},
+	
+	FirebaseWebGL_FirebaseAuth_User_reauthenticateWithCredential: function(uidPtr, credentialAsJsonPtr, requestId, callbackPtr) {
+		const uid = UTF8ToString(uidPtr);
+		const credentialAsJson = UTF8ToString(credentialAsJsonPtr);
+		const credential = JSON.parse(credentialAsJson);
+		firebaseAuth.reauthenticateWithCredential(uid, credential, requestId, callbackPtr);
+	},
+	
+	FirebaseWebGL_FirebaseAuth_User_sendEmailVerification: function(uidPtr, actionCodeSettingsAsJsonPtr, requestId, callbackPtr) {
+		const uid = UTF8ToString(uidPtr);
+		if (actionCodeSettingsAsJsonPtr != 0) {
+			const actionCodeSettingsAsJson = UTF8ToString(actionCodeSettingsAsJsonPtr);
+			const actionCodeSettings = JSON.parse(actionCodeSettingsAsJson);
+			firebaseAuth.sendEmailVerification(uid, actionCodeSettings, requestId, callbackPtr);
+		}
+		else {
+			firebaseAuth.sendEmailVerification(uid, null, requestId, callbackPtr);
+		}
+	},
+	
+	FirebaseWebGL_FirebaseAuth_User_unlink: function(uidPtr, providerIdPtr, requestId, callbackPtr) {
+		const uid = UTF8ToString(uidPtr);
+		const providerId = UTF8ToString(providerIdPtr);
+		firebaseAuth.unlink(uid, providerId, requestId, callbackPtr);
+	},
+	
+	FirebaseWebGL_FirebaseAuth_User_updateEmail: function(uidPtr, newEmailPtr, requestId, callbackPtr) {
+		const uid = UTF8ToString(uidPtr);
+		const newEmail = UTF8ToString(newEmailPtr);
+		firebaseAuth.updateEmail(uid, newEmail, requestId, callbackPtr);
+	},
+	
+	FirebaseWebGL_FirebaseAuth_User_updatePassword: function(uidPtr, newPasswordPtr, requestId, callbackPtr) {
+		const uid = UTF8ToString(uidPtr);
+		const newPassword = UTF8ToString(newPasswordPtr);
+		firebaseAuth.updatePassword(uid, newPassword, requestId, callbackPtr);
+	},
+	
+	FirebaseWebGL_FirebaseAuth_User_updateProfile: function(uidPtr, optionsAsJsonPtr, requestId, callbackPtr) {
+		const uid = UTF8ToString(uidPtr);
+		const optionsAsJson = UTF8ToString(optionsAsJsonPtr);
+		const options = JSON.parse(optionsAsJson);
+		firebaseAuth.updateProfile(uid, options, requestId, callbackPtr);
+	},
+	
+	FirebaseWebGL_FirebaseAuth_User_verifyBeforeUpdateEmail: function(uidPtr, newEmailPtr, actionCodeSettingsAsJsonPtr, requestId, callbackPtr) {
+		const uid = UTF8ToString(uidPtr);
+		const newEmail = UTF8ToString(newEmailPtr);
+		const actionCodeSettingsAsJson = UTF8ToString(actionCodeSettingsAsJsonPtr);
+		const actionCodeSettings = JSON.parse(actionCodeSettingsAsJson);
+		firebaseAuth.verifyBeforeUpdateEmail(uid, newEmail, actionCodeSettings, requestId, callbackPtr);
 	},
 };
 
