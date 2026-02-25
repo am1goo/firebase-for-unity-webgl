@@ -1,17 +1,16 @@
 # Firebase for Unity WebGL
 Naive implementation of the most popular Firebase modules for Web apps and games made by Unity Engine.
+Google does not provide support for the Unity WebGL plugin, so I've decided to do it by myself.
 
 ## Features
-- one settings file to setup Firebase environment, **no additional actions required**!
-- **easy to use API** which similar to Firebase iOS/Android official plugin (with small differences).
+- **An easy-to-setup** via one Firebase settings file, **no additional actions required**!
+- **An easy-to-use API** similar to the official Firebase plugin for Unity (iOS/Android) with small differences.
 
 ## Which Firebase modules were included?
 - [x] App
 - [x] App-Check (limitations: no support for Custom Providers, ReCAPTCHA v3 and ReCAPTCHA Enterprise only)
-- [ ] Auth
+- [x] Auth (limitations: no support for persistence and resolvers)
 - [x] Analytics
-- [ ] Database
-- [ ] Firestore
 - [x] Functions
 - [x] Installations
 - [x] Messaging (limitations: no support for Service Worker 'onBackgroundMessage')
@@ -19,7 +18,14 @@ Naive implementation of the most popular Firebase modules for Web apps and games
 - [x] Remote Config
 - [x] Storage
 
-I hope that I'll add other modules as soon as possible.
+## Why were these modules missed?
+As I see the situation, next modules are not used very often in games (for hypercasual/casual games it doesn't needed at all, for midcore/hardcode games usually used self-hosted backends)
+- [ ] AI
+- [ ] Database
+- [ ] Firestore
+
+If I wrong, feel free to ping me and I will add these modules in the package as soon as possible.
+
 
 ## What's inside?
 - Just few `*.cs` and `*.jslib` files [Source Code]
@@ -29,7 +35,7 @@ I hope that I'll add other modules as soon as possible.
 ##### via Unity Package Manager
 The latest version can be installed via [package manager](https://docs.unity3d.com/Manual/upm-ui-giturl.html) using following git URL:
 ```
-https://github.com/am1goo/FirebaseWebGL-Unity.git#0.8.0
+https://github.com/am1goo/FirebaseWebGL-Unity.git#0.9.0
 ```
 
 ## Extensions
@@ -45,7 +51,7 @@ void Awake()
     app = FirebaseWebGL.FirebaseApp.DefaultInstance();
 }
 ```
-#### Initialize installed modules
+#### Every installed module must first be initialized
 ```csharp
 IEnumerator Start()
 {
@@ -70,7 +76,7 @@ IEnumerator Start()
 #### Do what you want as same as you do it in official plugin (or kind of similar way)
 ```csharp
 ...
-        app.Analytics.LogEvent("my event");
+    app.Analytics.LogEvent("my event");
 ...
 ```
 
