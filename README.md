@@ -35,7 +35,7 @@ If I wrong, feel free to ping me and I will add these modules in the package as 
 ##### via Unity Package Manager
 The latest version can be installed via [package manager](https://docs.unity3d.com/Manual/upm-ui-giturl.html) using following git URL:
 ```
-https://github.com/am1goo/FirebaseWebGL-Unity.git#0.9.1
+https://github.com/am1goo/FirebaseWebGL-Unity.git#0.9.2
 ```
 
 ## Extensions
