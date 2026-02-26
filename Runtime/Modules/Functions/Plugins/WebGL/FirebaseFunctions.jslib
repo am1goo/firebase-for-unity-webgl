@@ -82,8 +82,13 @@ const firebaseFunctionsLibrary = {
 			const stream_async = async function() {
 				const { stream, data } = await callable(requestData);
 				if (typeof stream !== 'undefined') {
-					for await (const chunk of stream) {
-						//do nothing
+					for await (var chunk of stream) {
+						if (typeof chunk !== 'undefined') {
+							//do nothing
+						}
+						else {
+							console.error(`[Firebase Functions] stream: chunk is undefined`);
+						}
 					}
 				}
 				
