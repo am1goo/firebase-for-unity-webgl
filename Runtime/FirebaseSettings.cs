@@ -74,19 +74,6 @@ namespace FirebaseWebGL
         private StorageSettings _includeStorageSettings;
         public StorageSettings includeStorageSettings => _includeStorageSettings;
 
-        private static FirebaseSettings _instance;
-        public static FirebaseSettings instance
-        {
-            get
-            {
-                if (_instance == null)
-                {
-                    _instance = Resources.Load<FirebaseSettings>(nameof(FirebaseSettings));
-                }
-                return _instance;
-            }
-        }
-
         [Serializable]
         public sealed class AuthSettings
         {

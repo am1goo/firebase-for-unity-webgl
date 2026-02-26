@@ -49,7 +49,7 @@ namespace FirebaseWebGL.Editor
 
             if (settings == null)
             {
-                settings = FirebaseSettings.instance;
+                settings = Resources.Load<FirebaseSettings>(nameof(FirebaseSettings));
                 if (settings == null)
                 {
                     Debug.LogWarning($"{nameof(InjectFirebaseScripts)}: {nameof(FirebaseSettings)} file is not found in {nameof(Resources)} folder, injecting Firebase SDK is skipped.");
