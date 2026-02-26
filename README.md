@@ -1,5 +1,5 @@
 # Firebase for Unity WebGL
-Naive implementation of the most popular Firebase modules for Web apps and games made by Unity Engine.
+Naive implementation of the most popular Firebase modules for Web apps and games made by Unity Engine. \
 Google does not provide support for the Unity WebGL plugin, so I've decided to do it by myself.
 
 ## Features
@@ -91,14 +91,16 @@ firebaseinstallations.googleapis.com
 firebaselogging.googleapis.com
 firebaseremoteconfig.googleapis.com
 firebasestorage.googleapis.com
+firebasevertexai.googleapis.com
 firestore.googleapis.com
 identitytoolkit.googleapis.com
 ```
 
 #### Different configurations
-By default, to use Firebase functionality, the settings file should be located at specified path `Resources/FirebaseSettings.asset`.
+By default, to use Firebase functionality, the settings file should be located at specified path `Resources/FirebaseSettings.asset`. \
 If you want to override this behaviour, you may define `FIREBASE_WEBGL_SETTINGS_PATH` environment argument during the build process.
-It can be useful in case where you want to have different configurations for various web platforms (Crazy Games, Poki, Playhop and others).
+
+It can be useful in case where you want to have different configurations for various web platforms (**Crazy Games**, **Poki**, **Playhop** and others).
 
 ## Tested in
 - Unity 2020.3.x
