@@ -5,7 +5,7 @@ namespace FirebaseWebGL
 {
     public interface IFirebaseAuth : IFirebaseModule
     {
-        IFirebaseAuthLoggedUser loggerUser { get; }
+        IFirebaseAuthLoggedUser loggedUser { get; }
 
         public delegate void OnLoggerUserChangedDelegate(IFirebaseAuthLoggedUser currentUser);
         OnLoggerUserChangedDelegate onLoggedUserChanged { get; set; }

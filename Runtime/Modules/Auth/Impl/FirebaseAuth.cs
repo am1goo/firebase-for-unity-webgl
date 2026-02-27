@@ -102,7 +102,7 @@ namespace FirebaseWebGL
         public bool isRecaptchaInitialized => _isRecaptchaInitialized;
 
         private FirebaseAuthLoggedUser _loggedUser;
-        public IFirebaseAuthLoggedUser loggerUser => _loggedUser;
+        public IFirebaseAuthLoggedUser loggedUser => _loggedUser;
 
         private IFirebaseAuth.OnLoggerUserChangedDelegate _onLoggedUserChanged;
         public IFirebaseAuth.OnLoggerUserChangedDelegate onLoggedUserChanged { get => _onLoggedUserChanged; set => _onLoggedUserChanged = value; }
