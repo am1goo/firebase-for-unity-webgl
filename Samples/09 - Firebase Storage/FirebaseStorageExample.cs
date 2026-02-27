@@ -1,5 +1,5 @@
+using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -11,6 +11,13 @@ namespace FirebaseWebGL.Samples
     {
 #if UNITY_WEBGL
         private IFirebaseStorage _storage;
+
+        private bool _emulatorConnected;
+        private string _emulatorHost = "127.0.0.1";
+        private int _emulatorPort = 9199;
+
+        private string _log = string.Empty;
+        private int _logCounter;
 
         protected override IEnumerator Start()
         {
@@ -39,45 +46,6 @@ namespace FirebaseWebGL.Samples
                 Debug.LogError("Initialize: not initialized");
                 yield break;
             }
-
-            _storage.ConnectStorageEmulator("localhost", 9199, null);
-
-            var rootRef = _storage.Ref("/");
-
-            rootRef.List((callback) =>
-            {
-                if (callback.success == false)
-                {
-                    Debug.LogError($"List: {callback.error}");
-                    return;
-                }
-
-                foreach (var item in callback.result.items)
-                {
-                    var itemRef = _storage.Ref(item);
-                    itemRef.GetDownloadURL((callback) =>
-                    {
-                        if (callback.success == false)
-                        {
-                            Debug.LogError($"GetDownloadUrl: {itemRef.fullPath}, {callback.error}");
-                            return;
-                        }
-                        Debug.Log($"GetDownloadUrl: {callback.result}");
-                    });
-
-                    itemRef.GetMetadata((callback) =>
-                    {
-                        if (callback.success == false)
-                        {
-                            Debug.LogError($"GetMetadata: {callback.error}");
-                            return;
-                        }
-                        Debug.Log($"GetMetadata: {callback.result}");
-                    });
-                }
-            });
-
-            rootRef.DeleteObject();
         }
 
         protected override void OnDrawGUI()
@@ -91,109 +59,193 @@ namespace FirebaseWebGL.Samples
             GUILayout.Label($"- initialized: {_storage.isInitialized}");
             if (_storage.isInitialized)
             {
-                if (GUILayout.Button("Test upload bytes"))
+                if (!_emulatorConnected)
                 {
-                    var uploadBytes = new byte[128];
-                    var fileName = Path.GetFileName("abcdefg0123456789.bytes");
-                    var fileRef = _storage.Ref(fileName);
-                    fileRef.UploadBytes(uploadBytes, (callback) =>
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label("Emulator Host:");
+                    _emulatorHost = GUILayout.TextField(_emulatorHost);
+                    GUILayout.EndHorizontal();
+
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label("Emulator Port:");
+                    var emulatorPortString = GUILayout.TextField(_emulatorPort.ToString());
+                    if (int.TryParse(emulatorPortString, out var emulatorPort))
                     {
-                        if (callback.success == false)
-                        {
-                            Debug.LogError($"UploadBytes: {fileRef.fullPath}, {callback.error}");
-                            return;
-                        }
-
-                        var fileMetadata = callback.result;
-                        Debug.Log($"UploadBytes: {fileRef.fullPath} uploaded, metadata is {fileMetadata}");
-
-                        fileRef.GetMetadata((callback) =>
-                        {
-                            if (callback.success == false)
-                            {
-                                Debug.LogError($"GetMetadata: {fileRef.fullPath}, {callback.error}");
-                                return;
-                            }
-
-                            fileRef.GetBytes((callback) =>
-                            {
-                                if (callback.success == false)
-                                {
-                                    Debug.LogError($"GetBytes: {fileRef.fullPath}, {callback.error}");
-                                    return;
-                                }
-
-                                var downloadedBytes = callback.result;
-                                if (!Enumerable.SequenceEqual(uploadBytes, downloadedBytes))
-                                {
-                                    Debug.LogError($"GetBytes: {fileRef.fullPath}, uploaded bytes are not equal to downloaded bytes");
-                                    return;
-                                }
-
-                                Debug.Log($"GetBytes: {fileRef.fullPath}, downloaded bytes are equal to uploaded bytes");
-
-                                fileRef.DeleteObject();
-                                Debug.Log($"GetBytes: {fileRef.fullPath} is deleted");
-                            });
-                        });
-                    });
-                }
-
-                if (GUILayout.Button("Test upload string"))
-                {
-                    var alphabet = "abcdefghijklmnoprstuwxyz0123456798";
-                    var sb = new StringBuilder();
-                    for (int i = 0; i < 128; ++i)
-                    {
-                        var c = alphabet[UnityEngine.Random.Range(0, alphabet.Length)];
-                        sb.Append(c);
+                        _emulatorPort = emulatorPort;
                     }
-                    var uploadStr = sb.ToString();
+                    GUILayout.EndHorizontal();
 
-                    var fileName = Path.GetFileName("abcdefg9876543210.txt");
-                    var fileRef = _storage.Ref(fileName);
-                    fileRef.UploadString(uploadStr, null, (callback) =>
+                    var prevEnabled = GUI.enabled;
+                    GUI.enabled = !string.IsNullOrWhiteSpace(_emulatorHost) && _emulatorPort > 0;
+                    if (GUILayout.Button("Connect to Emulator"))
                     {
-                        if (callback.success == false)
+                        try
                         {
-                            Debug.LogError($"UploadString: {fileRef.fullPath}, {callback.error}");
-                            return;
+                            _storage.ConnectStorageEmulator(_emulatorHost, _emulatorPort, new FirebaseStorageEmulatorMockTokenOptions
+                            {
+                                mockUserToken = null,
+                            });
+                            _emulatorConnected = true;
                         }
+                        catch (Exception ex)
+                        {
+                            Debug.LogError(ex);
+                            _emulatorConnected = false;
+                        }
+                    }
+                    GUI.enabled = prevEnabled;
+                }
+                else
+                { 
+                    if (GUILayout.Button("Get all files in root"))
+                    {
+                        var rootRef = _storage.Ref("/");
 
-                        var fileMetadata = callback.result;
-                        Debug.Log($"UploadString: {fileRef.fullPath} uploaded, metadata is {fileMetadata}");
-
-                        fileRef.GetMetadata((callback) =>
+                        rootRef.List((callback) =>
                         {
                             if (callback.success == false)
                             {
-                                Debug.LogError($"GetMetadata: {fileRef.fullPath}, {callback.error}");
+                                Debug.LogError($"List: {callback.error}");
                                 return;
                             }
 
-                            fileRef.GetBytes((callback) =>
+                            _log += $"{(_logCounter + 1)}: received {callback.result.items.Length} found";
+                            foreach (var item in callback.result.items)
+                            {
+                                var itemRef = _storage.Ref(item);
+                                itemRef.GetDownloadURL((callback) =>
+                                {
+                                    if (callback.success == false)
+                                    {
+                                        Debug.LogError($"GetDownloadUrl: {itemRef.fullPath}, {callback.error}");
+                                        return;
+                                    }
+                                    _log += $"{itemRef.fullPath} => downloadUrl: {callback.result}";
+                                });
+
+                                itemRef.GetMetadata((callback) =>
+                                {
+                                    if (callback.success == false)
+                                    {
+                                        Debug.LogError($"GetMetadata: {callback.error}");
+                                        return;
+                                    }
+                                    _log += $"{itemRef.fullPath} => metadata: {callback.result}";
+                                    Debug.Log($"GetMetadata: {callback.result}");
+                                });
+                            }
+                            _log += Environment.NewLine;
+                        });
+
+                        //root ref cannot be deleted, even the following method will be invoked
+                        rootRef.DeleteObject();
+                    }
+                    if (GUILayout.Button("Test upload bytes"))
+                    {
+                        var uploadBytes = new byte[128];
+                        var fileName = Path.GetFileName("abcdefg0123456789.bytes");
+                        var fileRef = _storage.Ref(fileName);
+                        fileRef.UploadBytes(uploadBytes, (callback) =>
+                        {
+                            if (callback.success == false)
+                            {
+                                Debug.LogError($"UploadBytes: {fileRef.fullPath}, {callback.error}");
+                                return;
+                            }
+
+                            var fileMetadata = callback.result;
+                            Debug.Log($"UploadBytes: {fileRef.fullPath} uploaded, metadata is {fileMetadata}");
+
+                            fileRef.GetMetadata((callback) =>
                             {
                                 if (callback.success == false)
                                 {
-                                    Debug.LogError($"GetBytes: {fileRef.fullPath}, {callback.error}");
+                                    Debug.LogError($"GetMetadata: {fileRef.fullPath}, {callback.error}");
                                     return;
                                 }
 
-                                var bytes = callback.result;
-                                var downloadedStr = Encoding.ASCII.GetString(bytes);
-                                if (uploadStr != downloadedStr)
+                                fileRef.GetBytes((callback) =>
                                 {
-                                    Debug.LogError($"GetBytes: {fileRef.fullPath}, uploadStr={uploadStr}, downloadedStr={downloadedStr}");
-                                    return;
-                                }
+                                    if (callback.success == false)
+                                    {
+                                        Debug.LogError($"GetBytes: {fileRef.fullPath}, {callback.error}");
+                                        return;
+                                    }
 
-                                Debug.Log($"GetBytes: {fileRef.fullPath}, downloadedStr is {downloadedStr}");
+                                    var downloadedBytes = callback.result;
+                                    if (!Enumerable.SequenceEqual(uploadBytes, downloadedBytes))
+                                    {
+                                        Debug.LogError($"GetBytes: {fileRef.fullPath}, uploaded bytes are not equal to downloaded bytes");
+                                        return;
+                                    }
 
-                                fileRef.DeleteObject();
-                                Debug.Log($"GetBytes: {fileRef.fullPath} is deleted");
+                                    Debug.Log($"GetBytes: {fileRef.fullPath}, downloaded bytes are equal to uploaded bytes");
+
+                                    fileRef.DeleteObject();
+                                    Debug.Log($"GetBytes: {fileRef.fullPath} is deleted");
+                                });
                             });
                         });
-                    });
+                    }
+
+                    if (GUILayout.Button("Test upload string"))
+                    {
+                        var alphabet = "abcdefghijklmnoprstuwxyz0123456798";
+                        var sb = new StringBuilder();
+                        for (int i = 0; i < 128; ++i)
+                        {
+                            var c = alphabet[UnityEngine.Random.Range(0, alphabet.Length)];
+                            sb.Append(c);
+                        }
+                        var uploadStr = sb.ToString();
+
+                        var fileName = Path.GetFileName("abcdefg9876543210.txt");
+                        var fileRef = _storage.Ref(fileName);
+                        fileRef.UploadString(uploadStr, null, (callback) =>
+                        {
+                            if (callback.success == false)
+                            {
+                                Debug.LogError($"UploadString: {fileRef.fullPath}, {callback.error}");
+                                return;
+                            }
+
+                            var fileMetadata = callback.result;
+                            Debug.Log($"UploadString: {fileRef.fullPath} uploaded, metadata is {fileMetadata}");
+
+                            fileRef.GetMetadata((callback) =>
+                            {
+                                if (callback.success == false)
+                                {
+                                    Debug.LogError($"GetMetadata: {fileRef.fullPath}, {callback.error}");
+                                    return;
+                                }
+
+                                fileRef.GetBytes((callback) =>
+                                {
+                                    if (callback.success == false)
+                                    {
+                                        Debug.LogError($"GetBytes: {fileRef.fullPath}, {callback.error}");
+                                        return;
+                                    }
+
+                                    var bytes = callback.result;
+                                    var downloadedStr = Encoding.ASCII.GetString(bytes);
+                                    if (uploadStr != downloadedStr)
+                                    {
+                                        Debug.LogError($"GetBytes: {fileRef.fullPath}, uploadStr={uploadStr}, downloadedStr={downloadedStr}");
+                                        return;
+                                    }
+
+                                    Debug.Log($"GetBytes: {fileRef.fullPath}, downloadedStr is {downloadedStr}");
+
+                                    fileRef.DeleteObject();
+                                    Debug.Log($"GetBytes: {fileRef.fullPath} is deleted");
+                                });
+                            });
+                        });
+                    }
+
+                    GUILayout.TextArea(_log);
                 }
             }
         }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -7,6 +8,9 @@ namespace FirebaseWebGL.Samples
     {
 #if UNITY_WEBGL
         private IFirebaseAuth _auth;
+
+        private bool _emulatorConnected;
+        private string _emulatorUrl = "http://127.0.0.1:9099";
 
         private bool _authAuthBlocked;
         private string _authIdToken;
@@ -49,10 +53,6 @@ namespace FirebaseWebGL.Samples
 
             _auth.languageCode = "en";
             _auth.UseDeviceLanguage();
-            _auth.ConnectAuthEmulator("http://127.0.0.1:9099", options: new FirebaseAuthEmulatorOptions
-            {
-                disableWarnings = false,
-            });
             _auth.BeforeAuthStateChanged(BeforeAuthStateChanged);
             _auth.BeforeAuthStateChanged(BeforeAuthStateChanged);
             _auth.OnAuthStateChanged(OnAuthStateChanged);
@@ -88,71 +88,132 @@ namespace FirebaseWebGL.Samples
             GUILayout.Label($"- initialized: {_auth.isInitialized}");
             if (_auth.isInitialized)
             {
-                GUILayout.Label($"- user: {_auth.loggedUser?.uid}");
-                GUILayout.Label($"- languageCode: {_auth.languageCode}");
-                GUILayout.Label($"- tenantId: {_auth.tenantId}");
-
-                var prevEnabled = GUI.enabled;
-                GUI.enabled = _auth.loggedUser == null;
-                _authAuthBlocked = GUILayout.Toggle(_authAuthBlocked, "Is Sign-in Blocked");
-                if (GUILayout.Button("Sign Anonymously"))
+                if (!_emulatorConnected)
                 {
-                    _auth.SignInAnonymously((callback) =>
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label("Emulator Url:");
+                    _emulatorUrl = GUILayout.TextField(_emulatorUrl);
+                    GUILayout.EndHorizontal();
+
+                    var prevEnabled = GUI.enabled;
+                    GUI.enabled = !string.IsNullOrWhiteSpace(_emulatorUrl);
+                    if (GUILayout.Button("Connect to Emulator"))
                     {
-                        if (callback.success == false)
+                        try
                         {
-                            Debug.LogError($"SignInAnonymously: {callback.error}");
-                            return;
+                            _auth.ConnectAuthEmulator(_emulatorUrl, options: new FirebaseAuthEmulatorOptions
+                            {
+                                disableWarnings = false,
+                            });
+                            _emulatorConnected = true;
                         }
-
-                        var user = callback.result.user;
-                        Debug.Log($"SignInAnonymously: uid={user.uid}, displayName={user.displayName}");
-
-                        _auth.loggedUser.UpdateEmail("test@test.xyz", (callback) =>
+                        catch (Exception ex)
                         {
-                            if (callback.success == false)
-                            {
-                                Debug.LogError($"UpdateEmail: {callback.error}");
-                                return;
-                            }
-
-                            var updated = callback.result;
-                            Debug.Log($"UpdateEmail: updated={updated}");
-                        });
-
-                        _auth.loggedUser.UpdateProfile("yobayo", null, (callback) =>
-                        {
-                            if (callback.success == false)
-                            {
-                                Debug.LogError($"UpdateProfile: {callback.error}");
-                                return;
-                            }
-
-                            var updated = callback.result;
-                            Debug.Log($"UpdateProfile: updated={updated}");
-                        });
-
-                        _auth.loggedUser.UpdatePassword("321456987", (callback) =>
-                        {
-                            if (callback.success == false)
-                            {
-                                Debug.LogError($"UpdatePassword: {callback.error}");
-                                return;
-                            }
-
-                            var updated = callback.result;
-                            Debug.Log($"UpdatePassword: updated={updated}");
-                        });
-                    });
+                            Debug.LogError(ex);
+                            _emulatorConnected = false;
+                        }
+                    }
+                    GUI.enabled = prevEnabled;
                 }
-                if (GUILayout.Button("Sign with Email and Password"))
+                else
                 {
-                    _auth.CreateUserWithEmailAndPassword(authEmail, authPassword, (callback) =>
+                    GUILayout.Label($"- user: {_auth.loggedUser?.uid}");
+                    GUILayout.Label($"- languageCode: {_auth.languageCode}");
+                    GUILayout.Label($"- tenantId: {_auth.tenantId}");
+
+                    var prevEnabled = GUI.enabled;
+                    GUI.enabled = _auth.loggedUser == null;
+                    _authAuthBlocked = GUILayout.Toggle(_authAuthBlocked, "Is Sign-in Blocked");
+                    if (GUILayout.Button("Sign Anonymously"))
                     {
-                        if (callback.success == false)
+                        _auth.SignInAnonymously((callback) =>
                         {
-                            if (callback.error.Contains("auth/email-already-in-use"))
+                            if (callback.success == false)
                             {
+                                Debug.LogError($"SignInAnonymously: {callback.error}");
+                                return;
+                            }
+
+                            var user = callback.result.user;
+                            Debug.Log($"SignInAnonymously: uid={user.uid}, displayName={user.displayName}");
+
+                            _auth.loggedUser.UpdateEmail("test@test.xyz", (callback) =>
+                            {
+                                if (callback.success == false)
+                                {
+                                    Debug.LogError($"UpdateEmail: {callback.error}");
+                                    return;
+                                }
+
+                                var updated = callback.result;
+                                Debug.Log($"UpdateEmail: updated={updated}");
+                            });
+
+                            _auth.loggedUser.UpdateProfile("yobayo", null, (callback) =>
+                            {
+                                if (callback.success == false)
+                                {
+                                    Debug.LogError($"UpdateProfile: {callback.error}");
+                                    return;
+                                }
+
+                                var updated = callback.result;
+                                Debug.Log($"UpdateProfile: updated={updated}");
+                            });
+
+                            _auth.loggedUser.UpdatePassword("321456987", (callback) =>
+                            {
+                                if (callback.success == false)
+                                {
+                                    Debug.LogError($"UpdatePassword: {callback.error}");
+                                    return;
+                                }
+
+                                var updated = callback.result;
+                                Debug.Log($"UpdatePassword: updated={updated}");
+                            });
+                        });
+                    }
+                    if (GUILayout.Button("Sign with Email and Password"))
+                    {
+                        _auth.CreateUserWithEmailAndPassword(authEmail, authPassword, (callback) =>
+                        {
+                            if (callback.success == false)
+                            {
+                                if (callback.error.Contains("auth/email-already-in-use"))
+                                {
+                                    _auth.SignInWithEmailAndPassword(authEmail, authPassword, (callback) =>
+                                    {
+                                        if (callback.success == false)
+                                        {
+                                            Debug.LogError($"SignInWithEmailAndPassword: {callback.error}");
+                                            return;
+                                        }
+
+                                        var user = callback.result.user;
+                                        Debug.Log($"SignInWithEmailAndPassword: uid={user.uid}, displayName={user.displayName}");
+                                    });
+                                }
+                                else
+                                {
+                                    Debug.LogError($"CreateUserWithEmailAndPassword: {callback.error}");
+                                    return;
+                                }
+                            }
+
+                            var user = callback.result.user;
+                            Debug.Log($"CreateUserWithEmailAndPassword: uid={user.uid}, displayName={user.displayName}");
+
+                            _auth.SignOut((callback) =>
+                            {
+                                if (callback.success == false)
+                                {
+                                    Debug.LogError($"SignOut: {callback.error}");
+                                    return;
+                                }
+
+                                Debug.Log($"SignOut: {callback.result}");
+
                                 _auth.SignInWithEmailAndPassword(authEmail, authPassword, (callback) =>
                                 {
                                     if (callback.success == false)
@@ -164,17 +225,182 @@ namespace FirebaseWebGL.Samples
                                     var user = callback.result.user;
                                     Debug.Log($"SignInWithEmailAndPassword: uid={user.uid}, displayName={user.displayName}");
                                 });
-                            }
-                            else
+                            });
+                        });
+                    }
+                    if (GUILayout.Button("Sign with Google"))
+                    {
+                        var providerId = FirebaseAuthProviders.google;
+                        _auth.SignInWithPopup(providerId, (callback) =>
+                        {
+                            if (callback.success == false)
                             {
-                                Debug.LogError($"CreateUserWithEmailAndPassword: {callback.error}");
+                                Debug.LogError($"SignInWithPopup: providerId={providerId}, error={callback.error}");
                                 return;
                             }
-                        }
 
-                        var user = callback.result.user;
-                        Debug.Log($"CreateUserWithEmailAndPassword: uid={user.uid}, displayName={user.displayName}");
+                            Debug.Log($"SignInWithPopup: providerId={providerId}, signedIn={callback.result}");
+                        });
+                    }
+                    if (GUILayout.Button("Sign with Apple"))
+                    {
+                        var providerId = FirebaseAuthProviders.apple;
+                        _auth.SignInWithPopup(providerId, (callback) =>
+                        {
+                            if (callback.success == false)
+                            {
+                                Debug.LogError($"SignInWithPopup: providerId={providerId}, error={callback.error}");
+                                return;
+                            }
 
+                            Debug.Log($"SignInWithPopup: providerId={providerId}, signedIn={callback.result}");
+                        });
+                    }
+                    if (GUILayout.Button("Sign with GitHub"))
+                    {
+                        var providerId = FirebaseAuthProviders.github;
+                        _auth.SignInWithPopup(providerId, (callback) =>
+                        {
+                            if (callback.success == false)
+                            {
+                                Debug.LogError($"SignInWithPopup: providerId={providerId}, error={callback.error}");
+                                return;
+                            }
+
+                            Debug.Log($"SignInWithPopup: providerId={providerId}, signedIn={callback.result}");
+                        });
+                    }
+                    if (GUILayout.Button("Sign with Twitter"))
+                    {
+                        var providerId = FirebaseAuthProviders.twitter;
+                        _auth.SignInWithPopup(providerId, (callback) =>
+                        {
+                            if (callback.success == false)
+                            {
+                                Debug.LogError($"SignInWithPopup: providerId={providerId}, error={callback.error}");
+                                return;
+                            }
+
+                            Debug.Log($"SignInWithPopup: providerId={providerId}, signedIn={callback.result}");
+                        });
+                    }
+                    if (GUILayout.Button("Sign with Facebook"))
+                    {
+                        var providerId = FirebaseAuthProviders.facebook;
+                        _auth.SignInWithPopup(providerId, (callback) =>
+                        {
+                            if (callback.success == false)
+                            {
+                                Debug.LogError($"SignInWithPopup: providerId={providerId}, error={callback.error}");
+                                return;
+                            }
+
+                            Debug.Log($"SignInWithPopup: providerId={providerId}, signedIn={callback.result}");
+                        });
+                    }
+                    if (GUILayout.Button("Sign with Microsoft"))
+                    {
+                        var providerId = FirebaseAuthProviders.microsoft;
+                        _auth.SignInWithPopup(providerId, (callback) =>
+                        {
+                            if (callback.success == false)
+                            {
+                                Debug.LogError($"SignInWithPopup: providerId={providerId}, error={callback.error}");
+                                return;
+                            }
+
+                            Debug.Log($"SignInWithPopup: providerId={providerId}, signedIn={callback.result}");
+                        });
+                    }
+                    if (GUILayout.Button("Sign with Yahoo"))
+                    {
+                        var providerId = FirebaseAuthProviders.yahoo;
+                        _auth.SignInWithPopup(providerId, (callback) =>
+                        {
+                            if (callback.success == false)
+                            {
+                                Debug.LogError($"SignInWithPopup: providerId={providerId}, error={callback.error}");
+                                return;
+                            }
+
+                            Debug.Log($"SignInWithPopup: providerId={providerId}, signedIn={callback.result}");
+                        });
+                    }
+                    if (GUILayout.Button("Fetch SignIn Methods"))
+                    {
+                        _auth.FetchSignInMethodsForEmail(authEmail, (callback) =>
+                        {
+                            if (callback.success == false)
+                            {
+                                Debug.LogError($"FetchSignInMethodsForEmail: {callback.error}");
+                                return;
+                            }
+
+                            var signinMethods = callback.result;
+                            Debug.Log($"FetchSignInMethodsForEmail: initialized={string.Join(", ", signinMethods)}");
+                        });
+                    }
+                    GUI.enabled = _auth.loggedUser != null;
+                    GUILayout.Label($"- user id token: {_authIdToken}");
+                    if (GUILayout.Button("Get Id Token"))
+                    {
+                        _auth.loggedUser.GetIdToken(forceRefresh: true, (callback) =>
+                        {
+                            if (callback.success == false)
+                            {
+                                Debug.LogError($"GetIdToken: {callback.error}");
+                                return;
+                            }
+
+                            _authIdToken = callback.result;
+                            Debug.Log($"GetIdToken: token={_authIdToken}");
+                        });
+                    }
+                    GUILayout.Label($"- user id token result: {_authIdTokenResult?.token}");
+                    if (GUILayout.Button("Get Id Token Result"))
+                    {
+                        _auth.loggedUser.GetIdTokenResult(forceRefresh: true, (callback) =>
+                        {
+                            if (callback.success == false)
+                            {
+                                Debug.LogError($"GetIdTokenResult: {callback.error}");
+                                return;
+                            }
+
+                            _authIdTokenResult = callback.result;
+                            Debug.Log($"GetIdTokenResult: tokenResult={_authIdTokenResult}");
+                        });
+                    }
+                    if (GUILayout.Button("Reload"))
+                    {
+                        _auth.loggedUser.Reload((callback) =>
+                        {
+                            if (callback.success == false)
+                            {
+                                Debug.LogError($"Reload: {callback.error}");
+                                return;
+                            }
+
+                            var reloaded = callback.result;
+                            Debug.Log($"Reload: reloaded={reloaded}");
+                        });
+                    }
+                    if (GUILayout.Button("Delete User"))
+                    {
+                        _auth.loggedUser.DeleteUser((callback) =>
+                        {
+                            if (callback.success == false)
+                            {
+                                Debug.LogError($"DeleteUser: {callback.error}");
+                                return;
+                            }
+
+                            var deleted = callback.result;
+                            Debug.Log($"DeleteUser: deleted={deleted}");
+                        });
+                    }
+                    if (GUILayout.Button("Sign Out"))
+                    {
                         _auth.SignOut((callback) =>
                         {
                             if (callback.success == false)
@@ -183,234 +409,38 @@ namespace FirebaseWebGL.Samples
                                 return;
                             }
 
-                            Debug.Log($"SignOut: {callback.result}");
-
-                            _auth.SignInWithEmailAndPassword(authEmail, authPassword, (callback) =>
-                            {
-                                if (callback.success == false)
-                                {
-                                    Debug.LogError($"SignInWithEmailAndPassword: {callback.error}");
-                                    return;
-                                }
-
-                                var user = callback.result.user;
-                                Debug.Log($"SignInWithEmailAndPassword: uid={user.uid}, displayName={user.displayName}");
-                            });
+                            var signedOut = callback.result;
+                            Debug.Log($"SignOut: signedOut={signedOut}");
                         });
-                    });
-                }
-                if (GUILayout.Button("Sign with Google"))
-                {
-                    var providerId = FirebaseAuthProviders.google;
-                    _auth.SignInWithPopup(providerId, (callback) =>
+                    }
+                    GUI.enabled = prevEnabled;
+                    if (GUILayout.Button("Initialize ReCAPTCHA"))
                     {
-                        if (callback.success == false)
+                        _auth.InitializeRecaptchaConfig((callback) =>
                         {
-                            Debug.LogError($"SignInWithPopup: providerId={providerId}, error={callback.error}");
-                            return;
-                        }
+                            if (callback.success == false)
+                            {
+                                Debug.LogError($"InitializeRecaptchaConfig: {callback.error}");
+                                return;
+                            }
 
-                        Debug.Log($"SignInWithPopup: providerId={providerId}, signedIn={callback.result}");
-                    });
-                }
-                if (GUILayout.Button("Sign with Apple"))
-                {
-                    var providerId = FirebaseAuthProviders.apple;
-                    _auth.SignInWithPopup(providerId, (callback) =>
+                            var initialized = callback.result;
+                            Debug.Log($"InitializeRecaptchaConfig: initialized={initialized}");
+                        });
+                    }
+                    if (GUILayout.Button("Validate Password"))
                     {
-                        if (callback.success == false)
+                        _auth.ValidatePassword(authPassword, (callback) =>
                         {
-                            Debug.LogError($"SignInWithPopup: providerId={providerId}, error={callback.error}");
-                            return;
-                        }
+                            if (callback.success == false)
+                            {
+                                Debug.LogError($"ValidatePassword: {callback.error}");
+                                return;
+                            }
 
-                        Debug.Log($"SignInWithPopup: providerId={providerId}, signedIn={callback.result}");
-                    });
-                }
-                if (GUILayout.Button("Sign with GitHub"))
-                {
-                    var providerId = FirebaseAuthProviders.github;
-                    _auth.SignInWithPopup(providerId, (callback) =>
-                    {
-                        if (callback.success == false)
-                        {
-                            Debug.LogError($"SignInWithPopup: providerId={providerId}, error={callback.error}");
-                            return;
-                        }
-
-                        Debug.Log($"SignInWithPopup: providerId={providerId}, signedIn={callback.result}");
-                    });
-                }
-                if (GUILayout.Button("Sign with Twitter"))
-                {
-                    var providerId = FirebaseAuthProviders.twitter;
-                    _auth.SignInWithPopup(providerId, (callback) =>
-                    {
-                        if (callback.success == false)
-                        {
-                            Debug.LogError($"SignInWithPopup: providerId={providerId}, error={callback.error}");
-                            return;
-                        }
-
-                        Debug.Log($"SignInWithPopup: providerId={providerId}, signedIn={callback.result}");
-                    });
-                }
-                if (GUILayout.Button("Sign with Facebook"))
-                {
-                    var providerId = FirebaseAuthProviders.facebook;
-                    _auth.SignInWithPopup(providerId, (callback) =>
-                    {
-                        if (callback.success == false)
-                        {
-                            Debug.LogError($"SignInWithPopup: providerId={providerId}, error={callback.error}");
-                            return;
-                        }
-
-                        Debug.Log($"SignInWithPopup: providerId={providerId}, signedIn={callback.result}");
-                    });
-                }
-                if (GUILayout.Button("Sign with Microsoft"))
-                {
-                    var providerId = FirebaseAuthProviders.microsoft;
-                    _auth.SignInWithPopup(providerId, (callback) =>
-                    {
-                        if (callback.success == false)
-                        {
-                            Debug.LogError($"SignInWithPopup: providerId={providerId}, error={callback.error}");
-                            return;
-                        }
-
-                        Debug.Log($"SignInWithPopup: providerId={providerId}, signedIn={callback.result}");
-                    });
-                }
-                if (GUILayout.Button("Sign with Yahoo"))
-                {
-                    var providerId = FirebaseAuthProviders.yahoo;
-                    _auth.SignInWithPopup(providerId, (callback) =>
-                    {
-                        if (callback.success == false)
-                        {
-                            Debug.LogError($"SignInWithPopup: providerId={providerId}, error={callback.error}");
-                            return;
-                        }
-
-                        Debug.Log($"SignInWithPopup: providerId={providerId}, signedIn={callback.result}");
-                    });
-                }
-                if (GUILayout.Button("Fetch SignIn Methods"))
-                {
-                    _auth.FetchSignInMethodsForEmail(authEmail, (callback) =>
-                    {
-                        if (callback.success == false)
-                        {
-                            Debug.LogError($"FetchSignInMethodsForEmail: {callback.error}");
-                            return;
-                        }
-
-                        var signinMethods = callback.result;
-                        Debug.Log($"FetchSignInMethodsForEmail: initialized={string.Join(", ", signinMethods)}");
-                    });
-                }
-                GUI.enabled = _auth.loggedUser != null;
-                GUILayout.Label($"- user id token: {_authIdToken}");
-                if (GUILayout.Button("Get Id Token"))
-                {
-                    _auth.loggedUser.GetIdToken(forceRefresh: true, (callback) =>
-                    {
-                        if (callback.success == false)
-                        {
-                            Debug.LogError($"GetIdToken: {callback.error}");
-                            return;
-                        }
-
-                        _authIdToken = callback.result;
-                        Debug.Log($"GetIdToken: token={_authIdToken}");
-                    });
-                }
-                GUILayout.Label($"- user id token result: {_authIdTokenResult?.token}");
-                if (GUILayout.Button("Get Id Token Result"))
-                {
-                    _auth.loggedUser.GetIdTokenResult(forceRefresh: true, (callback) =>
-                    {
-                        if (callback.success == false)
-                        {
-                            Debug.LogError($"GetIdTokenResult: {callback.error}");
-                            return;
-                        }
-
-                        _authIdTokenResult = callback.result;
-                        Debug.Log($"GetIdTokenResult: tokenResult={_authIdTokenResult}");
-                    });
-                }
-                if (GUILayout.Button("Reload"))
-                {
-                    _auth.loggedUser.Reload((callback) =>
-                    {
-                        if (callback.success == false)
-                        {
-                            Debug.LogError($"Reload: {callback.error}");
-                            return;
-                        }
-
-                        var reloaded = callback.result;
-                        Debug.Log($"Reload: reloaded={reloaded}");
-                    });
-                }
-                if (GUILayout.Button("Delete User"))
-                {
-                    _auth.loggedUser.DeleteUser((callback) =>
-                    {
-                        if (callback.success == false)
-                        {
-                            Debug.LogError($"DeleteUser: {callback.error}");
-                            return;
-                        }
-
-                        var deleted = callback.result;
-                        Debug.Log($"DeleteUser: deleted={deleted}");
-                    });
-                }
-                if (GUILayout.Button("Sign Out"))
-                {
-                    _auth.SignOut((callback) =>
-                    {
-                        if (callback.success == false)
-                        {
-                            Debug.LogError($"SignOut: {callback.error}");
-                            return;
-                        }
-
-                        var signedOut = callback.result;
-                        Debug.Log($"SignOut: signedOut={signedOut}");
-                    });
-                }
-                GUI.enabled = prevEnabled;
-                if (GUILayout.Button("Initialize ReCAPTCHA"))
-                {
-                    _auth.InitializeRecaptchaConfig((callback) =>
-                    {
-                        if (callback.success == false)
-                        {
-                            Debug.LogError($"InitializeRecaptchaConfig: {callback.error}");
-                            return;
-                        }
-
-                        var initialized = callback.result;
-                        Debug.Log($"InitializeRecaptchaConfig: initialized={initialized}");
-                    });
-                }
-                if (GUILayout.Button("Validate Password"))
-                {
-                    _auth.ValidatePassword(authPassword, (callback) =>
-                    {
-                        if (callback.success == false)
-                        {
-                            Debug.LogError($"ValidatePassword: {callback.error}");
-                            return;
-                        }
-
-                        Debug.Log($"ValidatePassword: {callback.result}");
-                    });
+                            Debug.Log($"ValidatePassword: {callback.result}");
+                        });
+                    }
                 }
             }
         }
