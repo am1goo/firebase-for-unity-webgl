@@ -1,0 +1,19 @@
+{
+    "name": "Firebase.WebGL.Samples",
+    "rootNamespace": "",
+    "references": [
+        "GUID:0df65e458763cad4c97610ee66c2b30c"
+    ],
+    "includePlatforms": [
+        "Editor",
+        "WebGL"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
