@@ -209,8 +209,7 @@ namespace FirebaseWebGL.Editor
                 }, (postfix) =>
                 {
                     var injectConfig = $"{{ apiKey: \"{settings.apiKey}\", authDomain: \"{settings.authDomain}\", projectId: \"{settings.projectId}\", storageBucket: \"{settings.storageBucket}\", messagingSenderId: \"{settings.messagingSenderId}\", appId: \"{settings.appId}\", measurementId: \"{settings.measurementId}\" }}";
-                    var injectName = "\"firebase_webgl_for_unity\"";
-                    return $"initializeApp{postfix}({injectConfig}, {injectName})";
+                    return $"initializeApp{postfix}({injectConfig})";
                 });
                 injectors.Add(app);
             }
