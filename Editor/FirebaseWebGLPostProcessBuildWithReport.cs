@@ -445,8 +445,8 @@ namespace FirebaseWebGL.Editor
                 var dataLayerName = settings.includeAnalyticsSettings.dataLayerName;
                 /* TODO: remove this *gtag* modification later (official bug fix is in progress) */
                 sb.Append(indent).AppendLine($"window.{dataLayerName} = window.{dataLayerName} || [];")
-                  .Append(indent).AppendLine($"window.gtag = function() {{ window.{dataLayerName}.push(arguments); }}")
-                  .Append(indent).AppendLine($"window.gtag(\"config\", \"{settings.measurementId}\", {{")
+                  .Append(indent).AppendLine($"let gtag = function() {{ window.{dataLayerName}.push(arguments); }}")
+                  .Append(indent).AppendLine($"gtag(\"config\", \"{settings.measurementId}\", {{")
                   .Append(indent).Append(indent).AppendLine("cookie_domain: window.location.hostname,")
                   .Append(indent).Append(indent).AppendLine("cookie_flags: \"SameSite=None;Secure\",")
                   .Append(indent).Append(indent).AppendLine("cookie_prefix: \"_fbwgl\",")
